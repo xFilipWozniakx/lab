@@ -1,0 +1,10 @@
+#!/usr/bin/bash
+touch "my important file.txt"
+file="my important file.txt"
+
+rm $file
+# is obviously not going to work since spaces outside of quotes are interpreted as delimiter.
+
+rm "$file"
+# so correct version would be inside of double quotes
+

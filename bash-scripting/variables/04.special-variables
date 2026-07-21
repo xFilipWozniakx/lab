@@ -1,0 +1,16 @@
+#!/usr/bin/bash
+
+# Special variables used in bash scripting: 
+
+echo "Script name: $0"
+# returns script name
+echo "First argument: $1"
+# returns argument num. specified in variable name
+echo "Second argument: $2"
+# can specify more arguments sequentialy
+echo "All arguments: $@"
+# returns all arguments separeted by whitespace char
+echo "Number of arguments: $#"
+# returns the number of arguments used
+echo "Packed arguments: $*"
+# should avoid this using arguments in this form
