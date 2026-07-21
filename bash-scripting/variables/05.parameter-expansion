@@ -1,0 +1,19 @@
+#!/usr/bin/bash
+
+variablea='some variable some'
+variableb='some-other-variable'
+
+variable-mutated=${variablea#some} # removes the shortest maching preffix
+echo ${variablemutated%some} # removes the suffix some and prints to stdout
+
+echo ${variableb%variable} # removes the shortest maching suffix
+
+# If name of variable is not set, :- will return what follows.
+echo "${var:-default}"
+#echo $var = ""
+
+# Just like :- but value will be assigned to variable if no value pre-evaluation.
+echo "${var:=default}"
+#echo $var = default
+
+
