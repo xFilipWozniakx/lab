@@ -3,17 +3,48 @@
 variablea='some variable some'
 variableb='some-other-variable'
 
-variable-mutated=${variablea#some} # removes the shortest maching preffix
-echo ${variablemutated%some} # removes the suffix some and prints to stdout
+#variable-mutated=${variablea#some} # removes the shortest maching preffix
+#echo ${variablemutated%some} # removes the suffix some and prints to stdout
 
-echo ${variableb%variable} # removes the shortest maching suffix
+#echo ${variableb%variable} # removes the shortest maching suffix
 
 # If name of variable is not set, :- will return what follows.
 echo "${var:-default}"
 #echo $var = ""
 
 # Just like :- but value will be assigned to variable if no value pre-evaluation.
-echo "${var:=default}"
-#echo $var = default
+#echo "${var:=default}"
+# makes $var = default
+
+# Returns alternate if var is set and non-empty. Returns nothing if var is unset or empty
+echo "${var:+alternate}"
+
+# Exits script with error if var is unset or empty ( perfect for required parameters ) 
+# echo "${var:?Variable not set}"
+
+### Search and replace 
+
+# Replace first occurance ( inline no editing var ) 
+echo "${variablea/some/random}"
+
+# Replace all occurances  ( inline no editing var ) 
+echo "${variablea//some/random}"
+
+# Replace all occurances  ( inline no editing var ) 
+echo "${variablea//some/}"
+
+### Substring extraction 
+echo "${variablea:0:4}"
+
+# extract portion from n index ( applies from n -> how many chars ) 
+echo "${variableb:5:5}"
+
+# works with negative offset so far i did not find how to get more than 1 char to select
+#echo "${variableb: -1}"
+
+# string length return
+echo ${#variableb}
+
+
 
 
