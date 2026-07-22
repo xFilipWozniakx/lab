@@ -1,0 +1,40 @@
+#!/bin/bash
+
+## use [[ ]] with
+# number comp
+# -eq equal	-nq not equal	-gt greater then	-lt less then	-ge greater than or qual	-le less than or equal 
+# string comp 
+# == eqal 	!= not equal 	-z is empty	-n not empty
+
+# can use (( )) with <>== but not recommended
+# no need to use $ infront of variables
+
+## file tests
+# uses [[ ]] for flags can look up help test
+
+# example
+# [[ -f /etc/passwd ]] && echo "file exists"
+
+a="10"
+b="20"
+c="some_text"
+d="some_random_text"
+
+if [[ "${a}" -eq "${b}" ]];then
+	echo "var a and b are equal"
+elif [[ "${a}" -gt "${b}" ]];then
+       echo "var a is greater than b"
+elif [[ "${a}" -lt "${b}" ]];then
+ 	echo "var a is less than b"
+else
+	echo "wrong variables"
+fi
+
+# [[ ! -n "some/path" ]] ! stands for inverting the condition
+
+if [[ -n "~/.zsh_history" ]];then
+	echo $(< ~/.zsh_history)
+else
+	echo "zsh history is empty"	
+fi
+

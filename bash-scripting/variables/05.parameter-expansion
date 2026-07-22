@@ -1,16 +1,19 @@
 #!/usr/bin/bash
 
-variablea='some variable some'
-variableb='some-other-variable'
+### removing suffix and prefix
 
-#variable-mutated=${variablea#some} # removes the shortest maching preffix
-#echo ${variablemutated%some} # removes the suffix some and prints to stdout
+path_var="/home/superuser/some/path"
+# deletes first match from right
+echo ${path_var%/path}
+# deletes from first match to the end of line from the right
+echo ${path_var%%/superuser*}
+# deletes from first match to the left 
+echo ${path_var##/*superuser}
+# deletes first match from the left
+echo ${path_var#*superuser}
 
-#echo ${variableb%variable} # removes the shortest maching suffix
-
-# If name of variable is not set, :- will return what follows.
+#var stays intact / empty 
 echo "${var:-default}"
-#echo $var = ""
 
 # Just like :- but value will be assigned to variable if no value pre-evaluation.
 #echo "${var:=default}"
@@ -24,13 +27,16 @@ echo "${var:+alternate}"
 
 ### Search and replace 
 
-# Replace first occurance ( inline no editing var ) 
+variablea="some string some"
+variableb="some random text"
+
+# Replace first occurance ( inline no var editing ) 
 echo "${variablea/some/random}"
 
-# Replace all occurances  ( inline no editing var ) 
+# Replace all occurances  ( inline no var editing  ) 
 echo "${variablea//some/random}"
 
-# Replace all occurances  ( inline no editing var ) 
+# Replace all occurances  ( inline no var editing ) 
 echo "${variablea//some/}"
 
 ### Substring extraction 
@@ -39,11 +45,16 @@ echo "${variablea:0:4}"
 # extract portion from n index ( applies from n -> how many chars ) 
 echo "${variableb:5:5}"
 
-# works with negative offset so far i did not find how to get more than 1 char to select
-#echo "${variableb: -1}"
+# slicing from the end 
+#echo "${variableb:(-1):2}"
 
-# string length return
+# replace : with newLineCharacter with parameter expansion
+
+echo "${PATH//:/$'\n'}"
+
+### string length return
 echo ${#variableb}
+
 
 
 
