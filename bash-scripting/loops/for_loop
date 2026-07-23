@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# For loops
+for name in Alice Bob Michael; do
+	echo "Hello, $name"
+done	
+
+num="$(( $( ls -al ./files | wc -l ) - 3 ))"
+echo $num
+if [[ "$num" -le 0 ]];then
+	        echo "nothing to loop throught"
+		        exit 1
+fi
+
+# always use globs ( * ) to search for files
+
+for i in ./files/*.txt; do
+	[[ -f "$i" ]] || continue
+	echo "Processing: ${i##*/}"
+done
+

@@ -1,0 +1,22 @@
+#!/bin/bash
+
+i=0
+while [[ $i -ne 10 ]];do
+	echo "i is: $i"
+	((i++)) 
+done
+
+m=0
+while [[ $m -ne 10 ]]; do
+	[[ $m -eq 5 ]] && break # exits loop and continues script
+	echo "m is: $m"
+	((m++))
+done
+m=0
+while [[ $m -ne 10 ]]; do
+	[[ $m -eq 5 ]] && continue # cancels rest of the current loop and continues iterating.
+	echo "m is: $m"
+	((m++))
+done
+
+echo "last comment"

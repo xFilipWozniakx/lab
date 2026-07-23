@@ -1,0 +1,9 @@
+#!/bin/bash
+
+while IFS=: read -r username _ uid guid _ home shell; do
+	echo "$username (UID $uid) uses $shell"
+done < /etc/passwd
+
+# IFS=: InternalFieldSeparator set separator to be whatever is after = 
+# _ throwaway variable dumping whats lands there into nothingness
+
