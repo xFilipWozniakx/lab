@@ -1,5 +1,9 @@
 #!/bin/bash
+if [[ $@ -le 1 ]];then
+	echo "Use: $0 commit_msg"
+fi
 git add ./* && git add ./.* 
 git commit -m "$1"
+ssh-add -D && ssh-add ./keys/main-lab-repo-key
 git push origin main 
-
+ssh-add -D 
