@@ -1,0 +1,4 @@
+binary [tee filename] <<[-] ( special delimiter ) [']EOF['] [END] 
+What ever kind of text 
+In Multiple lines 
+EOF

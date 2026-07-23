@@ -1,0 +1,82 @@
+#!/bin/bash
+
+
+##############################################################################################
+############################################# functions ######################################
+##############################################################################################
+
+my_func() {
+	global="Global variable"
+	local var="random_variable"
+	echo "Print from inside function local variable: $var"
+}
+
+# invoking functions in bash happends without appending () to it, or any other special char's
+my_func
+
+# since variables are global by default in bash, my var global can be modified from outside func
+echo "printing global variable initialized inside of my func: ${global:-default}"
+
+is_even() {
+	local num="$1"
+	(( num % 2 == 0 ))
+}
+
+var_for_even="15"
+if is_even "$var_for_even";then
+       echo "$var_for_even is even"
+fi
+
+# to return data, echo have to be used and captured with $()
+
+return_data() {
+	filename="$1"
+	echo "${filename##*.}"
+}
+
+ext=$(return_data "random_file_name.txt")
+echo "Captured data from 'return_data()':
+${ext}"
+
+
+
+##############################################################################################
+############################################# arrays #########################################
+##############################################################################################
+
+# space as delimiter 
+fruits=("apple" "banana" "orange")
+
+echo "Pos 1: ${fruits[0]}"
+echo "Pos 2: ${fruits[1]}"
+echo "Pos 3: ${fruits[2]}"
+echo "Pos All: ${fruits[@]}"
+echo "Num elem: ${#fruits[@]}" 
+
+fruits+=("grapes")
+
+## Looping over elements
+one_line=()
+for i in "${fruits[@]}";do
+	one_line+=("$i")
+done
+echo "${one_line[@]}"
+
+## Function with arrays
+
+number_elements(){
+	local items=("$@")
+	local i=1
+	for item in "${items[@]}";do
+		echo "$i. $item"
+		((i++))
+	done
+}
+
+tasks=("Buy milk" "Walk the dog" "Write code")
+echo ""
+number_elements "${tasks[@]}"
+
+
+
+
