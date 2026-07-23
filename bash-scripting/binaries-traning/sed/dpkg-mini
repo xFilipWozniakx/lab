@@ -1,0 +1,50 @@
+2026-07-23 14:03:20 startup archives unpack
+2026-07-23 14:03:20 upgrade libgssapi-krb5-2:amd64 1.19.2-2ubuntu0.7 1.19.2-2ubuntu0.8
+2026-07-23 14:03:20 status half-configured libgssapi-krb5-2:amd64 1.19.2-2ubuntu0.7
+2026-07-23 14:03:20 status unpacked libgssapi-krb5-2:amd64 1.19.2-2ubuntu0.7
+2026-07-23 14:03:20 status half-installed libgssapi-krb5-2:amd64 1.19.2-2ubuntu0.7
+2026-07-23 14:03:20 status unpacked libgssapi-krb5-2:amd64 1.19.2-2ubuntu0.8
+2026-07-23 14:03:20 startup packages configure
+2026-07-23 14:03:20 configure libgssapi-krb5-2:amd64 1.19.2-2ubuntu0.8 <none>
+2026-07-23 14:03:20 status unpacked libgssapi-krb5-2:amd64 1.19.2-2ubuntu0.8
+2026-07-23 14:03:20 status half-configured libgssapi-krb5-2:amd64 1.19.2-2ubuntu0.8
+2026-07-23 14:03:20 status installed libgssapi-krb5-2:amd64 1.19.2-2ubuntu0.8
+2026-07-23 14:03:20 startup archives unpack
+2026-07-23 14:03:20 upgrade gstreamer1.0-plugins-good:amd64 1.20.3-0ubuntu1.6 1.20.3-0ubuntu1.7
+2026-07-23 14:03:20 status half-configured gstreamer1.0-plugins-good:amd64 1.20.3-0ubuntu1.6
+2026-07-23 14:03:20 status unpacked gstreamer1.0-plugins-good:amd64 1.20.3-0ubuntu1.6
+2026-07-23 14:03:20 status half-installed gstreamer1.0-plugins-good:amd64 1.20.3-0ubuntu1.6
+2026-07-23 14:03:20 status unpacked gstreamer1.0-plugins-good:amd64 1.20.3-0ubuntu1.7
+2026-07-23 14:03:20 upgrade libgstreamer-plugins-good1.0-0:amd64 1.20.3-0ubuntu1.6 1.20.3-0ubuntu1.7
+2026-07-23 14:03:20 status half-configured libgstreamer-plugins-good1.0-0:amd64 1.20.3-0ubuntu1.6
+2026-07-23 14:03:20 status unpacked libgstreamer-plugins-good1.0-0:amd64 1.20.3-0ubuntu1.6
+2026-07-23 14:03:20 status half-installed libgstreamer-plugins-good1.0-0:amd64 1.20.3-0ubuntu1.6
+2026-07-23 14:03:20 status unpacked libgstreamer-plugins-good1.0-0:amd64 1.20.3-0ubuntu1.7
+2026-07-23 14:03:20 upgrade libgif7:amd64 5.1.9-2ubuntu0.1 5.1.9-2ubuntu0.3
+2026-07-23 14:03:20 status half-configured libgif7:amd64 5.1.9-2ubuntu0.1
+2026-07-23 14:03:20 status unpacked libgif7:amd64 5.1.9-2ubuntu0.1
+2026-07-23 14:03:20 status half-installed libgif7:amd64 5.1.9-2ubuntu0.1
+2026-07-23 14:03:20 status unpacked libgif7:amd64 5.1.9-2ubuntu0.3
+2026-07-23 14:03:20 startup packages configure
+2026-07-23 14:03:20 configure gawk:amd64 1:5.1.0-1ubuntu0.2 <none>
+2026-07-23 14:03:20 status unpacked gawk:amd64 1:5.1.0-1ubuntu0.2
+2026-07-23 14:03:20 status half-configured gawk:amd64 1:5.1.0-1ubuntu0.2
+2026-07-23 14:03:20 status installed gawk:amd64 1:5.1.0-1ubuntu0.2
+2026-07-23 14:03:20 configure libgstreamer-plugins-good1.0-0:amd64 1.20.3-0ubuntu1.7 <none>
+2026-07-23 14:03:20 status unpacked libgstreamer-plugins-good1.0-0:amd64 1.20.3-0ubuntu1.7
+2026-07-23 14:03:20 status half-configured libgstreamer-plugins-good1.0-0:amd64 1.20.3-0ubuntu1.7
+2026-07-23 14:03:20 status installed libgstreamer-plugins-good1.0-0:amd64 1.20.3-0ubuntu1.7
+2026-07-23 14:03:20 configure libgif7:amd64 5.1.9-2ubuntu0.3 <none>
+2026-07-23 14:03:20 status unpacked libgif7:amd64 5.1.9-2ubuntu0.3
+2026-07-23 14:03:20 status half-configured libgif7:amd64 5.1.9-2ubuntu0.3
+2026-07-23 14:03:20 status installed libgif7:amd64 5.1.9-2ubuntu0.3
+2026-07-23 14:03:20 configure gstreamer1.0-plugins-good:amd64 1.20.3-0ubuntu1.7 <none>
+2026-07-23 14:03:20 status unpacked gstreamer1.0-plugins-good:amd64 1.20.3-0ubuntu1.7
+2026-07-23 14:03:20 status half-configured gstreamer1.0-plugins-good:amd64 1.20.3-0ubuntu1.7
+2026-07-23 14:03:20 status installed gstreamer1.0-plugins-good:amd64 1.20.3-0ubuntu1.7
+2026-07-23 14:03:20 trigproc man-db:amd64 2.10.2-1 <none>
+2026-07-23 14:03:20 status half-configured man-db:amd64 2.10.2-1
+2026-07-23 14:03:20 status installed man-db:amd64 2.10.2-1
+2026-07-23 14:03:20 trigproc libc-bin:amd64 2.35-0ubuntu3.13 <none>
+2026-07-23 14:03:20 status half-configured libc-bin:amd64 2.35-0ubuntu3.13
+2026-07-23 14:03:20 status installed libc-bin:amd64 2.35-0ubuntu3.13

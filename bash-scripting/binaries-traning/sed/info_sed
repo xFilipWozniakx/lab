@@ -1,0 +1,7 @@
+sed 's/old_word/new_word/[g] filename # changes old with new no changes in file [g] for all occurances
+
+sed 's/ubuntu/UBUNTU/2g' filename # 2 - g selects number of occurences in line to be changed, where g stands for ALL so from 2 : ALL
+
+sed '1 s/startup/shutdown/' dpkg-mini # 1 selects line number 
+sed '1,2 d' filename # deletes selected lines, worth to remember , between numbers 
+sed '3i\new text' filename # inserting new line at index n
