@@ -4,6 +4,7 @@ if [[ $@ -le 1 ]];then
 fi
 git add ./* && git add ./.* 
 git commit -m "$1"
+eval $(ssh-agent)
 ssh-add -D && ssh-add ./keys/main-lab-repo-key
 git push origin main 
 ssh-add -D 
