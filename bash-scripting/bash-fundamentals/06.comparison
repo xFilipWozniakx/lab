@@ -38,3 +38,33 @@ else
 	echo "zsh history is empty"	
 fi
 
+############################### multicompraison ############################
+
+if [[ -z "$1" || $1 == "--help" ]]; then
+        echo "Syntax: $0 file"
+        exit 1
+elif [[ -f "$1" ]];then
+        echo "$1 Is file"
+elif [[ -d "$1" ]];then
+        echo "$1 is directory"
+else
+        echo "Not file not directory or doesnt exists"
+fi
+
+############################### case ###############################
+
+
+case $1 in
+        start)
+                echo "starting service..."
+                ;;
+        stop)
+                echo "Stopping service..."
+                ;;
+        *)
+                echo "Syntax: $0 '{start|stop}'"
+                exit 1
+                ;;
+esac
+
+
