@@ -1,0 +1,14 @@
+# super cool thing worth remember running commands / sending stuff to bash from within vim with
+# use of !!command or selecting section and !}bash
+
+
+#   * one
+#   * two
+#   * three
+# 
+#   How about a paragraph
+can do comments with my custom script with !comment
+
+  ## Thursday, March 12, 2020, 7:46:39PM
+
+  something
