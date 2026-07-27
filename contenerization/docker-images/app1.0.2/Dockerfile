@@ -1,0 +1,10 @@
+ARG UBUNTU_VERSION=24.04
+FROM ubuntu:${UBUNTU_VERSION}
+
+ARG APP_VERSION=1.0.2
+ENV APP_VERSION=${APP_VERSION}
+
+WORKDIR /backup
+COPY backup script . 
+ENTRYPOINT ["./backup"]
+#CMD ["list"]

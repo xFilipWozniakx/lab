@@ -1,0 +1,1 @@
+docker buildx build --build-arg UBUNTU_VERSION=22.04 --build-arg APP_VERSION=0.9.4 -t myapp:0.9.4 .

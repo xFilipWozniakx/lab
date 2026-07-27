@@ -1,0 +1,31 @@
+vim ~/.bashrc 
+source ~/.bashrc
+docker volume create pg-data
+docker volume ls
+docker volume rm pg-volume
+docker images 
+docker run -v pg-data:/var/lib/postgresql/data -e POSTGRES_PASSWORD="secretrootdbpass" --name mydb --restart=unless-stopped postgres:latest
+docker run -v pg-data:/var/lib/postgresql/data -e POSTGRES_PASSWORD="secretrootdbpass" --name mydb --restart=unless-stopped postgres:17
+docker images
+docker ps -a
+docker rm mydb
+docker rm -f mydb
+docker ps
+docker ps -a
+docker start mydb 
+docker ps -a
+docker ps 
+docker exec mydb psql -U postgres -c "CREATE DATABASE testdb;"
+docker exec mydb psql -U postgres -c "\l"
+docker ps
+docker volume ls
+docker rm -f mydb 
+docker run -v pg-data:/var/lib/postgresql/data -e POSTGRES_PASSWORD="secretrootdbpass" --name mydb --restart=unless-stopped postgres:17
+docker start mydb
+docker exec mydb psql -U postgres -c "\l"
+clear
+ls
+vim challange_bash_history 
+vim ~/bashrc
+vim ~/.bashrc 
+clear
