@@ -1,0 +1,26 @@
+Challenge:
+	Task: Containerize a greeting script with configurable messages.
+	Create a directory greeter
+	Create greet:
+
+#!/bin/bash
+echo "================================"
+echo "  ${GREETING:-Hello}, ${NAME:-World}!"
+echo "  Running in container: $(hostname)"
+echo "================================"
+
+	Write a Dockerfile that:
+	Uses ubuntu:24.04 as base
+	Sets WORKDIR to /app
+	Copies the script
+	Makes it executable
+	Sets default ENV values for GREETING and NAME
+	Runs the script
+	Build as greeter:2.0.0
+	Run it with default values
+	Run it with custom values: -e GREETING=Welcome -e NAME=Docker
+	Push it to the GitHub Container Registry
+	Remove your local image
+	Pull the image from the GHCR.
+
+Verify: You should see different messages based on environment variables.
