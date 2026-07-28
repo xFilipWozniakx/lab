@@ -1,0 +1,9 @@
+#!/bin/bash
+
+while IFS= read -r line;do
+	if [[ -z "${line//[[:space:]]/}" ]]; then
+		echo "$line" > /dev/null 2>&1
+	else
+		echo "$line" >> '/home/superuser/lab/bash-scripting/binaries-traning/read/read_txt_with_special_bytes'
+	fi	
+done < read_txt
