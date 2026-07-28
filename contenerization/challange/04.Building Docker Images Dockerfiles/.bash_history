@@ -21,3 +21,4 @@ ls
 vim special_bytes 
 test 
 help test 
+clear
