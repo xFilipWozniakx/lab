@@ -77,6 +77,3 @@ tasks=("Buy milk" "Walk the dog" "Write code")
 echo ""
 number_elements "${tasks[@]}"
 
-
-
-

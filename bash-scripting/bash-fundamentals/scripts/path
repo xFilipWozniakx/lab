@@ -1,0 +1,11 @@
+#!/bin/bash
+mypath="$HOME/.local/bin"
+path_sections=$( echo "$PATH" | sed 's/:/\n/g') 
+
+IFS=$'\n' read -r -d '' -a path_arr <<< "$path_sections"
+i=0
+for i in ${#path_arr[@]};do
+	echo "${path_arr[$i]}"
+	((i++))
+done
+
