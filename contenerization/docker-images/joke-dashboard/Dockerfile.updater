@@ -1,0 +1,19 @@
+#stage 1: Build
+FROM ubuntu:24.04 AS builder
+WORKDIR /build
+COPY updater . 
+RUN chmod +x ./updater
+
+#stage 2: Runtaime stage
+FROM alpine:3.21
+#Install only runtime dependencies
+RUN apk add --no-cache curl ca-certificates bash
+#Create non-root user matching UID 101 ( nginx-unprivileged default )
+RUN addgroup -g 101 appgroup && \
+	adduser -u 101 -G appgroup -D appuser
+WORKDIR /app
+COPY --from=builder --chown=appuser:appgroup /build/updater .
+USER appuser
+CMD ["./updater"]
+
+
