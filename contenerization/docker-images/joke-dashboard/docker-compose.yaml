@@ -1,4 +1,5 @@
 services:
+  # One-shot container to fix volume permissions
   init:
     image: busybox
     command: chown -R 101:101 /html
@@ -9,13 +10,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.updater
+    user: "101:101"
     volumes:
       - html:/html
-    user: "101:101"
     restart: unless-stopped
-    depends-on: 
-      init: 
-        condition: service_completed_succefully
+    depends_on:
+      init:
+        condition: service_completed_successfully
+
   web:
     image: nginxinc/nginx-unprivileged:1.28
     ports:
@@ -23,9 +25,9 @@ services:
     volumes:
       - html:/usr/share/nginx/html:ro
     restart: unless-stopped
-    depends-on:
-      init: 
-      conditions: service_completed_succefully
+    depends_on:
+      init:
+        condition: service_completed_successfully
 
 volumes:
   html:
