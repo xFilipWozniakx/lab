@@ -1,0 +1,1 @@
+sed -n /Main\ Office/p ./example_passwd | cut -s -d : -f 5 | cut -s -d , -f 1 | cut -s -d   -f 1 | sort -R - | sed -n 1p

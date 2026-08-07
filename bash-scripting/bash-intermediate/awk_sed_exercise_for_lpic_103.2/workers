@@ -1,0 +1,7 @@
+carol:x:1000:2000:Carol Smith,Finance,,,Main Office:/home/carol:/bin/bash
+dave:x:1001:1000:Dave Edwards,Finance,,,Main Office:/home/dave:/bin/ksh
+emma:x:1002:1000:Emma Jones,Finance,,,Main Office:/home/emma:/bin/bash
+frank:x:1003:1000:Frank Cassidy,Finance,,,Main Office:/home/frank:/bin/bash
+grace:x:1004:1000:Grace Kearns,Engineering,,,Main Office:/home/grace:/bin/ksh
+henry:x:1005:1000:Henry Adams,Sales,,,Main Office:/home/henry:/bin/bash
+john:x:1006:1000:John Chapel,Sales,,,Main Office:/home/john:/bin/bash
