@@ -1,0 +1,12 @@
+sed 's/old_word/new_word/[g] filename # changes old with new no changes in file [g] for all occurances
+sed 's/ubuntu/UBUNTU/2g' filename # 2 - g selects number of occurences in line to be changed, where g stands for ALL so from 2 : ALL
+sed '1 s/startup/shutdown/' dpkg-mini   # 1 selects line number
+sed '1,2 d' filename                    # deletes selected lines, worth to remember , between numbers
+sed '/pattern/d'                        # deletes line containing pattern in it
+sed '3i\new text' filename              # inserting new line at index n
+sed '1,2d; 12d' filename                # specify more than one instruction after ;
+sed uses groups as ( ) and invoke those \1 which is very useful to modify output
+sed -n '/pattern-1/,/pattern-2/p' ./file  # to display from line with pattern-1 to line with pattern-2 everything
+sed '2s/pattern/into-pattern/[g]' <- for all occurances on 1 line # only changes made on line 2
+sed '2,5s/pattern/into-pattern/[g]'
+sed 's/search_pattern/pattern/into-pattern/[g]' only apply into-pattern for pattern in lines with search_pattern
