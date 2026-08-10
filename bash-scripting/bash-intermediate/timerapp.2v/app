@@ -1,0 +1,138 @@
+#!/bin/bash
+
+DB_FILE="./files/day-to-day.db"
+
+# Ensure table exists
+sqlite3 "$DB_FILE" "CREATE TABLE IF NOT EXISTS activities (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, 
+    start_time TEXT NOT NULL, 
+    end_time TEXT, 
+    activity TEXT NOT NULL
+);"
+
+# --- FUNCTION 1: Daily Summary ---
+show_daily_summary() {
+    read -p "Enter date (YYYY-MM-DD) [Leave empty for Today]: " TARGET_DATE
+    
+    # Default to today if input is empty
+    if [[ -z "$TARGET_DATE" ]]; then
+        TARGET_DATE=$(date "+%Y-%m-%d")
+    fi
+
+    echo -e "\n======================================================="
+    echo "            DAILY SUMMARY FOR: $TARGET_DATE"
+    echo -e "=======================================================\n"
+
+    # Display activity list in a formatted table
+    sqlite3 -column -header "$DB_FILE" "
+        SELECT 
+            activity AS 'Activity',
+            strftime('%H:%M:%S', start_time) AS 'From',
+            strftime('%H:%M:%S', end_time) AS 'To'
+        FROM activities
+        WHERE date(start_time) = '$TARGET_DATE' AND end_time IS NOT NULL;
+    "
+
+    # Calculate total hours spent on that date
+    TOTAL_HOURS=$(sqlite3 "$DB_FILE" "
+        SELECT COALESCE(ROUND(SUM((julianday(end_time) - julianday(start_time)) * 24), 2), 0)
+        FROM activities
+        WHERE date(start_time) = '$TARGET_DATE' AND end_time IS NOT NULL;
+    ")
+
+    echo "-------------------------------------------------------"
+    echo "Total time spent: $TOTAL_HOURS hour(s)"
+    echo -e "-------------------------------------------------------\n"
+}
+
+# --- FUNCTION 2: Weekly Summary ---
+show_weekly_summary() {
+    read -p "Enter week number (1-53) [Leave empty for Current Week]: " WEEK_NUM
+    
+    # Default to current ISO week number if empty
+    if [[ -z "$WEEK_NUM" ]]; then
+        WEEK_NUM=$(date "+%V")
+    fi
+
+    # Format single digit week (e.g. 5 -> 05) for SQLite compatibility
+    WEEK_NUM=$(printf "%02d" "$WEEK_NUM")
+
+    echo -e "\n======================================================="
+    echo "            WEEKLY SUMMARY FOR WEEK: #$WEEK_NUM"
+    echo -e "=======================================================\n"
+
+    # Display aggregate time spent per activity across the chosen week
+    sqlite3 -column -header "$DB_FILE" "
+        SELECT 
+            activity AS 'Activity',
+            ROUND(SUM((julianday(end_time) - julianday(start_time)) * 24), 2) AS 'Total Hours'
+        FROM activities
+        WHERE strftime('%W', start_time) = '$WEEK_NUM' AND end_time IS NOT NULL
+        GROUP BY activity;
+    "
+
+    # Calculate total hours across the whole week
+    TOTAL_WEEK_HOURS=$(sqlite3 "$DB_FILE" "
+        SELECT COALESCE(ROUND(SUM((julianday(end_time) - julianday(start_time)) * 24), 2), 0)
+        FROM activities
+        WHERE strftime('%W', start_time) = '$WEEK_NUM' AND end_time IS NOT NULL;
+    ")
+
+    echo "-------------------------------------------------------"
+    echo "Total week time: $TOTAL_WEEK_HOURS hour(s)"
+    echo -e "-------------------------------------------------------\n"
+}
+
+# --- MAIN MENU ---
+menu() {
+    PS3="Select an option (1-4): "
+    
+    select option in "add" "daily_summary" "weekly_summary" "exit"; do
+        case $option in
+            "add")
+                read -p "Enter activity name: " ACTIVITY_NAME
+                
+                if [[ -z "$ACTIVITY_NAME" ]]; then
+                    echo "Activity name cannot be empty!"
+                    continue
+                fi
+
+                sqlite3 "$DB_FILE" "INSERT INTO activities (start_time, activity) VALUES (datetime('now', 'localtime'), '$ACTIVITY_NAME');"
+                echo "-> Started: $ACTIVITY_NAME"
+                echo "-> Type 'finish' to end the activity."
+
+                while true; do
+                    read -p "> " STATUS
+                    if [[ "$STATUS" == "finish" ]]; then
+                        sqlite3 "$DB_FILE" "UPDATE activities SET end_time = datetime('now', 'localtime') WHERE id = (SELECT max(id) FROM activities WHERE end_time IS NULL);"
+                        echo "=========================================="
+                        echo " ACTIVITY COMPLETED: $ACTIVITY_NAME "
+                        echo "=========================================="
+                        break
+                    else
+                        echo "Invalid input. To finish, type: finish"
+                    fi
+                done
+                ;;
+
+            "daily_summary")
+                show_daily_summary
+                ;;
+
+            "weekly_summary")
+                show_weekly_summary
+                ;;
+
+            "exit")
+                echo "Exiting program."
+                return 0
+                ;;
+
+            *)
+                echo "Invalid selection!"
+                ;;
+        esac
+    done
+}
+
+menu
