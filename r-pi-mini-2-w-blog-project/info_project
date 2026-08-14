@@ -1,0 +1,1 @@
+alpine pi + nginx + php + nosql/maybe different data base needs to be remembered as fine litle weekend project. Scripts: ssh_connections mapper, only lan ssh login, temperature reader, somekind of notifications in case of high temperature. Most likely to save time front and back end code will be coded with assistance.
