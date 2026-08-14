@@ -4,21 +4,17 @@ metadata:
   name: ld-n
 ---
 apiVersion: v1
-kind: Namespace
-metadata:
-  name: services
----
-apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: pv1
+  name: pv001
   namespace: ld-n
 spec:
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 2Gi
+      storage: 2.5Gi
+  storageClassName: local-path
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -48,7 +44,7 @@ spec:
       volumes:
         - name: ld-data
           persistentVolumeClaim:
-            claimName: pv1
+            claimName: pv001
 ---
 # loadbalancer exposing linkding to my lan network.
 apiVersion: v1
