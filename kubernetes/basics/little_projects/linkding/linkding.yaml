@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ld-n
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: services
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pv1
+  namespace: ld-n
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: ld-n
+  name: linkding
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: linkding
+  template:
+    metadata:
+      labels:
+        app: linkding
+    spec:
+      containers:
+      - image: ghcr.io/sissbruecker/linkding:1.46.1-plus-alpine
+        name: linkding-cont
+        ports:
+          - containerPort: 9090
+            name: linkding-port
+            protocol: TCP
+        volumeMounts:
+          - name: ld-data
+            mountPath: /etc/linkding/data
+      volumes:
+        - name: ld-data
+          persistentVolumeClaim:
+            claimName: pv1
+---
+# loadbalancer exposing linkding to my lan network.
+apiVersion: v1
+kind: Service
+metadata:
+  name: ld-loadbalancer
+  namespace: services
+  labels:
+    app: linkding
+spec:
+  ports:
+    - port: 9090       # port is port that will need to be targeted from outside to recive connection from pod
+      targetPort: 9090 # targetport is port that inside of pod
+  selector:
+    app: mealie
+  sessionAffinity: None
+  type: LoadBalancer
