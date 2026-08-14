@@ -1,0 +1,12 @@
+# That pvc is only good to be used for single pod, might not work with deployment's 
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pv1
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 500Mi
