@@ -55,14 +55,13 @@ apiVersion: v1
 kind: Service
 metadata:
   name: ld-loadbalancer
-  namespace: services
   labels:
     app: linkding
 spec:
   ports:
-    - port: 9090       # port is port that will need to be targeted from outside to recive connection from pod
+    - port: 9090
       targetPort: 9090 # targetport is port that inside of pod
   selector:
-    app: mealie
+    app: linkding
   sessionAffinity: None
   type: LoadBalancer
