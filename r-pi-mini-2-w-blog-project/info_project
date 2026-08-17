@@ -1,1 +1,11 @@
-alpine pi + nginx + php + nosql/maybe different data base needs to be remembered as fine litle weekend project. Scripts: ssh_connections mapper, only lan ssh login, temperature reader, somekind of notifications in case of high temperature. Most likely to save time front and back end code will be coded with assistance.
+# alpine pi + nginx + php + sqlite3 project for my pi mini, with custom php code and desing.
+
+## What needs to be added: 
+### Security for admin panel
+### log rotation
+### hardware disk / on network would be best.
+### Perform vulnerability scan
+### Fail2ban just in case
+### Better php code:
+### placeholder for idees
+
