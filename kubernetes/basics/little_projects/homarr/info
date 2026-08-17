@@ -1,0 +1,5 @@
+# quick recap:
+first secret + namespace, later pv and then helm:
+    h install homarr homarr-labs/homarr --namespace homarr -f ./values.yaml
+
+db is persistent, so no dont fear deleting stuff. 

@@ -1,0 +1,18 @@
+# -- not needed anymore since loadbalancer is configured inside values --
+apiVersion: v1
+kind: Service
+metadata:
+  name: homarr-loadbalancer
+  namespace: homarr
+  labels:
+    app: homarr
+spec:
+  ports:
+    - port: 7575
+      protocol: TCP
+      targetPort: 7575
+  selector:
+    app.kubernetes.io/instance: homarr
+    app.kubernetes.io/name: homarr
+  type: LoadBalancer
+

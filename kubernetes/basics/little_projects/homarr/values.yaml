@@ -1,0 +1,30 @@
+replicaCount: 1
+image:
+  tag: "v1.75.0"
+env:
+  TZ: "Europe/Oslo"
+  # -- more logs --
+  LOG_LEVEL: "debug" 
+envSecrets:
+  dbEncryption:
+    # -- name of existing secret in the same namespace --
+    existingsSecret: "db-encryption"
+    # -- name of key inside secret / could be changed at my will --
+    key: "db-encryption-key"
+service:
+  enabled: true
+  type: LoadBalancer
+  ports:
+    app:
+      # -- port ill need to target as client --
+      port: 8080
+      # -- port inside of pod --
+      targetPort: http
+      protocol: TCP
+
+persistence:
+  homarrDatabase:
+    enabled: true
+    size: "900Mi"
+    volumeClaimName: "homarr-db"
+
