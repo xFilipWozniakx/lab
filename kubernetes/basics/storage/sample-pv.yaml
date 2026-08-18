@@ -1,0 +1,19 @@
+# remember, cannot be namespaced. PVC are namespaced PV doesnt.
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  annotations:
+  labels:
+    type: local ( changes in case of over the network storage i think )
+  name: required
+spec:
+  accessModes:
+  - ReadWriteOnce 
+  capacity:
+    storage: 1000Mi
+  hostPath:
+    path: /data/kubernetes-pv/
+    type: ""
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-path
