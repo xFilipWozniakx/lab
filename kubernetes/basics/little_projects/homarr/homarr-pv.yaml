@@ -4,14 +4,28 @@ metadata:
   annotations:
   labels:
     type: local
-  name: homarr-db
+  name: homarr-database
 spec:
   accessModes:
   - ReadWriteOnce
   capacity:
     storage: 1000Mi
   hostPath:
-    path: /data/kubernetes-pv/homarr
-    type: ""
+    path: /data/kubernetes-pv/homarr # points to path on host drive to write data ta
+    type: DirectoryOrCreate          # creates folder if doesnt exists
   persistentVolumeReclaimPolicy: Retain
-  storageClassName: local-path
+  storageClassName: "" # it turns of provisioning and forces kubernetes to save to my folder
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: homarr-data
+  namespace: homarr
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: "" # has to stay empty to take space from my pv
+  resources:
+    requests:
+      storage: 1000Mi
+  volumeName: homarr-database

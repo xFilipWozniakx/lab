@@ -25,6 +25,7 @@ service:
 persistence:
   homarrDatabase:
     enabled: true
+    storageClassName: ""
     size: "900Mi"
-    volumeClaimName: "homarr-db"
+    volumeClaimName: "homarr-datebase"
 
