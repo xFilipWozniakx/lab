@@ -1,0 +1,26 @@
+# 1. create PV
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: name-pv                # <--- [A] disk name
+spec:
+  ...
+---
+# 2. order disk (PVC)
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: name-pvc               # <--- [B] order name
+spec:
+  volumeName: name-pv          # <--- points to [A]
+---
+# 3. connect to app (Pod)
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  volumes:
+    - name: my-storage ( irelevant )
+      persistentVolumeClaim:
+        claimName: name-pvc    # <--- points to [B]
