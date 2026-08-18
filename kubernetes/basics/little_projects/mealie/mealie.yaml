@@ -26,7 +26,4 @@ spec:
       volumes:
         - name: pvc-data-base
           persistentVolumeClaim:
-            claimName: mealie-pv
-
-
-
+            claimName: mealie-pvc

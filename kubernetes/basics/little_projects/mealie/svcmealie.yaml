@@ -7,11 +7,12 @@ metadata:
     app: mealie
 spec:
   ports:
-    - port: 9000
+    # -- port to service --
+    - port: 8001
       protocol: TCP
+    # -- port to container --
       targetPort: 9000
   selector:
     app: mealie
-  sessionAffinity: None
   type: LoadBalancer
 
