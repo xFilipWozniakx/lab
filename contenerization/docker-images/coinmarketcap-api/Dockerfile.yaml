@@ -1,0 +1,6 @@
+FROM: alpine:3.23.5
+WORKDIR /api
+RUN apk update && apk upgrade -y && apk add curl
+COPY script .
+RUN chmod +x script
+ENTRYPOINT ["./api/script"]

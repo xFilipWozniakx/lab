@@ -1,11 +1,5 @@
 # alpine pi + nginx + php + sqlite3 project for my pi mini, with custom php code and desing.
 
-## What needs to be added: 
-### Security for admin panel
-### log rotation
-### hardware disk / on network would be best.
-### Perform vulnerability scan
-### Fail2ban just in case
-### Better php code:
-### placeholder for idees
+## blog already exists at https://filipwozniak.org
 
+## lastly added comments under posts, being added after my validation
