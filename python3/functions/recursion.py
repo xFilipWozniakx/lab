@@ -26,4 +26,29 @@ def factorial(n):
 
 print(factorial(5))
 
+def fibonacci(n):
+    if n <= 1:
+        return n 
+    else:
+        return fibonacci(n-1) + fibonacci(n-2)
+print(fibonacci(7))
+
+list_a = [1,2,3,4,5]
+# calculate the sum of all elements:
+
+def sum_list(numbers):
+    if len(numbers) == 0:
+        return 0
+    else:
+        return numbers[0] + sum_list(numbers[1:])
+
+print(sum_list(list_a))
+
+# recursion have limits to check yours
+# import sys
+# print(sys.gerrecursionlimit())
+# to change recursion limits
+# sys.setrecursionlimit(2000)
+# beaware this can cause crashes
+
 
