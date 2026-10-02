@@ -83,8 +83,21 @@ print(returned[0])
 print(returned[1])
 print(returned[2])
 
+# keyword arguments only
+#
+def my_functi(*, name):
+    print(f"hello {name}")
 
+my_functi("Emil")
 
+# my_functi("name = emil") would resolve in error
+
+# Arguments before / are positional-only, and arguments after * are keyword-only:
+def my_function(a, b, /, *, c, d):
+  return a + b + c + d
+
+result = my_function(5, 10, c = 15, d = 20)
+print(result)
 
 
 
