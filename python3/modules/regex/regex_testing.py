@@ -37,7 +37,7 @@ $	Ends with	"planet$"
 # for i in txt:
 #     print(f"{i} index: {index}")
 #     index += 1
-#print(re.search(".?esterday", txt))
+# print(re.search(".?esterday", txt))
 
 
 """
@@ -55,8 +55,6 @@ re.NOFLAG		Specifies that no flag is set for this pattern
 re.UNICODE	re.U	Returns Unicode matches. This is default from Python 3. For Python 2: use this flag to return only Unicode matches	
 re.VERBOSE	re.X	Allows whitespaces and comments inside patterns. Makes the pattern more readable
 """
-
-
 
 
 r"""
@@ -91,23 +89,23 @@ groups
 
 txt_2 = "The rain in Spain"
 x = re.findall("ai", txt_2)
-#print(x)
+# print(x)
 
-y = (re.search("\s", txt_2))
-#print("The first white-space character is located in position:", y.start())
+y = re.search("\s", txt_2)
+# print("The first white-space character is located in position:", y.start())
 
 # The search() function searches the string for a match, and returns a Match object if there is a match.
 # If there is more than one match, only the first occurrence of the match will be returned:
 # If no matches found value evaluets to None
 
 # The split() function returns a list where the string has been split at each match:
-z = re.split("\s",txt)
+z = re.split("\s", txt)
 # print(z)
 # print(type(z))
-# 
+#
 # for i in list(z):
 #     print("type: ", type(i), "value: ", i)
-# 
+#
 
 
 # doesnt support negative index
@@ -120,11 +118,11 @@ a = re.split("\s", txt, 2)
 b = re.sub("\s", "_", txt, 5)
 # print(b)
 
-### match object returned from re()
+# match object returned from re()
 
 txt = "The rain in Spain"
 x = re.search("ai", txt)
-#print(x) #this will print an object
+# print(x) #this will print an object
 
 
 """
@@ -134,9 +132,6 @@ methods for match object
 .group() returns the part of the string where there was a match
 """
 
-print(x.span())     
-print(x.string)     
-print(x.group())    
-
-
-
+print(x.span())
+print(x.string)
+print(x.group())
