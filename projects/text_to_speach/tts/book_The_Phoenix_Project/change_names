@@ -1,6 +1,0 @@
-#!/bin/bash
-for i in *; do
-  name=${i##*/}
-  new_name="${name/Chapter_/Chapter_0}"
-  mv -- "$i" "$new_name"
-done
