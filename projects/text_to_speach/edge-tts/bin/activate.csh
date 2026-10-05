@@ -9,17 +9,19 @@ alias deactivate 'test $?_OLD_VIRTUAL_PATH != 0 && setenv PATH "$_OLD_VIRTUAL_PA
 # Unset irrelevant variables.
 deactivate nondestructive
 
-setenv VIRTUAL_ENV /home/vscode/lab/projects/text_to_speach/edge-tts
+setenv VIRTUAL_ENV /data/lab-python3/lab/projects/text_to_speach/edge-tts
 
 set _OLD_VIRTUAL_PATH="$PATH"
 setenv PATH "$VIRTUAL_ENV/"bin":$PATH"
+setenv VIRTUAL_ENV_PROMPT edge-tts
 
 
-set _OLD_VIRTUAL_PROMPT="$prompt"
+if ($?prompt) then
+    set _OLD_VIRTUAL_PROMPT="$prompt"
 
-if (! "$?VIRTUAL_ENV_DISABLE_PROMPT") then
-    set prompt = '(edge-tts) '"$prompt"
-    setenv VIRTUAL_ENV_PROMPT '(edge-tts) '
+    if (! "$?VIRTUAL_ENV_DISABLE_PROMPT") then
+        set prompt = "("edge-tts") $prompt:q"
+    endif
 endif
 
 alias pydoc python -m pydoc
