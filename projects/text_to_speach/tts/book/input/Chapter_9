@@ -1,0 +1,478 @@
+Copyrighted Excerpt 
+Not for Duplication
+Chapter 9     •     143
+CHAPTER 9
+• Monday , September 29
+On Monday, there’s a spring in Maxine’s step as she walks into the building. 
+And it’s not because of the Dockside meeting. It’s because it’s Testing Day! 
+Her code will finally be tested and put into production.
+She carries five boxes of Vandal Doughnuts she bought on her way in. 
+She even got some of their special “cronuts, ” a crazy hybrid of a croissant 
+and donut, her favorite.
+She’s feeling so good that she wonders whether the aroma of sixty 
+freshly made donuts might be elevating her blood sugar levels. What 
+a great way to break the ice with the people who will be testing her code , 
+she thinks. It’s always easier to make new friends when you bring tasty 
+treats.
+Everywhere she walks, people ask her, “ Are they for me?” 
+She happily yells back, “Nope, it’s for Testing Day!”
+Putting down all the donuts on a table near her desk, she slings her 
+bag by her chair. Tom is already there, editor open, typing away.
+“Hurray, it’s Testing Day!” Maxine announces happily. “ At long last. ” 
+“Y ou are very strange, ” Tom says, not even looking up from his 
+monitor. He sniffs the air. “Wow, are those Vandal Doughnuts?”
+“Y es, to celebrate Testing Day!” she responds with a big smile. “I think 
+it’s super exciting to finally see whether all our changes actually work or 
+not, ” Maxine says. “So, when do they start? Can we go watch?”
+Tom turns to face her, looking at his watch. “I suppose they probably 
+start today. But it’s not just our changes. They’re testing changes to all the 
+other big chunks of Phoenix—ours are just a fraction of what they need to 
+do. They might not even get to ours today. ”
+“What!?” Maxine interrupts, shocked. She had been waiting all week-
+end for this! “Can we see where we are in line? Can we help? In fact, where 
+do the QA people sit? I bought all these donuts for them!”
+Tom looks surprised. “Well, I’ve met a bunch of them—some of them 
+are offshore, some are on-site, but I haven’t talked with them directly in Copyrighted Excerpt 
+Not for Duplication
+144     •     The Unicorn Project
+a long time. We usually meet the QA manager at the end of next week, 
+when they present the testing results. ”
+“Next week? Next week?!” Maxine’s jaw drops. “What are we supposed 
+to do in the meantime? Hey, can we follow along as they work? We’ll get 
+notifications on our feature tickets, right?”
+“Uh, not exactly, ” Tom says, frowning. “The QA team uses a different 
+ticketing system. It does their scheduling and reporting and manages all 
+their test cases. We don’t have access to it—at least, non-mangers like us 
+don’t. After two weeks, they’ll send us a spreadsheet with a list of all the 
+defects they’ve found, labeled with our feature ticket numbers. We’ll look 
+through them, copy that information into our ticketing system, and then 
+we’ll fix anything that needs fixing. ”
+“ .  .  .  a nd then?” Maxine asks, fearing the worst. 
+“QA rolls up everyone’s fixes and tests again, ” replies Tom.
+“So, let’s suppose that all our changes work perfectly—when would 
+be the soonest that our customers actually get to use what we wrote?” she 
+asks.
+Tom starts counting on his fingers. “Two weeks for another testing 
+cycle. Then they open up a ticket with Operations, requesting that 
+they deploy the changes into production. Sometimes it takes a bit of 
+time for them to work it into their schedule  .  .  .  t hat could take another 
+three weeks. ” He looks at his fingers. “So that’ d be seven weeks from 
+n o w.”
+Maxine crumples forward, groaning as she buries her head in her 
+hands, her forehead on the table.
+I am so naive, she thinks. Head still on the table, she asks, “ And during 
+that whole time, we’re just supposed to work on more defects?”
+“Y ep, ” she hears Tom say. “Y ou okay, Maxine?”
+“Y eah, I’m fine, ” she says, trying to not feel depressed. This is the 
+opposite of the Second Ideal, she thinks. We’re just a stupid feature factory, 
+pushing out widgets that customers may or may not care about. Work is not 
+fun and full of joy, like I know it should be. There is no flow of features, there 
+is no feedback, and there certainly isn’t any learning, she thinks.
+She hears Tom ask, “Umm, can I have one of those donuts?”
+“No, ” Maxine responds. Then she has an idea. She lifts her head and 
+looks up at Tom, smiling. “But you can help me deliver them to the QA 
+p e o p l e .”Copyrighted Excerpt 
+Not for Duplication
+Chapter 9     •     145
+Finding the QA people was much more difficult than she thought it would 
+be. Tom hadn’t been in the same room with one in over a year. His main 
+interactions with them were through formal rituals—he turned over the 
+code and waited for the list of fixes in a spreadsheet, rinse and repeat until 
+the team got the formal acceptance letter that the release was ready for 
+production.
+Of course, it was never that easy. There would be all sorts of escala -
+tions up the Dev and QA management chains because of disagreements 
+and problems. Is this defect Priority 1 or Priority 2? When developers 
+couldn’t reproduce the problem, they’ d close the defect, only for it to 
+be reopened by QA later. Or if QA couldn’t reproduce the fix, it would 
+bounce back to Dev.
+Maxine and Tom stop at Kurt’s desk to tell him about their quest. 
+“Those are a lot of donuts. What a great way to make friends, ” Kurt says. 
+“Y ou tagging along too?” he asks Tom.
+“ Absolutely, ” he responds. “I’ve always wondered where our work 
+goes after we’re done with it. It’s always felt like flushing the toilet—you 
+put your code in the toilet bowl, press the lever, and it disappears from 
+sight . . . ”
+Kurt snorts. “Given the quality of the code we’ve seen in Phoenix, 
+your metaphor seems pretty appropriate. Roy is the QA Manager assigned 
+to Data Hub. And he’ll be tied up for at least ninety minutes, ” he says, 
+picking up his phone, tapping out a message to someone. “Go over to 
+Building 7 to deliver those donuts while he’s preoccupied. I’ll connect you 
+with Charlotte, who is, or was, William’s assistant. She’s like the mother 
+hen for all the QA people. ”
+Kurt finishes typing. “She’s expecting you. I think three boxes will be 
+enough for the Data Hub team. Ask Charlotte how to most strategically 
+deploy the remaining two boxes, ” he adds with a smile.
+“She’ll get a conference room for you and bring the Data Hub QA 
+team by, ” Kurt says. “Y ou’ll get a chance to meet all of them. And maybe 
+you’ll find some people who are looking for help. ”
+Maxine smiles. This is exactly the support she was looking for. 
+“Thanks, Kurt. We’ll go make friends. In fact, how about we get pizza 
+delivered for lunch to give us an excuse to hang out even longer?”
+“Perfect, ” Kurt says. “Tell Charlotte to charge it to my old QA depart-
+ment code. With William gone, I’m sure it’ll take them a while to shut Copyrighted Excerpt 
+Not for Duplication
+146     •     The Unicorn Project
+that down. Let’s take advantage of it, ” he adds with a grin. “But before you 
+go .  .  .  c an I have a donut?” he asks. 
+“No. Sorry, they’re for our new QA friends, ” Maxine says.
+Maxine and Tom walk across the courtyard to Building 7 with the boxes 
+of donuts. They greet the security guard. When Maxine puts her badge on 
+the electronic card reader on the side of the closed door, the light stays red.
+Maxine swipes her card again, but again, red light. Maxine sighs. She 
+hadn’t expected to not be able to get into the building.
+“Interesting that developers can’t get into the QA building, ” Tom says. 
+“Does that mean QA people aren’t allowed into the Dev building?”
+Maxine is about to call Kurt when she hears the door open. A cheerful, 
+elfin woman bustling with energy greets them. Right away, Maxine finds 
+her irresistibly likeable.
+“Y ou must be Maxine? And Tom? Kurt’s told me so much about you 
+both! Come on in  .  .  .  I wa s pretty sure that your badge wouldn’t work in 
+this building. It’s only a matter of time before Kurt’s stops working too. 
+We’re all so happy for him—well, most of us are, that is. Many of us always 
+knew that he was destined for bigger and better things than managing a 
+QA team. ”
+Charlotte’s comment about “destined for bigger and better things” 
+makes QA sound like an underclass. Like Kurt had escaped some sort of 
+ghetto, Maxine thinks.
+“What a wonderful idea to throw a party for QA! I’m not sure any -
+one’s ever done that before. Everyone will love it. I reserved the biggest 
+conference room for the whole day—people will swing by whenever 
+they’re not in meetings and such. And I also ordered pizza for every -
+one in the lunchroom. ” Maxine is impressed that Charlotte has taken 
+care of every detail so quickly. In the conference room, Maxine sees that 
+Charlotte has already written on the whiteboard, “We Appreciate QA!!!” 
+with hearts on either side of the large lettering.
+After looking for a moment, Maxine asks if she can make some changes.
+“Sure thing, ” Charlotte is enthusiastic.
+Maxine makes her change: “We Appreciate Our QA Team Members!!!”
+She then adds the names of Tom, herself, Kurt, and the other five 
+members of the Data Hub development team at the bottom.Copyrighted Excerpt 
+Not for Duplication
+Chapter 9     •     147
+“Good idea, ” Maxine hears Tom say behind her. “I suppose we should 
+invite all of the Data Hub developers to lunch too? Want me to send an 
+email to them?”
+Maxine quickly agrees, adding, “We’re going to need more pizza .  .  .  ” 
+“No problem, I’ll take care of it, ” says Charlotte with a big smile.
+Over the next couple of minutes, members of the QA team start 
+trickling into the conference room. Maxine introduces herself to each 
+one. She notices that the QA people are demographically a little different 
+than the developers. No one is in their twenties. Maxine wonders if that’s 
+because college grads are applying for developer roles instead?
+“So, what is this celebration about?” a woman with an Indian accent 
+asks.
+“It’s Testing Day!” Maxine smiles, delighted to be asked. “I’m so 
+excited that the features we’ve been working on for weeks are going to be 
+tested. I thought it would be fun to throw a party, so we could meet the 
+people who are doing this important work and to let you know that we’ d 
+love to help in any way. ”
+“Gosh, that’s really nice, ” the woman says, returning Maxine’s smile. 
+“I’m not sure if that’s ever happened before. ”
+Charlotte hollers from the other side of the room, “I’ve been here 
+for seven years, and I’ve never seen it happen. This is such a nice idea, 
+Maxine. Let me introduce you to everyone. Purna is one of the QA leads, 
+and these are her team members .  .  .  ”
+And then there’s silence. Maxine wonders if everyone expects her to 
+give a speech. As the host of the party, maybe she should. 
+“So, uh, again, thank you so much. We’re having pizza delivered for 
+lunch, and the Data Hub developers will be joining us then, ” Maxine 
+says. “What are you all working on these days?” That’s always a good ice 
+breaker.
+They tell her about the projects they’re working on, which provides a 
+shared context. Then she asks what they find most frustrating about the 
+testing process.
+The flood gates open. Their pain points and stories sound all too 
+familiar to her: waiting for environments, environments not completely 
+cleaned up, the problems that cascade when something goes wrong, the 
+inability to determine whether problems were caused by errors in the 
+code or something wrong with the environment.Copyrighted Excerpt 
+Not for Duplication
+148     •     The Unicorn Project
+Suddenly, she and Tom have lots of common ground and things to 
+talk to them about. After all, everyone loves complaining about work. 
+Maxine starts taking notes. And thus, the party gets fully underway.
+After ninety minutes, it’s clear to Maxine that it isn’t really about Dev 
+versus QA—instead, it’s about how Phoenix business requirements 
+change so often, which almost always requires urgent code changes. 
+This reduces the time available for testing, resulting in poorer quality, as 
+evidenced by the latest Phoenix disaster.
+Everyone understands that change is a part of life, but the Phoenix 
+Project seems ill-suited to this rapid pace of change. And everyone, abso-
+lutely everyone, expresses real concerns about the decreasing quality of 
+the Phoenix Project and the potential consequences to Parts Unlimited. 
+Someone says, “In his Town Halls, Steve talks about what’s needed from 
+us. We’re just not delivering what’s needed—and when we find something 
+wrong, there’s not enough time to fix it. ”
+There’s lots of enthusiasm about the feature freeze, despite the ambi-
+guity of what exactly will be frozen. People are excited that this indicates 
+a real change of values from the top, and it’s definitely for the better. 
+However, many managers are convinced they’re somehow exempt from 
+the freeze. 
+Eventually, the party moves to the lunchroom and fifteen large pizzas 
+of every imaginable variety are on the tables. The smell makes Maxine 
+hungry—she’s feeling a bit jittery from eating all those donuts; her heart 
+is racing, and she’s even sweating a bit. As a borderline hypoglycemic, she 
+needs to eat some protein soon or she’ll have a headache and a serious 
+blood sugar crash.
+By now, scores of QA people have arrived. Maxine doesn’t really know 
+who is supporting Data Hub and who isn’t, but she doesn’t care. The goal 
+is to make friends today. A bouncer at the door would have squashed that.
+Maxine finishes her second slice of pepperoni pizza and throws away 
+the paper plate in the compost bin. After carefully washing her hands, 
+she follows Purna to her desk. Purna has happily agreed to show Maxine 
+how she performs her daily work. Maxine sees rows of desks packed more 
+closely together than in the developer area, but not as dense as the help -
+desk area where she met Derek.Copyrighted Excerpt 
+Not for Duplication
+Chapter 9     •     149
+On Purna’s desk are two large monitors, pictures of her with her kids, 
+and a bottle of eight-year-old single malt scotch. Maxine gestures at it, 
+“Y our favorite?”
+Purna laughs, saying, “Not even close, but good enough for cele -
+brations here. Y ou need it working on the Phoenix Project. ” She moves 
+windows around her screen and shows Maxine the release project that she 
+has created in the QA ticketing tool.
+At last, Maxine thinks. She’s been dying to see the QA team workflow. 
+When Maxine sees the tool, she is momentarily taken aback.
+“Is that IE6?” Maxine asks, hesitantly. The last time she saw that 
+version of Internet Explorer was in Windows XP .
+Purna smiles, as if she’s used to having to explain this to people. “Y es. 
+We’ve been using this tool for over a decade, and now we have to run the 
+client inside of an old Windows VM. It contains all our test projects and 
+runs some of our automated functional tests. There’s thousands of test 
+plans that we’ve built over ten years in here. ”
+“But IE6?” Maxine asks.
+“The vendor has an upgrade that supports a modern browser, but 
+it requires upgrading the server it runs on, ” Purna says. “We finally got 
+budget for it, but we’re still waiting for Operations to provision it. ”
+This isn’t the first time Maxine has seen people having to use old 
+versions of Internet Explorer. They had some plant support systems 
+back at her old position where the vendor went out of business long ago. 
+They’ve managed to migrate off of those systems, with one exception. 
+They had to create a completely air-gapped network called “6.6.6.6” for a 
+mission-critical server. It was running on a known vulnerable version of 
+SunOS, which was completely unpatchable.
+Good times, she thinks.
+As Purna gives her a tour, Maxine sees that despite its age, the QA 
+workflow application is very well-organized and functional.
+Purna pulls up a network share with over two hundred Word docu -
+ments containing test plans. When Maxine asks, she opens up a couple at 
+random. Some describe the test procedure to test a given user scenario: 
+go to this URL, fill out this form with these values, click this button, verify 
+correct values at this other URL .  .  .  
+Other documents describe the test plan for input validation, to 
+ensure that every field in each form rejects any non-conforming input. Copyrighted Excerpt 
+Not for Duplication
+150     •     The Unicorn Project
+Reading these brings back memories from decades ago for Maxine. After 
+all, her first job was doing software QA. Great QA requires a perverse 
+and sometimes sadistic intuition for what will cause software to blow up, 
+crash, or endlessly hang.
+Maxine once heard a joke: “ A QA engineer walks into a bar. Orders a 
+beer. Orders zero beers. Orders 999,999,999 beers. Orders a lizard. Orders 
+negative one beer. Orders a ‘sfdeljknesv. ’”
+Great QA people are notoriously good at breaking other people’s 
+code. They’ll fill in forms with thousands of characters, unprintable 
+Unicode characters and emojis, put negative numbers into date fields, 
+and other wildly unexpected things. As a result, programs crash or wildly 
+mal f unction, usually causing developers to slap their foreheads, marvel -
+ing at the diabolical test case.
+Some of these injection errors can be used by hackers to gain complete 
+access and potentially grab all the data from the entire system. This is what 
+led to some of the worst personally identifiably information (or PII) thefts 
+in history.
+Finding these errors and vulnerabilities is very important work. 
+Maxine feels awful that Purna and her team must manually perform 
+them. During the next two weeks, how many times will they clean up 
+from the previous test, bring up a fresh Phoenix application state, go to 
+the right URL, type the same information into the fields .  .  .  ?
+Purna shows other tests to check whether the feature actually worked 
+as designed. Often, this means connecting it with other business systems 
+in an integrated test environment carefully engineered to resemble what 
+is currently running in production.
+Maxine keeps thinking about how many of these great tests could 
+be automated. It would liberate the QA teams from work that is tedious, 
+time-consuming, and error-prone, and free up their genius to find more 
+ways to break the code.
+Moreover, these automated tests would be run every time a developer 
+checks in code, giving fast and immediate feedback that Maxine and other 
+developers love. They could find mistakes right away and not make the 
+same mistake day after day, week after week.
+Maxine doesn’t say any of this aloud. The last thing a QA person 
+wants to hear from a developer they just met is their ideas on how to 
+automate their job away.Copyrighted Excerpt 
+Not for Duplication
+Chapter 9     •     151
+Nearly an hour later, Maxine is still eagerly taking notes. Purna is 
+being so nice, but Maxine feels impatient. She’s here to see her code run 
+and help the QA team make sure it’s correct.
+Purna turns to her and says, “Well, that’s about all we can do. The 
+QA1 environment still hasn’t been reset. We’re waiting on a customer test 
+data set from the Data Warehouse team, and the Phoenix Dev teams still 
+haven’t started their merge .  .  .  un til we get those, there’s really nothing we 
+can do. ”
+“The developers haven’t started merging?” Maxine says, her heart 
+sinking. “How long does that take?”
+“We usually get something within two or three days .  .  .  I k now they’re 
+always trying their best .  .  .  ” s ays Purna.
+Maxine groans. In her short tour of duty with the Phoenix Project, 
+she’s experienced almost every side of a ticket transaction. To get a 
+Phoenix build going, she opened up tickets to what felt like half of the QA 
+and Operations organization and waited helplessly while they worked to 
+get the things she needed.
+She enjoyed working on some Data Hub development tickets, 
+because they represented things that their customers needed. They 
+marked them for QA as “ready to test, ” and now that she’s hanging out 
+in QA, she discovers that QA is waiting on work still being done back 
+in Dev.
+And they’re also waiting for other people to vacate the test environ -
+ments they need to use. They’re waiting for Ops to provision a server so 
+they can upgrade their test management system. And they’re waiting for 
+refreshed test data from the Data Warehouse team. Where does all this 
+madness end?!
+“What exactly do you need from the Data Warehouse team?” she 
+asks, reminded of Brent’s data problems during the Phoenix release and 
+Shannon describing her five frustrating years on that team.
+“Oh, everyone waits for them, ” she says. “They’re responsible for 
+getting data from almost everywhere in the company, and cleaning and 
+transforming it so that it can be used by other parts of the business. We’ve 
+been waiting almost a year for anonymized customer data, and we still 
+don’t have test data that includes recent products, prices, and active pro-
+motions. We always get pushed down the priority list, so our test data is 
+years old. ”Copyrighted Excerpt 
+Not for Duplication
+152     •     The Unicorn Project
+Interesting, Maxine thinks. Data Hub is actually how the Data 
+Warehouse team receives most of its data.
+More and more dependencies, as far as the eye can see, she thinks. There 
+is no place in this whole screwed-up system where you can get anything 
+done. It doesn’t matter whether you’re creating the ticket, processing the 
+ticket, waiting on the ticket, or working the ticket. It doesn’t matter. Y ou’re 
+trapped in a web of dependencies, completely unable to get anything done, 
+no matter where you are.
+“This sucks, ” Maxine says finally, sighing loudly. “I just hate all this 
+waiting . . . ”
+“ Actually, it’s much better than it used to be, ” Purna says. This makes 
+Maxine feel even worse.
+Purna stares at Maxine. Maxine feels like she needs to explain why 
+she’s upset: “I’m pissed off that Dev doesn’t have their crap together. We’ve 
+got to do better than this, ” Maxine finally blurts out.
+“I know we sometimes contribute to the problem too, ” Purna says.
+Oh, great, Maxine thinks. On top of everything else, we’re also suffering 
+from Stockholm syndrome.
+Just then, she hears a loud commotion in the lunchroom behind her. 
+A tall man in his early fifties is angrily yelling at Charlotte and pointing at 
+the pizzas and then at Tom and the other Data Hub developers.
+Uh oh. That must be Roy, she thinks. She quickly texts a note to Kurt: 
+Roy is here. You’ d better come!
+“Excuse me, ” she says to Purna, walking quickly to the kitchen.
+“ .  .  .  w e can’t have people here disrupting and interfering with our 
+work. Of course, I certainly appreciate the gesture, but this should have 
+gone through me. Next time, get my approval first, Charlotte!”
+“Oh, but it just seemed like such a nice gesture, ” Charlotte responds. 
+“I mean, donuts and pizza! No one has ever done that for QA before. 
+What a very nice thing for Kurt to do. ”
+“Kurt! Kurt’s always up to something. This is just part of some scheme 
+he’s hatching, ” Roy fumes, waving his clipboard at everyone. Watching the 
+scene are about fifteen people standing motionless, eyes wide. Some look 
+frightened; some look amused.Copyrighted Excerpt 
+Not for Duplication
+Chapter 9     •     153
+“He’s probably put all this food on my department code!” Roy says, 
+turning back to Charlotte. “If so, there’s going to be hell to pay. ”
+Maxine strides confidently into the lunchroom, extending her hand. 
+“Hi, Roy. I’m Maxine, one of the developers on the Data Hub team. I’m 
+sorry. This is all my fault. It was my idea to bring in donuts this morning. 
+I just wanted to celebrate Testing Day with you and offer our help. ”
+Roy shakes Maxine’s extended hand but looks blankly at her. He 
+finally asks, “To celebrate what?”
+“Testing Day, ” Maxine says simply, unable to stop smiling. Roy’s 
+expression is nearly identical to Tom’s when she brought up Testing Day to 
+him earlier that morning. “I’ve had so much fun working on the features 
+for Data Hub that I thought it would be just as fun to offer our help to test 
+the code too. ”
+Maxine points behind her to the conference room whiteboard, which 
+everyone can see from the lunchroom, especially the big, pink hearts that 
+Charlotte drew.
+Roy looks at her, speechless. Finally, he releases her hand and says 
+loudly, “Oh, no you don’t. I don’t know what you all are up to, ” pointing 
+at Maxine and Tom and five other Data Hub developers who stand out in 
+their T-shirts and hoodies. “I’m pretty sure Kurt is up to no good, as usual. 
+This is probably some empire-building scheme he’s running, now that he’s 
+trumped up a position for himself in Development. I’ll get to the bottom 
+of this, you can count on that. ”
+As Roy turns to go, Maxine wonders how she can reiterate her message 
+of “we come in peace. ”
+As she tries to decide what to do, she sees Kurt stride into the room. 
+“Oh, hello, Roy! I’m so glad you’re still here. Sorry for not coordinating with 
+you. We just thought it would be fun to throw a surprise party. QA is the 
+next critical part of the chain, and we want to do whatever we can to help. ”
+At the sound of Kurt’s voice, Roy turns around, his face red. “Oh, ho, 
+here he is! I’ d like to have a word with you. Right now, please. ”
+Kurt is about to respond when Kirsten walks into the room behind 
+him, saying, “Hi, Kurt. Hi, Roy. Mind if I join you all? Oh, I love pizza. ”
+Maxine is surprised to see Kirsten. Other people are wandering into 
+the lunchroom, watching the drama unfold.
+“I’m so glad you could make it, Kirsten. ” Kurt turns to everyone, 
+“ As we were walking here, we were talking about how important the QA Copyrighted Excerpt 
+Not for Duplication
+154     •     The Unicorn Project
+effort is and that QA ’s concerns deserve a bigger voice. Kirsten, would 
+you mind sharing what you told me? I think everyone here would love 
+to hear it. ”
+“Of course, Kurt, ” Kirsten says, holding a paper plate with a slice of 
+sausage and pineapple pizza. “ As everyone knows, the Phoenix Project is 
+the most important initiative in the history of the company. The disaster 
+two weeks ago was a big eye-opener for everyone, especially at the most 
+senior levels of this company. We have a lot riding on the next release. We 
+have three years of promises that we’ve made to the marketplace that we’re 
+finally starting to fulfill.
+“We just announced Project Inversion, the first time we’ve had a fea-
+ture freeze to shore up quality, ” she continues. “This is a demonstration 
+of the commitment, at the highest levels of the company, not just to do 
+the right things, but to do the right things right. And getting you a code 
+release on time is part of that. I know Development is often late merging 
+their changes.
+“In our meeting with all the Dev and QA leadership, they gave their 
+commitment to deliver you something to test by five today, ” she says. “We 
+know how important it is that you have something stable to test, and that 
+needs great development processes. Improving those processes will be a 
+part of Project Inversion, as well. ”
+People cheer, the QA staff clapping especially loudly.
+“We’re in a relay race, and we need to get the baton handed to you, ” 
+she continues, gesturing expansively with her free hand. “Y our work is 
+important, and my job is to help you get whatever you need to succeed. 
+Thank you in advance for all your hard work, and please let me know 
+how I can help. ” The room erupts in applause again, and Maxine joins 
+in. She’s reminded of a fancy party she was at in Chicago, where she saw 
+the mayor of the city address the room. She was amazed at how gifted of 
+a communicator he was, making everyone not only feel comfortable, but 
+appreciated and part of something special.
+Kirsten has that gift too, Maxine thinks. She’s never seen this side of 
+Kirsten before and is impressed.
+The crowd starts to dissipate, and several people make their way to 
+Kirsten. Others approach Kurt, shaking his hand, congratulating him on 
+his new role.
+Roy is at the back of the lunchroom, glaring at Kirsten and Kurt.Copyrighted Excerpt 
+Not for Duplication
+Chapter 9     •     155
+At that moment, Charlotte appears beside her. “Life is always inter -
+esting around Kurt, isn’t it? I’m going to introduce myself to Kirsten. I’ve 
+always wanted to meet her. She’s so cool. We’ve had so many interesting 
+people visit us here in QA today!”
+Maxine sees Roy approach Kurt. She inches over so she’s just close 
+enough to hear him say, “  .  .  .  Thi s isn’t over. Y ou somehow managed to 
+find a patron, but she won’t be able to protect you forever. Y ou think you’re 
+better than us? Y ou think you can come in here, put on airs, and automate 
+everyone’s job away? Not on my watch. I’ll make sure we bring you down. ”
+Roy strides out of the room. Maxine looks at Kurt, who has an 
+unconcerned smile on his face. He says to Maxine and Tom, who just 
+joined her, “Well, that was fun. Don’t worry about a thing. I saw that 
+coming a mile away. ”
+“Worried?” Tom responds, laughing. “I’m not worried about anything. 
+This is more exciting than your average day coding. What’s going to happen 
+next?”
+“ Apparently, developers merging their code in a hurry to make a five 
+o’ clock deadline, ” Maxine says, deadpan.
+Tom’s smile quickly disappears. “Let’s go watch. ” Kurt smiles.

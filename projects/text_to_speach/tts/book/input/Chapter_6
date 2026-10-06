@@ -1,0 +1,638 @@
+Copyrighted Excerpt 
+Not for Duplication
+86     •     The Unicorn Project
+CHAPTER 6
+• F riday, September 12
+Friday goes by in a blur for Maxine as the emergency release preparations 
+continue. She sees endless mayhem as Dev, QA, and Ops try to line up 
+hundreds of moving pieces for the deployment. Dwayne was right , she 
+thinks. And it’s too late to change her bet to Sunday in the betting pool.
+At five p.m. the release starts on schedule. There are rumors of last-
+ditch attempts to call it off, because William, Chris, and Bill are nowhere 
+to be seen. These hopes are crushed when an email comes out from Sarah 
+and Steve, making it very clear that the release is to proceed as scheduled.
+Maxine is still at the office at ten that evening. By now, there’s a sense of 
+genuine panic that things are going very, very wrong. So spectacularly wrong 
+that even Dwayne, who was the most pessimistic in the Phoenix release bet-
+ting pool, mutters to Maxine, “This is going worse than I thought it would. ”
+That’s when Maxine becomes genuinely frightened.
+By midnight, it’s clear that a database migration is going to take 
+five hours to complete instead of five minutes, with no way to stop it or 
+restart it. Maxine tries to be helpful, but she isn’t familiar enough with the 
+Phoenix systems to know where she would be the most useful.
+In contrast, Brent is being pulled every which way, needed for just 
+about every problem, from the huge database meltdown in progress to 
+helping people fix their configuration files. Seeing this, Maxine organizes 
+a team to play goalie, protecting Brent from interruptions and fielding 
+problems that don’t require him.
+Maxine notices something else. There must be two hundred people 
+responsible for some portion of the release, but for most of them, it’s only 
+about five minutes of work. So, they have to wait around for hours to per-
+form their little part in this excruciatingly long, complex, and dangerous 
+operation. The rest of their time is spent watching and .  .  .  wa iting.
+Even in the middle of this crisis, people are just sitting around, waiting.
+By two a.m. everyone realizes there is a very real risk that they are 
+going to break every point-of-sale register in every one of the nearly Copyrighted Excerpt 
+Not for Duplication
+Chapter 6     •     87
+thousand stores, knocking Parts Unlimited back into the Stone Age. And 
+with all the promotion that Marketing has been doing, the stores will be 
+filled with angry customers unable to buy what they were promised.
+Brent asks her to join a SW AT team to figure out how to speed up 
+the database queries, still nearly a thousand times slower than they need 
+to be in order to handle the expected load when stores open up later that 
+morning.
+For hours, she works with a bunch of Phoenix developers and Ops 
+DBAs with her IDE and browser open. They are stunned when they 
+discover that clicking the product category drop-down box floods the 
+database with 8,000 SQL queries.
+They are still working on fixing this when Wes pokes his head in the 
+room, “Brent, we’ve got a problem. ”
+“I’m busy, Wes, ” Brent replies, not even looking up from his laptop. 
+“No, this is serious, ” Wes says. “The prices have disappeared from at least 
+half of our products on the e-commerce site and mobile apps. Where 
+the price should be displayed, either nothing shows up or it says ‘null. ’ 
+Screenshots are in the #launch channel. ”
+Maxine blanches, pulling up the screenshot. This is much more serious 
+than slow database queries, she thinks.
+“Dammit, I bet it’s another bad upload from the pricing team, ” Brent 
+says after staring at his screen for several moments. Maxine leans over as 
+Brent pulls up various administrative screens and product tables—some 
+are inside of Phoenix and others on systems she doesn’t recognize.
+Maxine takes notes as Brent pulls up log files, runs SQL queries against 
+a production database, pulls up more tables in various applications .  .  .  On ly 
+when he opens up a terminal window and logs into a server does Maxine 
+ask, “What are you doing now?”
+“I need to inspect the CSV file that they uploaded into the app, ” he 
+says. “I think I can find one in the temporary directory on one of the 
+application servers. ” Maxine nods.
+When Brent squints at his screen, Maxine does as well. It’s a comma-
+separated text file with column names in the first row—product SKU, 
+wholesale price, list price, sale promotion price, promotion start date .  .  .  “ It 
+looks fine, ” Brent mutters.
+Maxine agrees. She says, “Can you copy that file into the chat room? 
+I’ d like to take a look at it. ”Copyrighted Excerpt 
+Not for Duplication
+88     •     The Unicorn Project
+“Good idea, ” he says. She imports it into Excel and several other of her 
+favorite tools. It looks fine. 
+While Wes tries to get one of the development managers on the 
+phone, Brent tries to figure out what is going wrong. It’s almost thirty 
+minutes later when he curses. “I can’t believe it. It’s a BOM!”
+Seeing Maxine’s confused expression, he says, “ A byte-order mark!”
+“No way, ” mutters Maxine, pulling up the file again, this time in a 
+binary file editor. She stares at her screen, stunned that she missed it. A 
+BOM is an invisible first character that some programs put in a CSV file 
+to indicate whether it’s big-endian or little-endian. She’s been bitten by 
+this before.
+Y ears ago, a colleague gave her a file exported from the SPSS statistical 
+analysis application, and she spent half a day trying to figure out why her 
+application couldn’t load it as expected. She finally discovered that the 
+file had a BOM, which got interpreted as part of the first column name, 
+which caused all her programs to fail. Which is almost certainly what is 
+happening here, she thinks.
+Any intellectual satisfaction she feels at understanding this particular 
+puzzle quickly disappears. She asks Brent, “This has happened before?”
+“Y ou have no idea, ” Brent says, rolling his eyes. “Different problem 
+every time, depending on who generated the file. The most common 
+problems lately are zero-length files, or files with no rows in them. And 
+it’s not just the pricing team—we have data problems like this all over the 
+place. ”
+Maxine is appalled. The first thing she would have done right away 
+is write some automated tests to ensure that all input files are correctly 
+formed before they allow them to corrupt their production database, and 
+that the correct number of rows are actually in the file.
+“Let me guess. Y ou’re the only one who knows how to correct these 
+bad uploads?” Maxine asks.
+ “Y ep, ” she hears Wes say from behind her. “ All roads lead to Brent. ” 
+Maxine jots down more notes, determined to investigate this and do 
+something about it later.
+It’s almost two hours later before the pricing tables are corrected. Because 
+of what Brent said, Maxine double-checks the file and is certain that it’s Copyrighted Excerpt 
+Not for Duplication
+Chapter 6     •     89
+missing a significant number of product entries. And because the pricing 
+team wasn’t part of the release, no one knows how to get a hold of them in 
+the middle of the night (or early morning as is seems to be). Maxine adds 
+some more things to her list of things that she’ll insist on building so that 
+this won’t happen again.
+At seven a.m., Maxine rejoins the database team. They’re still working 
+on speeding up queries—but it’s too late. An announcement is made that 
+stores are beginning to open on the East Coast.
+The Phoenix release is still nowhere near complete. “We’re fourteen 
+hours into the launch, and the missile is still stuck in the tube, ” Dwayne 
+says glumly.
+Maxine doesn’t know whether to laugh, smirk, or throw up—when 
+missiles are stuck in the launch tube, it’s a very dangerous scenario, 
+because at that point the missile is already armed and too dangerous to 
+approach. 
+At eight a.m., they are still hours away from having a working point-
+of-sale system. Sarah and her team are forced to train every store manager 
+on how to use carbon paper imprints, and some stores are forced to only 
+accept cash or personal checks.
+For Maxine, the rest of Saturday goes by in a blur. She’s unable to go 
+home. The Phoenix rollout was more than just a spectacular outage .  .  .  i t was 
+the most amazing example of production data loss Maxine has ever seen.
+Somehow, they managed to corrupt incoming customer orders. Tens 
+of thousands of customer orders were lost, and an equal number of cus -
+tomer orders were somehow duplicated—sometimes three or four times. 
+Hundreds of order administrators and accountants were mobilized, rec -
+onciling database entries against paper order slips being emailed or faxed 
+from stores.
+Shannon texts everyone in the Rebellion, horrified that boxes of 
+customer credit card numbers are being transmitted in the clear—but in 
+the grand scheme of things, it’s just another blip in the Phoenix disaster.
+At three p.m., Kurt texts everyone:
+Not to put light on this big pile of suck, but Dwayne wins the betting 
+pool. Congratulations, Dwayne.
+Dwayne replies:Copyrighted Excerpt 
+Not for Duplication
+90     •     The Unicorn Project
+Not worth it! FUUUUUUUUUUUU . . . 
+He posts an image of a burning tire fire.
+By Saturday night, Maxine finally manages to go home and sleep for 
+six hours before coming back to the office. Dwayne was right, this will go 
+down in the record books, she thinks glumly. 
+On Monday morning, Maxine is shocked to see her reflection in a mir -
+ror. She looks like crap, just like everyone around her—bags under her 
+eyes, hair stringy. Long gone are her carefully pressed blazers. Now it’s 
+jeans and a wrinkled jacket to cover up a stain on her equally wrinkled 
+blouse. Today she doesn’t look classy. Like everyone else, she looks like 
+she’s recovering from a hangover, having slept in her outfit from the night 
+before.
+Since Saturday morning, their e-commerce site has been continually 
+crashing under the unprecedented levels of customer traffic. In a status 
+update meeting, Sarah crowed about what a great job Marketing did pro-
+moting Phoenix, then demanded that IT pull their weight.
+“She’s unbelievable, ” Shannon mutters. “She created this whole disaster! 
+Is anyone ever going to call her on this?” Maxine just shrugs.
+The carnage is unbelievable. Most of the in-store systems are still 
+down—not just the point-of-sale registers, but nearly all of the back-office 
+applications that support the in-store staff.
+For reasons that continue to mystify everyone, even the corporate 
+website and email servers are having problems, further hampering their 
+ability to get critical information to people who need it—not everyone has 
+access to the developer chat rooms.
+In situations like this, technology failures cascade through the organi-
+zation, like water flooding through a sinking submarine.
+Trying to stay alert, Maxine goes to get more coffee from the kitchen. 
+Dwayne’s there doing the same thing. They nod at each other, and he says, 
+“Did you hear we have hundreds of people who can’t even get into their 
+buildings because their keycards won’t work?”
+“What?!” Maxine exclaims, exhausted but laughing. She says, “I was 
+just talking to someone who’s trying to figure out why a bunch of batch Copyrighted Excerpt 
+Not for Duplication
+Chapter 6     •     91
+jobs aren’t running. He’s even saying payroll might be delayed again—
+umm, I’ll leave that to other people to fix, ” she concludes with a small 
+laugh.
+“Huh, ” he muses. “I wonder if we managed to knock out an interface to 
+an HR application. That might explain these strange errors. We managed 
+to screw up everything else. ”
+All day during the recovery efforts, she hears questions like: Why 
+are all those transactions failing? Where are they failing? How did it get 
+into that state? Of the three ideas that might fix the problem, which one 
+should we try? Will it make it worse? We think we fixed it, but is it really 
+fixed?
+Once again, Maxine’s sensibilities are offended by how entangled all 
+these systems are with each other. It’s so difficult to understand any part 
+of the system in isolation.
+At times, it was difficult not to feel panicked. Earlier in the day, it 
+looked like the Parts Unlimited e-commerce site was being attacked by an 
+external party actively stealing credit card numbers. It took over an hour 
+for Shannon and the security team to send out an email concluding that 
+it was an application error—if someone refreshed the shopping cart at the 
+wrong time, the full credit card number and three-digit CVV code of a 
+random customer was displayed.
+The good news was that it wasn’t an external hack. The bad news was 
+that it was a genuine cardholder data exposure event and likely another 
+reason to be front-page news. All the attention and ridicule exploding on 
+social media only added to everyone’s stress.
+Taking a break, Maxine walks back to her desk. She sees the developer 
+who was so unconcerned with the release last week. He’s wearing fresh 
+clothes and appears to be well-rested.
+“Rough weekend, I’m guessing?” he says to Maxine.
+Maxine stares at him, speechless. He’s still working on features for 
+the next release. The only big change for him is that all his meetings have 
+been canceled because most people have been sucked into the Phoenix 
+crisis.
+He turns back to his screen to work on his piece of the puzzle, not 
+caring that none of the pieces actually fit together. Or that the entire 
+puzzle has caught on fire over the weekend, along with the house and the 
+entire neighborhood.Copyrighted Excerpt 
+Not for Duplication
+92     •     The Unicorn Project
+From: A lan Perez (Operating Partner, Wayne-Yokohama  
+Equity Partners)
+To: Dick Landr y (CFO), Sarah Moulton (SVP of Retail 
+Operations)
+Cc: S teve Masters (CEO), Bob Strauss (Board Chair)
+Date: 8:15 a.m., S eptember 15
+Subject: P hoenix Release **CONFIDENTIAL**
+Sarah and Dick,
+I’ve been reading the news headlines about the Phoenix release. Not a 
+great start. Again, I question whether software is a competency Parts 
+Unlimited can create. Maybe we explore outsourcing IT?
+Sarah, you mentioned the large number of developers you’ve contracted 
+to help. How long until they are fully contributing? When you grow a sales 
+team, it takes time for new salespeople to carry full quota capacity. Can 
+new developers really be onboarded fast enough to make a difference? 
+Or are we just throwing good money after bad?
+Sincerely, Alan
+From: S arah Moulton (SVP , Retail Operations)
+To: A ll IT Employees
+Cc: A ll Company Executives
+Date: 10:15 a.m., S eptember 15
+Subject: New pr oduction change policy
+Thank you for all your hard work helping deliver Phoenix to our customers. 
+This is a badly needed step for us to regain parity in the marketplace.
+However, due to the harm that we did to our customers because of 
+unanticipated problems caused by poor judgment exercised by certain Copyrighted Excerpt 
+Not for Duplication
+Chapter 6     •     93
+members of the IT organization, all production changes must be approved 
+by me, as well as Chris Allers and Bill Palmer.
+Changes made without approval will result in disciplinary action. 
+Thank you, Sarah Moulton
+Maxine reads the email from Sarah. There’s a new, maybe even sinister, 
+dynamic creeping into the Phoenix Project. In each of the outage calls and 
+crisis management meetings, senior leaders seem to be going out of their 
+way to posture about how they did their job but other people didn’t do 
+their jobs, sometimes subtly, sometimes very blatantly.
+While the redshirts battle to contain the raging engine fire that is threat-
+ening the entire ship, the bridge officers continue to cover their asses, Maxine 
+observes. Some are even using the disaster to their political advantage, 
+often to punish individual engineers or entire departments for supposed 
+dereliction of duty.
+Apparently, no one in IT leadership is safe—Maxine hears whispers 
+that both Chris and Bill, as the heads of Dev and Ops, are in jeopardy 
+of being fired, and there are rumors of all of IT being outsourced again.
+However, most believe William, as head of QA, is most likely to be axed.
+Which is bullshit, thinks Maxine. William was assigned to head up the 
+release team less than twenty-four hours before the release! No one can get 
+fired for trying to avert a disaster, right?
+“It’s like the TV show Survivor,” says Shannon. “ All the technology 
+executives are just trying to last one more episode. Everyone is freaking 
+out. Steve has been demoted, and Sarah is trying to convince everyone 
+that she can save the company. ”
+Later that afternoon, Brent invites Maxine to join a meeting. “We’ve 
+got nearly sixty thousand erroneous and/or duplicate orders in the data -
+base, and we’ve got to fix them so that the finance people can get accurate 
+revenue reports. ”
+Maxine helps the group wrangle the problem for an hour. At the end, 
+once they find a solution, one of the Marketing managers says, “This is 
+above my paygrade. Sarah is super-sensitive about changes right now. I’ve 
+got to get her approval. ”Copyrighted Excerpt 
+Not for Duplication
+94     •     The Unicorn Project
+Ah, the Square in action, just like Cranky Dave described . But now, 
+decisions that might have needed only to go “up and over one” now have 
+to go “up and over two. ” Now, all product managers need to run every -
+thing by Sarah. Someone mutters, “Don’t hold your breath—she never 
+responds right away. ”
+Great, Maxine thinks. Sarah has effectively paralyzed everyone in this 
+room even further.
+Throughout the day, all decisions and escalations quickly grind to 
+a standstill, even for emergencies, which Maxine didn’t expect. She dis -
+covers why: every manager insists on being a part of the communication 
+plan. Why? They want to hear any bad news first, so they don’t appear out 
+of touch and can massage any messages up the chain.
+Maxine is sharing this observation with Kurt when his phone buzzes. 
+Seeing his sour expression, she asks, “What’s up?”
+“It’s Sarah, ” he says. “She says she’s getting conflicting information 
+from Wes and me about the corrupted order data. I need to spend thirty 
+minutes explaining it to her when I’ve got two actual emergencies going 
+o n .”
+Kurt storms off before she can even wish him good luck. Maxine 
+shakes her head. The lack of trust and too much information flowing 
+around is causing things to go slower and slower.
+On Tuesday, Maxine joins a meeting led by Wes about more mysterious, 
+intermittent outages for both the e-commerce site and the point-of-sale 
+systems. 
+Sarah has been sending out emails, sometimes in all caps, reminding 
+people how important this is. But everyone already knows how important 
+this is—processing orders is one of the most important functions for any 
+retailer.
+The room is almost empty, even though this is a Sev 1 outage. 
+Apparently, everyone has had to go home sick. The Phoenix release 
+forced people to work long hours together in close proximity all day and 
+night, and with little sleep. Now everyone is dropping like flies. Of the 
+people needed on this call, no one is healthy enough to be in the office. 
+In fact, only two people are healthy enough to even be on the conference 
+line.Copyrighted Excerpt 
+Not for Duplication
+Chapter 6     •     95
+Maxine looks up when she hears Sarah shouting, “What can you do 
+about this? Who can fix this? Our store managers need our help! Don’t 
+people realize how important this is?”
+Maxine stares at Sarah in disbelief, noting that she looks tired, not 
+her usual immaculate self. Even Sarah isn’t escaping the Phoenix carnage 
+completely unscathed, despite her Teflon-like ability to avoid getting 
+blamed for nearly anything in her three-year tenure at Parts Unlimited.
+Wes throws up his hands. “What can we do about it? Nothing. The 
+entire application support team is out sick. Brent just went home sick. 
+The DBAs are out sick. Even though we’ve got the supremely competent 
+Maxine here, she’s like me—we don’t know enough about the service to 
+do anything except reboot the systems, which is what the support teams 
+are already doing. ”
+Maxine sees that Wes is sick too—he’s congested and looks terrible. 
+Bags underneath his red eyes, hoarse voice .  .  .  s he suddenly wonders if she 
+looks as bad as he does.
+“This is not acceptable, Wes, ” says Sarah. “The business depends on 
+us. The store managers depend on us. We need to do something!”
+“Well, these were the risks we warned you about when you proposed 
+proceeding with the Phoenix launch—but you emailed saying that we 
+‘need to break some eggs to make omelets, ’ right? We’re doing everything 
+we can, but unless you want to help reboot some servers, I’m telling you 
+there’s nothing we can do. ”
+Wes continues, “But here’s something that we should talk about: How 
+do we keep our people healthy enough so they can actually do their jobs? 
+And how do we keep them happy enough so they don’t quit? Chris says 
+two of his key engineers quit in the last week. I’ve lost two people on 
+the Ops side too, and there’s a good chance I may lose three more. Who 
+knows how many more are actively looking?
+“ And when that happens, we will truly be up shit creek, because then 
+we’ll have empty meetings like this all the time, ” Wes says with a half -
+hearted laugh that turns into coughs.
+He grabs his laptop and starts walking out the door. Before he leaves, 
+he says, “Sarah, I know you think it’s strange that we have no one left on 
+the bench to solve this important problem, but that’s the way it is. If you 
+want to help, learn to be a doctor or learn some middleware. In the mean-
+time, just stay out the way because we’re doing our best. ”Copyrighted Excerpt 
+Not for Duplication
+96     •     The Unicorn Project
+Maxine likes the way Wes rolls—he’s fearless and he always says what 
+he thinks.
+She makes a mental note to ask the Rebellion about recruiting Wes.
+Thinking about the Rebellion, she realizes how important that 
+group is. To her, it’s a beacon of hope. Maxine knows she may be manic 
+and loopy from lack of sleep, but the Rebellion has assembled some of 
+the best engineers in the company. And they could liberate everybody 
+from . . . from . . . all of this.
+We need to keep the Rebellion together and keep this important work 
+going, she thinks.
+She texts Kurt right away:
+No matter what, we cannot cancel our Dockside meeting on Thursday.
+His reply shows up right away.
+Great minds think alike. In fact, I have a surprise for everyone. See you in 
+two days!
+By Thursday, things have stabilized substantially. The most glaring defects 
+and performance problems in Phoenix have been fixed. And it helps that 
+customer traffic is way, way down. Who wants to go to a store or website 
+that can’t take orders? The result is that it’s no longer necessary for every-
+one to work all night. Maxine slept in until ten this morning. As she was 
+driving into work, she realized how much she was looking forward to the 
+Dockside meeting that evening.
+As promised, Kurt texted everyone in the Rebellion:
+I’ll be a little late. Dwayne and Maxine, please run the standard agenda, 
+including the Phoenix environment build. I will be bringing a very special 
+guest.
+Maxine is pretty sure everyone will be there tonight.
+But despite getting some sleep, she doesn’t feel well. She desperately 
+hopes she is not getting whatever illness decimated her fellow co-workers. 
+Despite that, she is very glad to be working on the Phoenix builds again. Copyrighted Excerpt 
+Not for Duplication
+Chapter 6     •     97
+That evening, when she arrives at the Dockside, Maxine’s excited to 
+see everyone. She wants to find out how to get a Rebellion sticker for her 
+laptop and to trade war stories. She’s surprised to see that everyone looks 
+angry and dejected.
+Throwing her jacket over the back of a chair, she says cheerily, “Hi, 
+everyone! What’s got everyone so grouchy?”
+Dwayne looks at her. “Read the email that was just sent out. They 
+fired William. ”
+From: Chr is Allers (VP Development)
+To: A ll IT Employees
+Date: 4:58 p .m., September 18
+Subject: P ersonnel changes
+Effective immediately, Peter Kilpatrick (Front-End Dev Manager) will be 
+leaving the company, and William Mason (QA Director) will be on a leave 
+of absence. We especially appreciate all their contributions.
+Please direct all front-end Dev emails to Randy and all QA-related emails 
+to me.
+Thank you,  Chris
+Maxine slumps as she reads the message. The witch hunt has begun. 
+Adam shakes his head angrily. “I wasn’t a huge fan of William, ” he says, 
+“but to blame him for everything is wrong. ”
+In Chris’ email there’s no mention about his own culpability in the 
+Phoenix disaster. And even though Maxine doesn’t believe in punishment 
+or scapegoating, it’s doubly unfair that all the blame is being put on the 
+technology organization, and no one from the business or product side is 
+being held accountable.
+Cranky Dave looks up from his phone, disgusted. “Ditto for Peter—he 
+was just doing what the business managers demanded. What a complete 
+shit show. ” Copyrighted Excerpt 
+Not for Duplication
+98     •     The Unicorn Project
+“This is so wrong, ” Shannon mutters. “I don’t suppose it would help 
+to write a petition or anything, right? Y ou know, lodge our protest about 
+their firing?”
+Adam says, “No one who matters is being held responsible! We 
+should . . . ”
+He suddenly stops talking, staring slack-jawed at something behind 
+Maxine. “Holy shit  .  .  .  ” h e finally says. Everyone next to Adam is also 
+looking shocked at whatever is behind her.
+Maxine turns around and sees Kurt walking through the entrance.
+Next to him is Kirsten, the director of project management.
+“My God, ” Maxine hears Adam say. He looks frightened, closing his 
+laptop and standing up, as if he’s going to flee the scene.
+“Oh, for Chrissakes, sit back down, Adam, ” says Maxine. “This 
+isn’t like the secret police showing up. Not one of us has done anything 
+wrong—have some dignity. ”
+Cranky Dave laughs nervously, but like everyone else, he’s already 
+closed his laptop, as if he has something to hide.
+Kirsten is wearing a fancy blazer, two steps up from Maxine’s usual 
+casual business garb and a full four steps up from the hoodies, T-shirts, and 
+bowling shirts worn by the other engineers around the table. People in the 
+bar are staring, clearly wondering who invited the management suit here.
+Maxine knows that she looks slightly out of place at the Dockside, but 
+wow, Kirsten looks way out of place, like she was on the way to an event 
+for senior law partners but had a flat tire while driving by with a dead cell 
+phone and had to come in to find help.
+Looking around, Kurt smiles and says, “For those of you who don’t 
+know Kirsten, she leads Project Management, which is undoubtedly the 
+most trusted organization at Parts Unlimited, despite their association with 
+us technology people. ” Kurt laughs. “ All of the most important company 
+initiatives go through Kirsten and her project management clerics, and she 
+routinely briefs Dick Landry, our CFO, on how they’re going. ”
+This is true , Maxine thinks. Kirsten is truly the high priestess of 
+order and discipline. She assigns the score of red, yellow, or green to each 
+major initiative of the organization, which can have career-catapulting or 
+career-ending consequences for the people involved. Besides Sarah and 
+the VP of sales, Kirsten is the person most mentioned by the CFO in his 
+Town Halls.Copyrighted Excerpt 
+Not for Duplication
+Chapter 6     •     99
+Sitting, Kirsten pours herself a beer from the pitcher on the table and 
+then pours a glass for Kurt. Kurt introduces everyone to Kirsten and then 
+gestures at Maxine, “Maxine is the latest addition to our elite group of 
+rebels. She was exiled to the Phoenix Project as punishment for the pay-
+roll outage, and of course, her vast talents have been completely wasted 
+ever since. That is, until we recruited her to help overthrow the uncar -
+ing, ancient, powerful existing order  . . . oh, um . . . ” Kurt suddenly looks 
+embarrassed, realizing Kirsten is part of that order. “Present company 
+excepted, of course, ” he finishes.
+Kirsten merely raises her glass in response.
+Kurt continues, “It turns out that Maxine, in her boredom and search 
+for meaning, began working on creating repeatable Phoenix builds, some-
+thing that has eluded the Phoenix teams for well over a year. We believe in 
+many great and virtuous things, but one thing we all agree on is that getting 
+builds going again is one of the most urgent and important engineering 
+practices we need right now. Once we get continuous builds going, we 
+enable automated testing. We get automated testing, we can make changes 
+quicker, with more confidence, and without having to depend on hun -
+dreds of hours of manual testing. And that, I believe, is the critical first 
+step for how we can deliver better value, safer, faster, and happier.
+“Without continuous builds, we are like a car manufacturer without 
+an assembly line, where anyone can do whatever they want, independent 
+of the plant goals, ” he continues. “We need to discover problems only 
+when we are in the build or testing process, not during deployment or 
+production.
+“I’ve wanted to own this for a year, but my boss, uh, rather, my recently 
+departed ex-boss, didn’t think it mattered. So, I’ve been taking people off 
+my team to work on it in secret and seeking out the best engineers in the 
+company who are willing and able to help. And Maxine has been a tre -
+mendous help in an amazingly short amount of time, ” he adds.
+Kurt pauses. “Uh, let’s all raise a glass to William—he and I had our 
+differences, but he certainly didn’t deserve to take the blame for the entire 
+Phoenix fiasco. ”
+Maxine raises her glass, as everyone else does the same. She takes the 
+time to clink glasses with everyone around the table.
+Looking at Kirsten, she says, “It sounds crazy, Kirsten, but I really 
+think this group can make a big difference. I’ve seen developers wait for Copyrighted Excerpt 
+Not for Duplication
+100     •     The Unicorn Project
+months to get a Dev environment. The lack of environments and cen -
+tralized builds slow us down in countless ways. In fact, most Dev teams 
+eventually stop waiting for environments or builds and just write code in 
+isolation, without caring whether it actually works with the system as a 
+w h o l e .”
+Maxine continues, “Look at what happened last week with the 
+Phoenix release. Better engineering practices would have prevented so 
+much of that. What a waste .  .  .  ”
+“We all agree with Maxine, ” Cranky Dave says. “But, Kirsten, uh, what 
+in the world are you doing here?”
+Kirsten laughs. “I’ve long harbored a suspicion that how we manage 
+technology at this company is not working. And it’s not just the Phoenix 
+release catastrophe. Look at all the things we need from Phoenix that are 
+still years away on the project plan.
+“Kurt has been telling me for months about the work the Rebellion 
+is doing. But my aha moment was when Kurt pointed out that we’ve 
+somehow created a system where hundreds of engineers are unable to 
+get simple things done without an incredible amount of communica -
+tion and coordination, ” she explains. “Sure, it’s our job to safeguard 
+the most important projects in the company. But ideally, everyone 
+should be able to get what they need done without any help from us. 
+Somehow, I think Project Management has turned into an army of 
+paper pushers, being dragged into every single task because of all the 
+dependencies.
+“We track the work of nearly three hundred people working on the 
+various parts of Phoenix. But, the real effort is even larger, ” she continues. 
+“Y ou’ d think we have thirty teams of ten people, with each team able to get 
+things done independently. But at times, it’s like we have only one team of 
+three hundred people .  .  .  Or maybe three hundred teams of one. In either 
+case, something is very wrong . . . ”
+She turns to Kurt. “What was that term you used? Watermelon proj-
+ects? Green on the outside, but red on the inside? That’s what every one of 
+our IT projects is these days, ” Kirsten observes wryly.
+She continues, “I’ve been here for fifteen years, and we’ve been play -
+ing this game of outsourcing and insourcing IT the whole time. The last 
+time around, the CIO proclaimed that Parts Unlimited was ‘no longer in 
+the people business, ’ if you can believe that, and outsourced everything. Copyrighted Excerpt 
+Not for Duplication
+Chapter 6     •     101
+We eventually brought most of it back in-house, but everything we got 
+back was in worse shape than ever. And we’ve lost the capability to do 
+some of even the most basic things ourselves. Last year, we had to make a 
+simple schema change for our data warehouse. We put out the request to 
+our normal list of outsourcing partners. It took them about three weeks 
+to get an estimate back to us. They said the work would take about ten 
+thousand hours to complete, ” she says. “Before we outsourced IT, this was 
+something we could have done in a couple of hours. ” 
+Maxine does the math in her head. From her consulting days, she 
+knows one fully loaded engineer works about two thousand hours per 
+year—that’s forty hours per week, fifty-two weeks per year, if they don’t 
+take any vacation. She bursts out laughing. “That’s five engineers working 
+full-time for a year, just to make a database column change?! That’s some-
+thing I could do in fifteen minutes!”
+“Y ep, ” Kurt says, with a sad smile. “The data warehouse change 
+requires work from two or three different outsourcers. Y ou’ d need to pull 
+together meetings from the account managers from each of those teams. 
+Each account manager would require a change fee and a feasibility study. 
+It takes weeks to get all the technical people to agree upon a change plan, 
+and even then, the tickets bounce back and forth for weeks. It takes a 
+super-heroic effort to actually get the change made. ”
+Dwayne laughs loudly. “Y ou think that’s bad? That’s nothing! We used 
+to have three networking switches in all of our manufacturing plants. 
+One for internal plant operations, one for employees and guest WiFi, 
+and one for all our equipment vendors that need to phone home to their 
+mothership.
+“ A couple of years ago, probably during budgeting season, some bean 
+counter looked at those three networking vendors and decided to consol-
+idate them down to one switch. Sort of makes sense, right?” he continues.
+“So without asking anyone, they went ahead and did it. And not 
+just in one plant, but in a bunch of the plants. They replaced the three 
+switches with one bigger, beefier switch, and then moved all plant traffic 
+onto it, ” Dwayne says. “But what they didn’t know was that they had three 
+separate outsourcers managing the three different networks. So now all 
+three outsourcers who used to work on their own separate switches had 
+to work on one switch and were suddenly stepping on each other’s toes 
+all the time.Copyrighted Excerpt 
+Not for Duplication
+102     •     The Unicorn Project
+“Within a week, one of the manufacturing plants had their entire 
+network knocked offline—absolutely nothing from inside the plant 
+could talk with the outside world. No one could get plant scheduling 
+information, no one could send out replenishment orders, equipment 
+couldn’t get maintenance updates  . . . A ll interfaces were dead!” Dwayne 
+continues, still clearly in awe of the scale of the outage.
+“The only thing that worked was the fax machine. Everyone from 
+every department had to wait in line to send out things like weekly pro -
+duction reports to management, orders for raw materials  .  .  .  ” D wayne 
+says.
+Maxine bursts out laughing. “I remember that—it was incredible. We 
+had to buy some USB printers from the local office supply store for a 
+couple of systems that couldn’t connect to the network printers. It was like 
+going back to the 1970s for almost a week. ”
+Adam mutters from across the table, “Y eah, just like we did to the 
+in-store systems this weekend. ”
+Dwayne takes another drink of beer and leans back, enjoying having 
+everyone’s attention. “Y ou’re probably wondering why it took a week to 
+restore service. Well, that entire time, no one took responsibility for what 
+happened. All three outsourcers denied that it was them, even when we 
+presented them the log files that clearly showed that one of the them had 
+disabled everyone else’s accounts. Apparently someone got tired of having 
+their changes trampled on by the other two, so they just locked them out. ”
+Everyone roars in laughter, but Maxine’s jaw drops.
+Dwayne continues, “That entire week all three outsourcers kept 
+blaming each other, and the network stayed down for days. It escalated all 
+the way to Steve. Y ep. The CEO. Even after he got all the CEOs of all three 
+outsourcers on the phone together, it still took almost twenty-four hours 
+for the network to be restored. ”
+As everyone jeers, Maxine says slowly, “That’s so interesting. Con-
+solidating network switches isn’t inherently a bad idea. Before, three teams 
+were able to work independently on their own networks. And when they 
+were all put on one network switch, suddenly they were coupled together, 
+unable to work independently, having to communicate and coordinate in 
+order to not interfere with each other, right?”
+With awe in her voice, she continues, “Y ou know, after they got put 
+onto one switch, I bet those teams needed to create a master schedule with Copyrighted Excerpt 
+Not for Duplication
+Chapter 6     •     103
+all of their work on it. And I’m even betting that they needed to bring in 
+project managers where they probably didn’t need them before.
+“Holy cow, ” Maxine continues, on a roll. “They did it to reduce costs, 
+but surely, in the end, it was more expensive for everyone all around. And 
+I bet it took everyone longer to do their work, with everyone having to 
+communicate, coordinate, get approvals, with project managers shuffling 
+and deconflicting all the work.
+“Oh, my God. It’s just like the Phoenix Project!” she exclaims.
+Silence falls upon the table as everyone stares at Maxine in a mix of 
+horror and dawning realization.
+“Y ou mean everything that’s wrong with the Phoenix Project we did 
+to ourselves?” Shannon asks.
+Kirsten looks rattled, brow furrowed, but says nothing. “Y es, ” says 
+Maxine. “I think we did it to ourselves. ”
+“Y ou are correct, Maxine. Y ou are truly on the cusp of understanding 
+the magnitude and scale of the challenges that await you, ” a voice says 
+from behind Maxine.

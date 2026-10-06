@@ -1,18 +1,18 @@
 from pypdf import PdfReader
-import os
-import re
 
-chapter_list_path = (
-    "/data/lab-python3/lab/projects/text_to_speach/tts/chapters_list.txt"
-)
+chapter_list_path = ""
 
-phoenix_project = PdfReader(
-    "/data/lab-python3/lab/projects/text_to_speach/tts/The_Phoenix_Project00.pdf"
+book_obj = PdfReader(
+    "/data/lab-python3/lab/projects/text_to_speach/the_unicorn_project01.pdf"
 )
 
 # pages 384
 # from 15 untill 338
-page = phoenix_project.pages
+page = book_obj.pages
+if page is book_obj.pages:
+    print(f"yes {page} is {book_obj.pages}")
+else:
+    print("no its not")
 
 
 class Chapter:
@@ -31,7 +31,7 @@ def find_actual_text():
     chapters_list_index = []
 
     i = 0
-    while i < len(phoenix_project.pages):
+    while i < len(book_obj.pages):
         extracted = page[i].extract_text()
         if "CHAPTER" in extracted:
             chapters_list_index.append(f"{chaptering.__call__()}: {i}")
@@ -53,6 +53,9 @@ def indexes():
             page_nr = int(s[1].lstrip())
             indexes_l.append(page_nr)
         return indexes_l
+
+
+find_actual_text()
 
 
 def extract_text_into_file(beg, end, file_name):
