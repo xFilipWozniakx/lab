@@ -65,12 +65,10 @@ while True:
                     with open("message_file.txt", "a") as file:
                         date = f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
                         msg = f"{date}: {data.decode('utf-8')} \n"
-                        print(msg)
                         file.write(msg)
                 else:
                     print("client lost connection")
                     break
-
 
 #         data = connection.recv(5)
 #         while len(data) < 5:
