@@ -1,5 +1,6 @@
 import socket
 import os
+from datetime import datetime
 
 # model
 # create communication channel ( socket )
@@ -62,7 +63,10 @@ while True:
                 data = receive_exactly(connection, LENGHT, address_client)
                 if data != b"":
                     with open("message_file.txt", "a") as file:
-                        file.write(data.decode("utf-8"))
+                        date = f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+                        msg = f"{date}: {data.decode('utf-8')} \n"
+                        print(msg)
+                        file.write(msg)
                 else:
                     print("client lost connection")
                     break
