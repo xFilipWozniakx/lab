@@ -42,8 +42,10 @@ def receive_exactly(conn, n, address_client):
         else:
             data += more
     if len(data) != n:
+        # return bytes
         return b""
     else:
+        # return int
         return data
 
 
@@ -54,12 +56,11 @@ while True:
 
     while True:
         data = receive_exactly(connection, 5, address_client)
-        if data == b"":
-            break
-        else:
-            TYPE = data[0]
-            LENGHT = int.from_bytes(data[1:5], "little")
-            if TYPE == 1:
+        match data[0]:
+            case b"":
+                break
+            case 0x01:
+                LENGHT = int.from_bytes(data[1:5], "little")
                 data = receive_exactly(connection, LENGHT, address_client)
                 if data != b"":
                     with open("message_file.txt", "a") as file:
@@ -69,23 +70,17 @@ while True:
                 else:
                     print("client lost connection")
                     break
+            case 0x02:
+                LENGHT = int.from_bytes(data[1:5], "little")
+                data = receive_exactly(connection, LENGHT, address_client)
+                if data != b"":
+                    path_for_pics = (
+                        "/home/vscode/lab/python3/modules/socket/dest_pictures/"
+                    )
 
-#         data = connection.recv(5)
-#         while len(data) < 5:
-#             new = connection.recv(5 - len(data))
-#             data += new
-#             if new == b"":
-#                 print("client connection lost")
-#
-#         TYPE = data[0]
-#         LENGHT = int.from_bytes(data[1:5], "little")
-#
-#         PAYLOAD = connection.recv(LENGHT)
-#         while len(PAYLOAD) < LENGHT:
-#             PAYLOAD_CONTINUE = connection.recv(LENGHT - len(PAYLOAD))
-#             if PAYLOAD_CONTINUE == b"":
-#                 print("client connection lost")
-#                 break
-#             else:
-#                 PAYLOAD += PAYLOAD_CONTINUE
-#
+                    # need to make different system for naming
+                    with open(f"{path_for_pics}cat_pic.webp", "wb") as file:
+                        file.write(data)
+                else:
+                    print("client lost connection")
+                    break
