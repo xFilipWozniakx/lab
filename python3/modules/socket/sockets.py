@@ -58,10 +58,13 @@ while True:
         else:
             TYPE = data[0]
             LENGHT = int.from_bytes(data[1:5], "little")
-            if TYPE == b"1":
+            if TYPE == 1:
                 data = receive_exactly(connection, LENGHT, address_client)
-                with open("message_file.txt", "a") as file:
-                    file.write(str(data))
+                if data != b"":
+                    with open("message_file.txt", "a") as file:
+                        file.write(data.decode("utf-8"))
+                else:
+                    print("client lost connection")
                     break
 
 
