@@ -2,6 +2,18 @@
 
 import socket
 
-client = sokcket.socket(AF_INET, SOCK_STREAM)
+# TYPES:
+type_1 = bytes([1])  # MESSAGE
 
-client.connect()
+
+msg = input("Type in message for python3_socket_server:\n")
+
+client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client.connect(("127.0.0.1", 5555))
+
+msg_b = msg.encode("utf-8")
+type_1 += len(msg_b).to_bytes(4, "little")
+type_1 += msg_b
+
+client.send(type_1)
+client.send(b"")
