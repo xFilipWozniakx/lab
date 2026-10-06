@@ -24,5 +24,15 @@ import socket
 
 # AF_INET for ipv4 / SOCK_STREAM for TCP protocol
 
-server = socket.socket(AF_INET, SOCK_STREAM)
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+print(f"Obj socket: {server}")
 server.bind(("0.0.0.0", 5555))
+print(f"Obj socket: {server}")
+server.listen()
+print(f"Obj socket: {server}")
+while True:
+    connection, address_client = server.accept()
+    # where connection = local address / address_client = remote address
+
+    while True:
+        print(connection.recv(1024))
