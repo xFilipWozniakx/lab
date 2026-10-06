@@ -35,4 +35,6 @@ while True:
     # where connection = local address / address_client = remote address
 
     while True:
-        print(connection.recv(1024))
+        data = connection.recv(1024)
+        if data == b"":
+            break
