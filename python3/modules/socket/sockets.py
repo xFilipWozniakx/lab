@@ -25,16 +25,54 @@ import socket
 # AF_INET for ipv4 / SOCK_STREAM for TCP protocol
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-print(f"Obj socket: {server}")
 server.bind(("0.0.0.0", 5555))
-print(f"Obj socket: {server}")
 server.listen()
-print(f"Obj socket: {server}")
+
+
+def receive_exactly(conn, n, address_client):
+    data = conn.recv(n)
+    while len(data) < n:
+        more = conn.recv(n - len(data))
+        if more == b"":
+            print(f"{address_client} lost connection")
+            break
+        else:
+            data += more
+    if len(data) != n:
+        return b""
+    else:
+        return data
+
+
 while True:
     connection, address_client = server.accept()
     # where connection = local address / address_client = remote address
+    print(f"connected: {address_client}")
 
     while True:
-        data = connection.recv(1024)
+        data = receive_exactly(connection, 5, address_client)
         if data == b"":
             break
+        else:
+            # trzeba bedzie zaplanowac prasowania danych / i zapisywania ich gdzies na dysku
+            pass
+
+#         data = connection.recv(5)
+#         while len(data) < 5:
+#             new = connection.recv(5 - len(data))
+#             data += new
+#             if new == b"":
+#                 print("client connection lost")
+#
+#         TYPE = data[0]
+#         LENGHT = int.from_bytes(data[1:5], "little")
+#
+#         PAYLOAD = connection.recv(LENGHT)
+#         while len(PAYLOAD) < LENGHT:
+#             PAYLOAD_CONTINUE = connection.recv(LENGHT - len(PAYLOAD))
+#             if PAYLOAD_CONTINUE == b"":
+#                 print("client connection lost")
+#                 break
+#             else:
+#                 PAYLOAD += PAYLOAD_CONTINUE
+#
