@@ -1,2 +1,7 @@
 # int.to_bytes(length, byteorder, *, signed=False)
-TYPE_TRANSFER = int.to_bytes(5)
+
+import socket
+
+client = sokcket.socket(AF_INET, SOCK_STREAM)
+
+client.connect()

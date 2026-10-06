@@ -1,4 +1,6 @@
 import socket
+import os
+
 # model
 # create communication channel ( socket )
 # bind address + port to that socket ( bind )
@@ -54,8 +56,14 @@ while True:
         if data == b"":
             break
         else:
-            # trzeba bedzie zaplanowac prasowania danych / i zapisywania ich gdzies na dysku
-            pass
+            TYPE = data[0]
+            LENGHT = int.from_bytes(data[1:5], "little")
+            if TYPE == b"1":
+                data = receive_exactly(connection, LENGHT, address_client)
+                with open("message_file.txt", "a") as file:
+                    file.write(str(data))
+                    break
+
 
 #         data = connection.recv(5)
 #         while len(data) < 5:
