@@ -15,9 +15,29 @@ sys.modules["explorer"] = explorer
 spec.loader.exec_module(explorer)
 
 
-# TYPES:
+# PROTOCOLS:
 type_1 = b"\x01"  # MESSAGE
 type_2 = b"\x02"  # PICTURE_UPDATE
+
+# type_3 = b"\x03"  # FAULTY ON PURPOSE
+
+
+# SERVER ANSWEARS:
+def receive_exactly(CONNECTION, LENGTH: int) -> bytes:
+    data = CONNECTION.recv(LENGTH)
+    while len(data) < LENGTH:
+        more = CONNECTION.recv(LENGTH - len(data))
+        if more == b"":
+            break
+        else:
+            data += more
+    if len(data) != LENGTH:
+        # return bytes
+        return b""
+    else:
+        # return bytes
+        return data
+
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect(("127.0.0.1", 5555))
@@ -35,31 +55,29 @@ def create_payload(PROTOCOL: bytes, item) -> bytes:
     return PROTOCOL + len(DATA).to_bytes(4, "little") + DATA
 
 
-def send_msg(TYPE: bytes, client):
-
-    msg = input("Type in message for python3_socket_server:\n")
-
-    PAYLOAD = create_payload(type_1, msg)
-    PAYLOAD_LENGTH = len(PAYLOAD)
-    send_exactly(client, PAYLOAD, PAYLOAD_LENGTH)
-
-
-def send_exactly(CONNECTION, PAYLOAD: bytes, MSG_LENGTH: int) -> bool:
-    sent = CONNECTION.send(PAYLOAD)
-    while sent < MSG_LENGTH:
-        sent += CONNECTION.send(PAYLOAD[len(sent) :])
-    return sent >= MSG_LENGTH
-
-
 # CHOICE MENU:
 while True:
     print("Choices: (1 message) (2 update_picture) ")
     choice = int(input("What are you going to do: "))
+    
 
     while choice == 1:
         message = input("Insert message for server to write: \n")
         PAYLOAD = create_payload(type_1, message)
-        send_exactly(client, PAYLOAD, len(PAYLOAD))
+        status = send_exactly(client, PAYLOAD, len(PAYLOAD))
+        if status == True:
+            header = receive_exactly(client,5)
+            if header == b"":
+                print("server lost connection")
+            else:
+                STATUS_CODE = header[0]
+                LENGTH = int.from_bytes(header[1:5], "little")
+                payload = receive_exactly(client, LENGTH)
+                print(payload.decode("utf-8"))
+        else:
+            print("no status code for you")
+
+        
 
         print("1 = yes, 2 = no ")
         inner_choice = int(input("Communication over?"))
