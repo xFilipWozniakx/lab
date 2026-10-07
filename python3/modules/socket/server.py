@@ -68,6 +68,11 @@ def receive_exactly(CONNECTION, LENGTH: int, address_client):
         return b""
         # should add loggin instead of priting
 
+def send_exactly(CONNECTION, PAYLOAD: bytes, MSG_LENGTH: int) -> bool:
+    sent = CONNECTION.send(PAYLOAD)
+    while sent < MSG_LENGTH:
+        sent += CONNECTION.send(PAYLOAD[len(sent) :])
+    return sent >= MSG_LENGTH
 
 def send_status_code(CONNECTION, STATUS_CODE):
     frame = (

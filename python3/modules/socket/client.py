@@ -19,29 +19,13 @@ spec.loader.exec_module(explorer)
 type_1 = b"\x01"  # MESSAGE
 type_2 = b"\x02"  # PICTURE_UPDATE
 
-# type_3 = b"\x03"  # FAULTY ON PURPOSE
 
+# STATUS CODES:
 STATUS_CODE_DICT = {
     b"\xc8": b"OK",
     b"\xc9": b"ERROR"
 }
 
-
-# SERVER ANSWEARS:
-def receive_exactly(CONNECTION, LENGTH: int) -> bytes:
-    data = CONNECTION.recv(LENGTH)
-    while len(data) < LENGTH:
-        more = CONNECTION.recv(LENGTH - len(data))
-        if more == b"":
-            break
-        else:
-            data += more
-    if len(data) != LENGTH:
-        # return bytes
-        return b""
-    else:
-        # return bytes
-        return data
 
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -60,7 +44,8 @@ def create_payload(PROTOCOL: bytes, item) -> bytes:
     return PROTOCOL + len(DATA).to_bytes(4, "little") + DATA
 
 
-def receive_exactly(CONNECTION, LENGTH: int) -> bytes:
+# SERVER STATUS CODES PARSER:
+def receive_exactly(CONNECTION, LENGTH: int):
     try:
         frame = CONNECTION.recv(LENGTH)
         while len(frame) < LENGTH:
@@ -77,11 +62,15 @@ def receive_exactly(CONNECTION, LENGTH: int) -> bytes:
             return frame
 
     except socket.timeout:
-        print(f"{address_client} exceed 30s idle state while in operation mode")
         CONNECTION.close()
         return b""
         # should add loggin instead of priting
 
+def send_exactly(CONNECTION, PAYLOAD: bytes, MSG_LENGTH: int) -> bool:
+    sent = CONNECTION.send(PAYLOAD)
+    while sent < MSG_LENGTH:
+        sent += CONNECTION.send(PAYLOAD[len(sent) :])
+    return sent >= MSG_LENGTH
 
 def send_status_code(CONNECTION, STATUS_CODE):
     frame = (
@@ -94,9 +83,6 @@ def send_status_code(CONNECTION, STATUS_CODE):
     while sent < len(frame):
         sent += CONNECTION.send(frame[len(sent) :])
     return sent >= len(frame)
-
-
-
 
 # CHOICE MENU:
 while True:
