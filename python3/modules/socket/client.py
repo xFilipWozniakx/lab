@@ -2,10 +2,12 @@
 
 import socket
 import os
+import hashlib
+
 
 # TYPES:
-type_1 = bytes([1])  # MESSAGE
-type_2 = bytes([2])  # PICTURE_UPDATE
+type_1 = b"x01"  # MESSAGE
+type_2 = b"x02"  # PICTURE_UPDATE
 
 
 # FILES:
@@ -16,20 +18,28 @@ client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect(("127.0.0.1", 5555))
 
 
-def send_msg(TYPE, client):
-    type_1 = TYPE
+def create_payload(PROTOCOL: bytes, item) -> bytes:
+    if PROTOCOL == type_1:
+        item_bytes = item.encode("utf-8")
+        PAYLOAD_LENGHT = len(item_bytes).to_bytes(4, "little")
+        PAYLOAD = PROTOCOL + PAYLOAD_LENGHT + item_bytes
+        return PAYLOAD
+    elif PROTOCOL == type_2:
+        with open(item, "rb") as pic:
+            PAYLOAD = pic.read()
+        return PAYLOAD
+    else:
+        raise ValueError("Unknown protocol type")
+
+
+def send_msg(TYPE: bytes, client):
 
     msg = input("Type in message for python3_socket_server:\n")
     msg_b = msg.encode("utf-8")
 
-    # TYPE + LENGHT
-    type_leng = type_1 + len(msg_b).to_bytes(4, "little")
-
-    # TYPE + LENGHT + PAYLOAD
-    type_leng_pay = type_leng + msg_b
-    leng_msg = len(type_leng_pay)
-
-    send_exactly(client, type_leng_pay, leng_msg)
+    PAYLOAD = create_payload(type_1, msg_b)
+    PAYLOAD_LENGHT = len(PAYLOAD)
+    send_exactly(client, PAYLOAD, PAYLOAD_LENGHT)
 
 
 def send_exactly(CONNECTION, PAYLOAD: bytes, MSG_LENGHT: int) -> bool:
@@ -39,20 +49,15 @@ def send_exactly(CONNECTION, PAYLOAD: bytes, MSG_LENGHT: int) -> bool:
     return send >= MSG_LENGHT
 
 
-def prot_2(pic_path):
-    with open(pic_path, "rb") as pic:
-        pic_bytes = pic.read()
-        pic_bytes_len = len(pic_bytes).to_bytes(4, "little")
-    return pic_bytes, pic_bytes_len
-
-
 # CHOICE MENU:
 while True:
     print("Choices: (1 message) (2 update_picture) ")
     choice = int(input("What are you going to do: "))
 
     while choice == 1:
-        send_msg(type_1, client)
+        message = input("Insert message for server to write: \n")
+        PAYLOAD = create_payload(type_1, message)
+        send_exactly(client, PAYLOAD, len(PAYLOAD))
 
         print("1 = yes, 2 = no ")
         inner_choice = int(input("Communication over?"))
@@ -62,13 +67,10 @@ while True:
             pass
 
     while choice == 2:
-        PIC_BYTES, PIC_BYTES_LEN = prot_2(item_pic)
-
-        # prep payload:
-        PAYLOAD = type_2 + PIC_BYTES_LEN + PIC_BYTES
+        # mechanizm wskazywania pliku do wyslania
+        item_pic = "path"
+        PAYLOAD = create_payload(type_2, item_pic)
 
         if send_exactly(client, PAYLOAD, len(PAYLOAD)) == True:
             print("picture send successfuly")
             break
-        else:
-            print("pic didnt send seccessfuly")

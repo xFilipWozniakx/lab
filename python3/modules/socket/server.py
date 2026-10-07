@@ -8,6 +8,11 @@ from datetime import datetime
 # start listening ( listen )
 # accept incoming connection ( accept )
 
+# 0x01      MESSAGE
+# 0x02      PICTURE SEND
+# 0x10      VALIDATE_DATA_WITH_SOURCE
+
+
 #
 # ┌──────────┬──────────────┬──────────────────────┐
 # │ TYPE     │ LENGTH       │ PAYLOAD              │
@@ -59,6 +64,7 @@ while True:
         match data[0]:
             case b"":
                 break
+
             case 0x01:
                 LENGHT = int.from_bytes(data[1:5], "little")
                 data = receive_exactly(connection, LENGHT, address_client)
@@ -70,6 +76,7 @@ while True:
                 else:
                     print("client lost connection")
                     break
+
             case 0x02:
                 LENGHT = int.from_bytes(data[1:5], "little")
                 data = receive_exactly(connection, LENGHT, address_client)
