@@ -87,7 +87,7 @@ def send_status_code(CONNECTION, STATUS_CODE):
 # CHOICE MENU:
 while True:
     print("Choices: (1 message) (2 update_picture) ")
-    choice = int(input("What are you going to do: "))
+    choice = int(input("What are you going to do: (takes-int) "))
 
     while choice == 1:
         message = input("Insert message for server to write: \n")
@@ -118,5 +118,15 @@ while True:
         PAYLOAD = create_payload(type_2, item_pic)
 
         if send_exactly(client, PAYLOAD, len(PAYLOAD)) == True:
-            print("picture send successfuly")
+            header = receive_exactly(client, 5)
+            if header == b"":
+                print("server lost connection")
+            else:
+                STATUS_CODE = header[0]
+                LENGTH = int.from_bytes(header[1:5], "little")
+                payload = receive_exactly(client, LENGTH)
+                print(payload.decode("utf-8"))
+        else:
+            print("no status code for you")
             break
+

@@ -138,8 +138,12 @@ while True:
                     # need to make different system for naming
                     with open(f"{path_for_pics}cat_pic.webp", "wb") as file:
                         file.write(frame)
+
+                    send_status_code(connection, STATUS_CODE=b'\xc8')
+
+
                 else:
-                    print("client lost connection")
+                    send_status_code(connection, STATUS_CODE=b'\xc9')
                     break
             case _:
                 print(f"Protocol unknown from {address_client}")
