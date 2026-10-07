@@ -2,14 +2,6 @@ import socket
 import os
 from datetime import datetime
 
-from python3.modules.socket.client import create_payload
-
-# model
-# create communication channel ( socket )
-# bind address + port to that socket ( bind )
-# start listening ( listen )
-# accept incoming connection ( accept )
-
 # 0x01      MESSAGE
 # 0x02      PICTURE SEND
 # 0x10      VALIDATE_DATA_WITH_SOURCE
@@ -23,8 +15,9 @@ from python3.modules.socket.client import create_payload
 # 205 : cd
 # 206 : ce
 # 207 : cf
+
 STATUS_CODE_DICT = {
-    b"\xc8": b"OK", 
+    b"\xc8": b"OK",
     b"\xc9": b"ERROR"
 }
 
@@ -50,7 +43,6 @@ STATUS_CODE_DICT = {
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(("0.0.0.0", 5555))
 server.listen()
-
 
 
 def receive_exactly(CONNECTION, LENGTH: int, address_client):
@@ -79,8 +71,8 @@ def receive_exactly(CONNECTION, LENGTH: int, address_client):
 
 def send_status_code(CONNECTION, STATUS_CODE):
     frame = (
-        STATUS_CODE  
-        + len(STATUS_CODE_DICT[STATUS_CODE]).to_bytes(4,'little')
+        STATUS_CODE
+        + len(STATUS_CODE_DICT[STATUS_CODE]).to_bytes(4, "little")
         + STATUS_CODE_DICT[STATUS_CODE]
     )
 
@@ -98,7 +90,7 @@ while True:
 
     while True:
         frame = receive_exactly(connection, 5, address_client)
-        
+
         if frame == b"":
             print("client lost connection")
             break

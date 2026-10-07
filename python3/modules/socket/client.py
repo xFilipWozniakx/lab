@@ -55,18 +55,55 @@ def create_payload(PROTOCOL: bytes, item) -> bytes:
     return PROTOCOL + len(DATA).to_bytes(4, "little") + DATA
 
 
+def receive_exactly(CONNECTION, LENGTH: int) -> bytes:
+    try:
+        frame = CONNECTION.recv(LENGTH)
+        while len(frame) < LENGTH:
+            more = CONNECTION.recv(LENGTH - len(frame))
+            if more == b"":
+                break
+            else:
+                frame += more
+        if len(frame) != LENGTH:
+            # return bytes
+            return b""
+        else:
+            # return bytes
+            return frame
+
+    except socket.timeout:
+        print(f"{address_client} exceed 30s idle state while in operation mode")
+        CONNECTION.close()
+        return b""
+        # should add loggin instead of priting
+
+
+def send_status_code(CONNECTION, STATUS_CODE):
+    frame = (
+        STATUS_CODE
+        + len(STATUS_CODE_DICT[STATUS_CODE]).to_bytes(4, "little")
+        + STATUS_CODE_DICT[STATUS_CODE]
+    )
+
+    sent = CONNECTION.send(frame)
+    while sent < len(frame):
+        sent += CONNECTION.send(frame[len(sent) :])
+    return sent >= len(frame)
+
+
+
+
 # CHOICE MENU:
 while True:
     print("Choices: (1 message) (2 update_picture) ")
     choice = int(input("What are you going to do: "))
-    
 
     while choice == 1:
         message = input("Insert message for server to write: \n")
         PAYLOAD = create_payload(type_1, message)
         status = send_exactly(client, PAYLOAD, len(PAYLOAD))
         if status == True:
-            header = receive_exactly(client,5)
+            header = receive_exactly(client, 5)
             if header == b"":
                 print("server lost connection")
             else:
@@ -76,8 +113,6 @@ while True:
                 print(payload.decode("utf-8"))
         else:
             print("no status code for you")
-
-        
 
         print("1 = yes, 2 = no ")
         inner_choice = int(input("Communication over?"))
