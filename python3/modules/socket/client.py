@@ -21,6 +21,11 @@ type_2 = b"\x02"  # PICTURE_UPDATE
 
 # type_3 = b"\x03"  # FAULTY ON PURPOSE
 
+STATUS_CODE_DICT = {
+    b"\xc8": b"OK",
+    b"\xc9": b"ERROR"
+}
+
 
 # SERVER ANSWEARS:
 def receive_exactly(CONNECTION, LENGTH: int) -> bytes:
