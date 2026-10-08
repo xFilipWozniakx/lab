@@ -1,5 +1,5 @@
 [tools]
-python = { version = "3.12", postinstall = "python3 -m pip install --upgrade pip" }
+python = "3.12"
 uv = "latest"
 
 [env]
@@ -8,8 +8,7 @@ _.python.venv = { path = ".venv", create = true }
 [settings]
 python.uv_venv_auto = "create|source"
 
-[task.setup]
-run = [
-  "python3 -m pip install --upgrade pip",
-  "python3 -m pip install -e .",
-]
+[hooks]
+enter = "python3 -m pip install --upgrade pip && uv sync"
+
+
