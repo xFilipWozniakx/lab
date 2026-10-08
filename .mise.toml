@@ -9,6 +9,6 @@ _.python.venv = { path = ".venv", create = true }
 python.uv_venv_auto = "create|source"
 
 [hooks]
-enter = "python3 -m pip install --upgrade pip && uv sync"
+enter = "python3 -m pip install --upgrade pip &&mise exec uv -- uv sync"
 
 
