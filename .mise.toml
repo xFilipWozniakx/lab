@@ -7,3 +7,9 @@ _.python.venv = { path = ".venv", create = true }
 
 [settings]
 python.uv_venv_auto = "create|source"
+
+[task.setup]
+run = [
+  "python3 -m pip install --upgrade pip",
+  "python3 -m pip install -e .",
+]
