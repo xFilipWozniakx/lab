@@ -1,5 +1,5 @@
 [tools]
-python = "3.12"
+python = { version = "3.12", postinstall = "python3 -m pip install --upgrade pip" }
 uv = "latest"
 
 [env]
