@@ -3,3 +3,4 @@ projects/text_to_speach/edge-tts/
 python3/modules/__pycache__/
 projects/photo_merge_app/photo_sync/
 python3/modules/os/__pycache__/
+.venv/
