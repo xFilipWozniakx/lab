@@ -1,3 +1,4 @@
+import json
 import socket
 import os
 from datetime import datetime
@@ -28,17 +29,15 @@ STATUS_CODE_DICT = {
 # └──────────┴──────────────┴──────────────────────┘
 #
 
-#
-# 1. odbiera 1 bajt TYPE
-# 2. sprawdza TYPE
-# 3. odbiera 4 bajty LENGTH
-# 4. sprawdza LENGTH
-# 5. odbiera dokładnie LENGTH bajtów
-# 6. sprawdza, czy odebrał kompletny payload
-# 7. interpretuje payload zależnie od TYPE
-#
-
 # AF_INET for ipv4 / SOCK_STREAM for TCP protocol
+
+# LOGGING 
+# not finished
+def logging(text):
+    with open("access_log.txt", "a") as logging:
+        date_time = f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+        logging.write(date_time,text)
+
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(("0.0.0.0", 5555))
@@ -87,11 +86,28 @@ def send_status_code(CONNECTION, STATUS_CODE):
     return sent >= len(frame)
 
 
+# do usuniecia
+def AUTH_PROCESS(connection,LENGTH,address_client):
+    frame = receive_exactly(connection,5,address_client)
+    
+    if frame == b'':
+        print(f"{address_client} client lost connection")
+        logging(f"{address_client} client lost connection")
+    elif frame[0] == 0x03:
+        LENGTH = int.from_bytes(frame[1:5], "little")
+        frame = receive_exactly(connection, LENGTH, address_client)
+        
+def validate_with_database(LOGIN,PASSWORD):
+
+
 while True:
     connection, address_client = server.accept()
     connection.settimeout(30)
     # where connection = local address / address_client = remote address
-    print(f"connected: {address_client}")
+    client_connection = f"{date_time} connected: {address_client}"
+    print(client_connection)
+    logging(client_connection)
+    
 
     while True:
         frame = receive_exactly(connection, 5, address_client)
@@ -108,8 +124,8 @@ while True:
                     STATUS_CODE = b"\x00"
                     try:
                         with open("message_file.txt", "a") as file:
-                            date = f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
-                            msg = f"{date}: {frame.decode('utf-8')} \n"
+                            
+                            msg = f"{date_time}: {frame.decode('utf-8')} \n"
                             file.write(msg)
 
                             STATUS_CODE = b"\xc8"
@@ -145,6 +161,15 @@ while True:
                 else:
                     send_status_code(connection, STATUS_CODE=b'\xc9')
                     break
+            case 0x03:
+                LENGTH = int.from_bytes(frame[1:5], "little")
+                frame = receive_exactly(connection, LENGTH, address_client)
+                credentials_json =json.loads(frame.decode('utf-8'))
+                
+                login = credentials_json["login"]
+                password = credentials_json["password"]
+                validate_with_database(login,password)
+
             case _:
                 print(f"Protocol unknown from {address_client}")
                 connection.close()

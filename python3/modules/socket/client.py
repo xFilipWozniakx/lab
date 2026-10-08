@@ -1,15 +1,17 @@
+import json
 import sys
 import os
 import importlib.util
 import socket
 import hashlib
 
+
+# import self made explorer() 
 spec = importlib.util.spec_from_file_location(
     "explorer", "/home/vscode/lab/python3/modules/os/explorer.py"
 )
 if spec is None:
     raise ImportError("Could not create spec for explorer")
-
 explorer = importlib.util.module_from_spec(spec)
 sys.modules["explorer"] = explorer
 spec.loader.exec_module(explorer)
@@ -18,6 +20,7 @@ spec.loader.exec_module(explorer)
 # PROTOCOLS:
 type_1 = b"\x01"  # MESSAGE
 type_2 = b"\x02"  # PICTURE_UPDATE
+type_3 = b"\x03"  # AUTHENTICATE
 
 
 # STATUS CODES:
@@ -26,8 +29,13 @@ STATUS_CODE_DICT = {
     b"\xc9": b"ERROR"
 }
 
+# creds:
+credentials_dict = {
+        "login": "random_login",
+        "password": "random_password"
+        }
 
-
+# MAKE CONNECTION TO SERVER
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect(("127.0.0.1", 5555))
 
@@ -38,6 +46,8 @@ def create_payload(PROTOCOL: bytes, item) -> bytes:
     elif PROTOCOL == type_2:
         with open(item, "rb") as pic:
             DATA = pic.read()
+    elif PROTOCOL == type_3:
+        DATA = item.encode('utf-8')
     else:
         raise ValueError("Unknown protocol type")
 
@@ -45,7 +55,7 @@ def create_payload(PROTOCOL: bytes, item) -> bytes:
 
 
 # SERVER STATUS CODES PARSER:
-def receive_exactly(CONNECTION, LENGTH: int):
+def receive_exactly(CONNECTION, LENGTH: int) -> bytes:
     try:
         frame = CONNECTION.recv(LENGTH)
         while len(frame) < LENGTH:
@@ -72,7 +82,7 @@ def send_exactly(CONNECTION, PAYLOAD: bytes, MSG_LENGTH: int) -> bool:
         sent += CONNECTION.send(PAYLOAD[len(sent) :])
     return sent >= MSG_LENGTH
 
-def send_status_code(CONNECTION, STATUS_CODE):
+def send_status_code(CONNECTION, STATUS_CODE) -> bool:
     frame = (
         STATUS_CODE
         + len(STATUS_CODE_DICT[STATUS_CODE]).to_bytes(4, "little")
@@ -84,11 +94,28 @@ def send_status_code(CONNECTION, STATUS_CODE):
         sent += CONNECTION.send(frame[len(sent) :])
     return sent >= len(frame)
 
+def AUTHENTICATE_CLIENT(credential_dict):
+        credentials_object = json.dumps(credentials_dict)
+        DATA = create_payload(type_3,credentials_object)
+
+        status = send_exactly(client,DATA,len(DATA))
+        if status == True:
+            # sent succefully awaiting response
+            pass
+        else:
+            # not send
+            pass
+
+
+
 # CHOICE MENU:
 while True:
-    print("Choices: (1 message) (2 update_picture) ")
+
+    
+    print("Choices: (1 message) (2 update_picture) (3 auth)")
     choice = int(input("What are you going to do: (takes-int) "))
 
+    
     while choice == 1:
         message = input("Insert message for server to write: \n")
         PAYLOAD = create_payload(type_1, message)
@@ -127,6 +154,8 @@ while True:
                 payload = receive_exactly(client, LENGTH)
                 print(payload.decode("utf-8"))
         else:
-            print("no status code for you")
+            print("did not receive status code from server")
             break
-
+    if choice == 3:
+        AUTHENTICATE_CLIENT(credentials_dict)
+    
