@@ -79,7 +79,6 @@ if db_specs == False:
 
 # ------ daemon functions --------
 
-
 while True:
     request = sys.stdin.readline().strip()
     command, *args = request.split()
