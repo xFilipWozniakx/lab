@@ -47,30 +47,17 @@ def hash_pass(password):
 
 def check_if_exists(cur,login,password) -> bool:
 
-    passw = cur.execute("SELECT password_hash FROM USERS where login = ?", (login,)).fetchone()
-    print(passw)
+    result = cur.execute("SELECT password_hash FROM USERS where login = ?", (login,)).fetchone()
     # remember to put pass into hashing method 
-    if password == passw:
-        return True
-    else:
+    if result is None:
         return False
+    passw = result[0]
+    return password == passw
 
 
 def retrieve_all(cursor):
     for row in cursor.execute("SELECT * FROM USERS;"):
         print(row)
-
-
-# only for testing
-def add_valid_data():
-    if check_if_exists(db_specs[1],"random_login","random_password") == False:
-        if insert_into_users(db_specs[1], db_specs[0],"random_login", "random_password") == True:
-            pass
-        else:
-            print("valid data not added")
-        
-    else:
-        pass
 
 
 # ----------------------------------------program starts ----------------------------------------
@@ -93,9 +80,6 @@ else:
         db_specs = connect_db(db_path)
 
 
-print(f'if insert_user: {insert_into_users(db_specs[1],db_specs[0])}')
-
-
 # takes db_specs to perform opeartions or db 
 
 if db_specs == False:
@@ -111,14 +95,14 @@ while True:
         pass
     else:
         _, login, password = request.split('|')
-        print(f'pro: {_} log: {login} pass: {password}')
+        # print(f'pro: {_} log: {login} pass: {password}')
 
         if _ == "AUTH":
             if check_if_exists(db_specs[1],login,password) == True:
-                sys.stdout.write("AUTH_OK\n")
+                sys.stdout.buffer.write(b'\xc8')
                 sys.stdout.flush()
             else:
-                sys.stdout.write("AUTH_FAIL\n")
+                sys.stdout.buffer.write(b'\xc9')
                 sys.stdout.flush()
         else:
             print("did see auth")

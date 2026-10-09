@@ -156,18 +156,17 @@ while True:
                 }
 
         PAYLOAD = AUTHENTICATE_CLIENT(credentials_dict)
-        print(PAYLOAD)
-
         status = send_exactly(client,PAYLOAD,len(PAYLOAD))
 
         if status == True:
-            print("Payload sent")
+            header = receive_exactly(client, 5)
+            if header == b"":
+                print("server lost connection at status code recieving")
+            else:
+                STATUS_CODE = header[0]
+                LENGTH = int.from_bytes(header[1:5], "little")
+                payload = receive_exactly(client, LENGTH)
+                print(payload.decode("utf-8"))
+            
         else:
-            print("Payload not sent")
-        
-
-                
-
-
-
-    
+            print("AUTH_DATA not sent")

@@ -6,7 +6,7 @@ from datetime import datetime
 from time import sleep
 # ----------------------------- local_DB ---------------------------------
 db = subprocess.Popen(
-        ['python', 'local_db.py'],
+        ['python3', 'local_db.py'],
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         text=True
@@ -130,6 +130,9 @@ while True:
     #logging(client_connection)
 
     while True:
+        auth_counter = 0
+
+
         frame = receive_exactly(connection.client, 5, connection.client_address)
         if frame == b"":
             print("client lost connection")
@@ -188,6 +191,9 @@ while True:
                     break
             
             case 0x03:
+                if auth_counter >= 3:
+                    connection.client.close()
+
                 LENGTH = int.from_bytes(frame[1:5], "little")
                 PAYLOAD = receive_exactly(connection.client, LENGTH, connection.client_address)
 
@@ -199,12 +205,21 @@ while True:
                 if PAYLOAD == b'':
                     print("malformed data sent")
                 else:
+
                     auth_data = f'AUTH|{login}|{password}\n'
                     
                     db.stdin.write(auth_data)
                     db.stdin.flush()
                     
-                    auth_status = db.stdout.readline()
-                    print(auth_status)
-                    exit()
+                    auth_status = db.stdout.buffer.read(1)
+
+                    if auth_status == b'\xc8':
+                        connection.authenticated = True
+                        send_status_code(connection.client,STATUS_CODE[b"\xc8"])
+                    else:
+                        send_status_code(connection.client,STATUS_CODE[b"\xc9"])
+                        auth_counter += 1 
+
+
+
                     
