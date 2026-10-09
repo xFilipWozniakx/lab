@@ -108,7 +108,7 @@ def AUTH_PROCESS(connection,LENGTH,address_client):
         LENGTH = int.from_bytes(frame[1:5], "little")
         frame = receive_exactly(connection, LENGTH, address_client)
         
-def validate_with_database(LOGIN,PASSWORD,subprocess) -> bool:
+def validate_with_database(LOGIN,PASSWORD,db) -> bool:
 
     db.stdin.write(f"AUTH|{LOGIN}|{PASSWORD}\n")
     db.stdin.flush()
@@ -139,7 +139,7 @@ while True:
             case 0x01:
 
                 LENGTH = int.from_bytes(frame[1:5], "little")
-                frame = receive_exactly(connection.client, 5, connection.client_address)
+                frame = receive_exactly(connection.client, LENGTH, connection.client_address)
                 if frame != b"":
                     STATUS_CODE = b"\x00"
                     try:
@@ -168,7 +168,7 @@ while True:
 
             case 0x02:
                 LENGTH = int.from_bytes(frame[1:5], "little")
-                frame = receive_exactly(connection.client, 5, connection.client_address)
+                frame = receive_exactly(connection.client, LENGTH, connection.client_address)
                 if frame != b"":
                     path_for_pics = (
                         "/home/vscode/lab/python3/modules/socket/dest_pictures/"
@@ -188,26 +188,23 @@ while True:
                     break
             
             case 0x03:
-                # faulty 
                 LENGTH = int.from_bytes(frame[1:5], "little")
-                frame = receive_exactly(connection.client, LENGTH, connection.client_address) 
-                credentials_json = json.loads(frame.decode('utf-8'))
-                
-                login = credentials_json["login"]
-                password = credentials_json["password"]
-                print(login,password)
+                PAYLOAD = receive_exactly(connection.client, LENGTH, connection.client_address)
 
-                authentication = validate_with_database(login,password,db)
-                
-                if authentication == False:
-                    send_status_code(connection.client,b"\xc9")
-                elif authentication == True:
-                    send_status_code(connection.client, b"\xc8")
+                PAYLOAD = PAYLOAD.decode('utf-8')
+                json_object = json.loads(PAYLOAD)
+                login = json_object["login"]
+                password = json_object["password_hash"]
+
+                if PAYLOAD == b'':
+                    print("malformed data sent")
                 else:
-                    print("somethings wrong about authentication send_status_code")
-
-
-
-            case _:
-                print(f"Protocol unknown from {connection.client_address}")
-                connection.client.close()
+                    auth_data = f'AUTH|{login}|{password}\n'
+                    
+                    db.stdin.write(auth_data)
+                    db.stdin.flush()
+                    
+                    auth_status = db.stdout.readline()
+                    print(auth_status)
+                    exit()
+                    

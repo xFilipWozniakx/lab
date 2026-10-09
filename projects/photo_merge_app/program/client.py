@@ -29,11 +29,6 @@ STATUS_CODE_DICT = {
     b"\xc9": b"ERROR"
 }
 
-# creds:
-credentials_dict = {
-        "login": "random_login",
-        "password": "random_password"
-        }
 
 # MAKE CONNECTION TO SERVER
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -95,31 +90,19 @@ def send_status_code(CONNECTION, STATUS_CODE) -> bool:
     return sent >= len(frame)
 
 def AUTHENTICATE_CLIENT(credential_dict):
-    credentials_object = json.dumps(credentials_dict)
-    DATA = create_payload(type_3,credentials_object)
-    print(DATA)
-
-    status = send_exactly(client,DATA,len(DATA))
-    
-
-    if status == True:
-        header = receive_exactly(client, 5)
-        if header == b"":
-            print("server lost connection")
-        else:
-            STATUS_CODE = header[0]
-            LENGTH = int.from_bytes(header[1:5], "little")
-            payload = receive_exactly(client, LENGTH)
-            print(payload.decode("utf-8"))
-    else:
-        print("did not receive status code from server")
-
+    # add password hashing before sending 
+    creds_json = json.dumps(credential_dict)
+    return create_payload(type_3,creds_json)
 
 
 # CHOICE MENU:
 while True:
 
-    
+    auth_counter = 0
+
+    if auth_counter >= 3:
+        print("Auth counter exceed 3, your banned from next connections")
+
     print("Choices: (1 message) (2 update_picture) (3 auth)")
     choice = int(input("What are you going to do: (takes-int) "))
 
@@ -166,7 +149,25 @@ while True:
             print("did not receive status code from server")
             break
     if choice == 3:
-        AUTHENTICATE_CLIENT(credentials_dict)
+        # creds:
+        credentials_dict = {
+                "login": "user",
+                "password_hash": "password"
+                }
+
+        PAYLOAD = AUTHENTICATE_CLIENT(credentials_dict)
+        print(PAYLOAD)
+
+        status = send_exactly(client,PAYLOAD,len(PAYLOAD))
+
+        if status == True:
+            print("Payload sent")
+        else:
+            print("Payload not sent")
+        
+
+                
+
 
 
     

@@ -16,7 +16,7 @@ def create_db(login="admin",password="password"):
     cur= con.cursor()
     
     cur.execute("CREATE TABLE users(id INTEGER PRIMARY KEY AUTOINCREMENT, login TEXT NOT NULL UNIQUE, password_hash TEXT NOT NULL)");
-    password = hash_pass(password).decode('utf-8')
+    password = hash_pass(password)
     cur.execute("INSERT INTO users( login, password_hash) VALUES (?, ?)", (login,password))
     con.commit()
     return con, cur
@@ -26,12 +26,16 @@ def connect_db(db_path):
     cur = con.cursor()
     return con,cur
 
-def insert_into_users(cursor,connect):
-    login = input("Login?:\n")
-    password = input("Password?:\n")
-    password = hash_pass(password).decode('utf-8')
-    cursor.execute("INSERT INTO users( login, password_hash) VALUES (?, ?)", (login,password))
-    connect.commit()
+def insert_into_users(cursor,connect,login="user",password="password"):
+    try:
+        #login = input("Login?:\n")
+        #password = input("Password?:\n")
+        password = hash_pass(password)
+        cursor.execute("INSERT INTO users( login, password_hash) VALUES (?, ?)", (login,password))
+        connect.commit()
+        return True
+    except:
+        return False
 
 def hash_pass(password):
         password = password.encode('utf-8')
@@ -43,8 +47,10 @@ def hash_pass(password):
 
 def check_if_exists(cur,login,password) -> bool:
 
-    passw = cur.execute("SELECT password FROM USERS where login = ?", (login,)).fetchone()
-    if hash_pass(password) == passw:
+    passw = cur.execute("SELECT password_hash FROM USERS where login = ?", (login,)).fetchone()
+    print(passw)
+    # remember to put pass into hashing method 
+    if password == passw:
         return True
     else:
         return False
@@ -55,7 +61,21 @@ def retrieve_all(cursor):
         print(row)
 
 
+# only for testing
+def add_valid_data():
+    if check_if_exists(db_specs[1],"random_login","random_password") == False:
+        if insert_into_users(db_specs[1], db_specs[0],"random_login", "random_password") == True:
+            pass
+        else:
+            print("valid data not added")
+        
+    else:
+        pass
+
+
 # ----------------------------------------program starts ----------------------------------------
+
+
 
 # ------ db creation & checks -------
 
@@ -72,6 +92,10 @@ else:
         db_path += '/data.db'
         db_specs = connect_db(db_path)
 
+
+print(f'if insert_user: {insert_into_users(db_specs[1],db_specs[0])}')
+
+
 # takes db_specs to perform opeartions or db 
 
 if db_specs == False:
@@ -79,15 +103,22 @@ if db_specs == False:
 
 # ------ daemon functions --------
 
+
 while True:
+
     request = sys.stdin.readline().strip()
-    command, *args = request.split()
-    
-    if command == "EXIT":
-        break 
-    elif command == "AUTH":
-        _, login, password = request.split()
-        if check_if_exists(db_specs[1],login,password) == True:
-            print("AUTH_OK",flush=True)
+    if request == '':
+        pass
+    else:
+        _, login, password = request.split('|')
+        print(f'pro: {_} log: {login} pass: {password}')
+
+        if _ == "AUTH":
+            if check_if_exists(db_specs[1],login,password) == True:
+                sys.stdout.write("AUTH_OK\n")
+                sys.stdout.flush()
+            else:
+                sys.stdout.write("AUTH_FAIL\n")
+                sys.stdout.flush()
         else:
-            print("AUTH_FAIL",flush=True)
+            print("did see auth")
