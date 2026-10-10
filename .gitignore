@@ -4,3 +4,5 @@ python3/modules/__pycache__/
 projects/photo_merge_app/photo_sync/
 python3/modules/os/__pycache__/
 .venv/
+projects/photo_merge_app/program/files_received_by_server/
+projects/photo_merge_app/program/files_to_send/

@@ -7,7 +7,8 @@ from time import sleep
 from pathlib import Path
 import hashlib
 
-from python3.modules.socket.client import send_status_code
+
+
 # ----------------------------- local_DB ---------------------------------
 db = subprocess.Popen(
         ['python3', 'local_db.py'],
@@ -24,8 +25,8 @@ monitorable_objects = {}
 # TODO LIST:
 # - name assignment for files saved to server [client send it from his own file name / change name a bit ( security ) / save it somewhere ]
 # - could add some more options on db managment 
-# - add logging to the app 
 # - insted of TCP change to TLS
+
 
 # ┌──────────┬──────────────┬──────────────────────┐
 # │ TYPE     │ LENGTH       │ PAYLOAD              │
@@ -35,6 +36,7 @@ monitorable_objects = {}
 # 0x01      MESSAGE
 # 0x02      PICTURE SEND
 # 0x03      AUTH
+# 0x04      PICUTRES REQUEST
 
 # STATUS CODES ( bland not taken yet )
 # 200 : c8 : OK
@@ -91,7 +93,7 @@ def monitor_pics(PATH: Path, monitorable_objects: dict) :
             stat_file = i.stat(follow_symlinks=False)
             size = stat_file.st_size
             m_time = stat_file.st_mtime
-            
+
             with open(i,"rb") as f:
                 hash_object = hashlib.sha256(f.read())     # cut in parts for better performance
             digest = hash_object.hexdigest()
@@ -116,12 +118,18 @@ class Server:
 my_server = Server()
 monitorable_objects = monitor_pics(Path(my_server.files_path),monitorable_objects)
 
-
-STATUS_CODE_DICT ={
+# status codes
+STATUS_CODE_SEND ={
     'OK': b"\xc8",
     'ERROR': b'\xc9',
     'AUTH_ERROR': b'\xdd',
     'AUTH_OK': b'\xdc'
+}
+STATUS_CODE_RECEIVE = {
+    b"\xc8": "OK",
+    b"\xc9": "ERROR",
+    b'\xdd': "AUTH_ERROR",
+    b'\xdc': "AUTH_OK"
 }
 
 class Client:
@@ -132,8 +140,6 @@ class Client:
         self.login_client = login_client
         self.password_client = password_client
         self.auth_tries= auth_tries
-
-
 
 # LOGGING 
 # NOT DONE YET
@@ -146,9 +152,6 @@ def logging(text):
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(("0.0.0.0", 5555))
 server.listen()
-
-
-
 
 def receive_exactly(CONNECTION, LENGTH: int, address_client):
     try:
@@ -182,16 +185,28 @@ def send_exactly(CONNECTION, PAYLOAD: bytes, MSG_LENGTH: int) -> bool:
         return False
 
 def status_code_send(CONNECTION,STATUS_CODE) -> bool:
-    STATUS = STATUS_CODE_DICT[STATUS_CODE]
+    STATUS = STATUS_CODE_SEND[STATUS_CODE]
     if send_exactly(CONNECTION, STATUS, 1) == True:
         return True
     else:
         print('status code not send')
         return False
 
-def status_code_receive():
-    pass
 
+def status_code_receive():
+    status = receive_exactly(connection.client,1,connection.client_address) 
+    if status != b'':
+        return f"{STATUS_CODE_RECEIVE[status]}"
+    else:
+        return f"Status code not received"
+
+def request_files_from_client(CONNECTION,TO_REQUEST):
+    PAYLOAD =json.dumps(TO_REQUEST).encode('utf-8')
+    if send_exactly(connection.client,PAYLOAD,len(PAYLOAD)) == False:
+        print(status_code_receive())
+    else:
+        print(status_code_receive())
+        
 # DAEMON OPTIONS:
 while True:
     connection, client_address = server.accept()
@@ -209,6 +224,7 @@ while True:
             case 0x01:
                 if connection.authenticated != True:
                     connection.client.close()
+                    continue
 
                 LENGTH = int.from_bytes(frame[1:5], "little")
                 frame = receive_exactly(connection.client, LENGTH, connection.client_address)
@@ -233,15 +249,15 @@ while True:
                 LENGTH = int.from_bytes(frame[1:5], "little")
                 PAYLOAD = receive_exactly(connection.client, LENGTH, connection.client_address)
                 if PAYLOAD == b'':
-                    send_status_code(connection.client,"ERROR")
+                    status_code_send(connection.client,"ERROR")
                 else:
-                    send_status_code(connection.client,"OK")
+                    status_code_send(connection.client,"OK")
 
                 PAYLOAD_STRING = PAYLOAD.decode('utf-8')
                 remote_list = json.loads(PAYLOAD_STRING)
                 
                 to_request = {}
-                
+                # create list of missing photos
                 for name in remote_list:
                     if name not in monitorable_objects:
                         to_request[name] = remote_list[name]
@@ -249,13 +265,18 @@ while True:
                         to_request[name] = remote_list[name]
                     else: 
                         pass
+                # send list to the client
+                to_request_payload = json.dumps(to_request).encode("utf-8")
+                if send_exactly(connection.client,to_request_payload,len(to_request_payload)) == False:
+                    print("to_request_payload didnt reach destination")
+                else:
+                    print(status_code_receive())
 
-
-
-                           
             case 0x03:
                 if connection.auth_tries >= 2:
                     connection.client.close()
+                    continue
+
 
                 LENGTH = int.from_bytes(frame[1:5], "little")
                 PAYLOAD = receive_exactly(connection.client, LENGTH, connection.client_address)
@@ -283,5 +304,28 @@ while True:
                         status_code_send(connection.client,"AUTH_ERROR")
                         print(f"{connection.client_address} failed AUTH") # LOGGING 
                         connection.auth_tries += 1 
+            case 0x04:
+                if connection.authenticated != True:
+                    connection.client.close()
+                    continue
+                
+                LENGTH_NAME = int.from_bytes(frame[1:3], "little")
+                NAME = receive_exactly(connection.client, LENGTH_NAME, connection.client_address)
+                if NAME == b'':
+                    print("connection closed while photo syncing")
+
+
+                LENGTH_FILE_BYTES = receive_exactly(connection.client,4,connection.client_address)
+                LENGTH_FILE = int.from_bytes(LENGTH_FILE_BYTES,'little')
+                FILE = receive_exactly(connection.client,LENGTH_FILE,connection.client_address)
+                if FILE == b'':
+                    print("connection closed while photo syncing")
+                else:
+                    srv_path = my_server.files_path
+                    save_path = os.path.join(srv_path, NAME.decode('utf-8'))
+                    with open(save_path,'wb') as sync:
+                        sync.write(FILE)
+
+                    status_code_send(connection.client,"OK")
 
 
