@@ -23,17 +23,39 @@ type_2 = b"\x02"  # PICTURE_UPDATE
 type_3 = b"\x03"  # AUTHENTICATE
 
 
-# STATUS CODES:
-STATUS_CODE_DICT = {
-    b"\xc8": b"OK",
-    b"\xc9": b"ERROR"
+# STATUS CODES RECEIVE:
+STATUS_CODE_RECEIVE = {
+    b"\xc8": "OK",
+    b"\xc9": "ERROR",
+    b'\xdd': "AUTH_ERROR",
+    b'\xdc': "AUTH_OK"
 }
+STATUS_CODE_SEND = {
+    "OK": b"\xc8",
+    "ERROR": b"\xc9",
+    "AUTH_ERROR": b'\xdd',
+    "AUTH_OK": b'\xdc'
+}
+
+
+# creds for auth:
+credentials_dict = {
+        "login": "user",
+        "password_hash": 'password'
+        }
+
+
+# give creds before connection init
+credentials_dict["login"] = input("Login: ")
+credentials_dict["password"] = input("Password: ")
 
 
 # MAKE CONNECTION TO SERVER
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect(("127.0.0.1", 5555))
 
+
+# ------------------------------------ functions -----------------------------------
 
 def create_payload(PROTOCOL: bytes, item) -> bytes:
     if PROTOCOL == type_1:
@@ -48,8 +70,6 @@ def create_payload(PROTOCOL: bytes, item) -> bytes:
 
     return PROTOCOL + len(DATA).to_bytes(4, "little") + DATA
 
-
-# SERVER STATUS CODES PARSER:
 def receive_exactly(CONNECTION, LENGTH: int) -> bytes:
     try:
         frame = CONNECTION.recv(LENGTH)
@@ -72,37 +92,39 @@ def receive_exactly(CONNECTION, LENGTH: int) -> bytes:
         # should add loggin instead of priting
 
 def send_exactly(CONNECTION, PAYLOAD: bytes, MSG_LENGTH: int) -> bool:
-    sent = CONNECTION.send(PAYLOAD)
-    while sent < MSG_LENGTH:
-        sent += CONNECTION.send(PAYLOAD[len(sent) :])
-    return sent >= MSG_LENGTH
+    if len(PAYLOAD) != MSG_LENGTH:
+        return False
 
-def send_status_code(CONNECTION, STATUS_CODE) -> bool:
-    frame = (
-        STATUS_CODE
-        + len(STATUS_CODE_DICT[STATUS_CODE]).to_bytes(4, "little")
-        + STATUS_CODE_DICT[STATUS_CODE]
-    )
+    try:
+        CONNECTION.sendall(PAYLOAD)
+        return True
+    except OSError:
+        return False
 
-    sent = CONNECTION.send(frame)
-    while sent < len(frame):
-        sent += CONNECTION.send(frame[len(sent) :])
-    return sent >= len(frame)
-
-def AUTHENTICATE_CLIENT(credential_dict):
+def authenticate_client(credential_dict):
     # add password hashing before sending 
     creds_json = json.dumps(credential_dict)
     return create_payload(type_3,creds_json)
 
+def status_code_send(CONNECTION,STATUS_CODE) -> bool:
+    STATUS = STATUS_CODE_SEND[STATUS_CODE]
+    if send_exactly(CONNECTION, STATUS, 1) == True:
+        return True
+    else:
+        print('status code not send')
+        return False
+
+def status_code_receive() -> str:
+    status = receive_exactly(client,1) 
+    if status != b'':
+        return f"{STATUS_CODE_RECEIVE[status]}"
+    else:
+        return f"Status code not received"
+
 
 # CHOICE MENU:
 while True:
-
-    auth_counter = 0
-
-    if auth_counter >= 3:
-        print("Auth counter exceed 3, your banned from next connections")
-
+    
     print("Choices: (1 message) (2 update_picture) (3 auth)")
     choice = int(input("What are you going to do: (takes-int) "))
 
@@ -112,17 +134,9 @@ while True:
         PAYLOAD = create_payload(type_1, message)
         status = send_exactly(client, PAYLOAD, len(PAYLOAD))
         if status == True:
-
-            header = receive_exactly(client, 5)
-            if header == b"":
-                print("server lost connection at status code recieving")
-            else:
-                STATUS_CODE = header[0]
-                LENGTH = int.from_bytes(header[1:5], "little")
-                payload = receive_exactly(client, LENGTH)
-                print(payload.decode("utf-8"))
-        else:
-            print("no status code for you")
+            print(status_code_receive())
+        elif status == False:
+            print("Status code not received")
 
         print("1 = yes, 2 = no ")
         inner_choice = int(input("Communication over?"))
@@ -131,42 +145,23 @@ while True:
         elif inner_choice == 2:
             pass
 
+
     while choice == 2:
         # point to file that will be send to the server
         item_pic = explorer.explorer()
         PAYLOAD = create_payload(type_2, item_pic)
-
-        if send_exactly(client, PAYLOAD, len(PAYLOAD)) == True:
-            header = receive_exactly(client, 5)
-            if header == b"":
-                print("server lost connection")
-            else:
-                STATUS_CODE = header[0]
-                LENGTH = int.from_bytes(header[1:5], "little")
-                payload = receive_exactly(client, LENGTH)
-                print(payload.decode("utf-8"))
-        else:
-            print("did not receive status code from server")
-            break
-    if choice == 3:
-        # creds:
-        credentials_dict = {
-                "login": "user",
-                "password_hash": "password"
-                }
-
-        PAYLOAD = AUTHENTICATE_CLIENT(credentials_dict)
-        status = send_exactly(client,PAYLOAD,len(PAYLOAD))
-
+        
+        status =send_exactly(client, PAYLOAD, len(PAYLOAD)) == True
         if status == True:
-            header = receive_exactly(client, 5)
-            if header == b"":
-                print("server lost connection at status code recieving")
-            else:
-                STATUS_CODE = header[0]
-                LENGTH = int.from_bytes(header[1:5], "little")
-                payload = receive_exactly(client, LENGTH)
-                print(payload.decode("utf-8"))
-            
+            print(status_code_receive())
         else:
-            print("AUTH_DATA not sent")
+            print("PAYLOAD did not get send to the server")
+
+    if choice == 3:
+        
+        PAYLOAD = authenticate_client(credentials_dict)
+        status = send_exactly(client,PAYLOAD,len(PAYLOAD))
+        if status == True:
+            print(status_code_receive())
+        else:
+            print("AUTH_DATA NOT SENT")

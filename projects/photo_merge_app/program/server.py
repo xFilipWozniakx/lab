@@ -23,19 +23,50 @@ db = subprocess.Popen(
 # 201 : c9 : ERROR
 # 202 : ca
 # 203 : cb
+# 204 : cc
+# 205 : cd
+# 206 : ce
+# 207 : cf
+# 208 : d0
+# 209 : d1
+# 210 : d2
+# 211 : d3
+# 212 : d4
+# 213 : d5
+# 214 : d6
+# 215 : d7
+# 216 : d8
+# 217 : d9
+# 218 : da
+# 219 : db
+# 220 : dc : AUTH OK
+# 221 : dd : AUTH ERROR
+# 222 : de
+# 223 : df
+# 224 : e0
+# 225 : e1
+# 226 : e2
+# 227 : e3
+# 228 : e4
+# 229 : e5
 
-STATUS_CODE_DICT = {
-    b"\xc8": b"OK",
-    b"\xc9": b"ERROR"
+
+STATUS_CODE_DICT ={
+    'OK': b"\xc8",
+    'ERROR': b'\xc9',
+    'AUTH_ERROR': b'\xdd',
+    'AUTH_OK': b'\xdc'
 }
 
 class Client:
-    def __init__(self,client,client_address,authenticated=False,login_client="",password_client=""):
+    def __init__(self,client,client_address,authenticated=False,login_client="",password_client="",auth_tries=0):
         self.client = client
         self.client_address = client_address
         self.authenticated = authenticated
         self.login_client = login_client
         self.password_client = password_client
+        self.auth_tries= auth_tries
+
 
 # ┌──────────┬──────────────┬──────────────────────┐
 # │ TYPE     │ LENGTH       │ PAYLOAD              │
@@ -79,50 +110,31 @@ def receive_exactly(CONNECTION, LENGTH: int, address_client):
         # should add loggin instead of priting
 
 def send_exactly(CONNECTION, PAYLOAD: bytes, MSG_LENGTH: int) -> bool:
-    sent = CONNECTION.send(PAYLOAD)
-    while sent < MSG_LENGTH:
-        sent += CONNECTION.send(PAYLOAD[len(sent) :])
-    return sent >= MSG_LENGTH
+    if len(PAYLOAD) != MSG_LENGTH:
+        return False
 
-def send_status_code(CONNECTION, STATUS_CODE):
-    frame = (
-        STATUS_CODE
-        + len(STATUS_CODE_DICT[STATUS_CODE]).to_bytes(4, "little")
-        + STATUS_CODE_DICT[STATUS_CODE]
-    )
+    try:
+        CONNECTION.sendall(PAYLOAD)
+        return True
+    except OSError:
+        return False
 
-    sent = CONNECTION.send(frame)
-    while sent < len(frame):
-        sent += CONNECTION.send(frame[len(sent) :])
-    return sent >= len(frame)
-
-
-# do usuniecia
-def AUTH_PROCESS(connection,LENGTH,address_client):
-    frame = receive_exactly(connection,5,address_client)
-    
-    if frame == b'':
-        print(f"{address_client} client lost connection")
-        logging(f"{address_client} client lost connection")
-    elif frame[0] == 0x03:
-        LENGTH = int.from_bytes(frame[1:5], "little")
-        frame = receive_exactly(connection, LENGTH, address_client)
-        
-def validate_with_database(LOGIN,PASSWORD,db) -> bool:
-
-    db.stdin.write(f"AUTH|{LOGIN}|{PASSWORD}\n")
-    db.stdin.flush()
-    response = db.stdout.readline()
-    if response == "AUTH_OK":
+def status_code_send(CONNECTION,STATUS_CODE) -> bool:
+    STATUS = STATUS_CODE_DICT[STATUS_CODE]
+    if send_exactly(CONNECTION, STATUS, 1) == True:
         return True
     else:
+        print('status code not send')
         return False
+
+def status_code_receive():
+    pass
+    
 
 while True:
     connection, client_address = server.accept()
     connection = Client(connection,client_address)
     connection.client.settimeout(30)
-
 
     # where connection = local address / address_client = remote address
     #client_connection = f"{date_time} connected: {connection.client_address}"
@@ -130,8 +142,6 @@ while True:
     #logging(client_connection)
 
     while True:
-        auth_counter = 0
-
 
         frame = receive_exactly(connection.client, 5, connection.client_address)
         if frame == b"":
@@ -140,58 +150,51 @@ while True:
 
         match frame[0]:
             case 0x01:
+                if connection.authenticated != True:
+                    connection.client.close()
+
 
                 LENGTH = int.from_bytes(frame[1:5], "little")
                 frame = receive_exactly(connection.client, LENGTH, connection.client_address)
                 if frame != b"":
-                    STATUS_CODE = b"\x00"
                     try:
                         with open("message_file.txt", "a") as file:
                             date_time = f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
                             msg = f"{date_time}: {frame.decode('utf-8')} \n"
                             file.write(msg)
-
-                            STATUS_CODE = b"\xc8"
-
+                            status_code_send(connection.client,"OK")
                     except:
-                        # any kind of error
-                        STATUS_CODE = b"\xc9"
-                    finally:
-                        # will need to make some proper logging and status codes sending
-                        if send_status_code(connection.client, STATUS_CODE) == True:
-                            #print(f"{address_client} received status code")
-                            pass
-                        else:
-                            pass
-                            #print(f"{address_client} didnt receive status code")
-
+                        status_code_send(connection.client,"ERROR")
                 else:
-                    print("client lost connection")
+                    status_code_send(connection.client,"ERROR")
                     break
 
             case 0x02:
+
+                if connection.authenticated != True:
+                    connection.client.close()
+
                 LENGTH = int.from_bytes(frame[1:5], "little")
                 frame = receive_exactly(connection.client, LENGTH, connection.client_address)
                 if frame != b"":
+
                     path_for_pics = (
-                        "/home/vscode/lab/python3/modules/socket/dest_pictures/"
+                        "/home/vscode/lab/projects/photo_merge_app/program/files_received_by_server/"
                     )
 
                     # need to make different system for naming
                     # but for now doesnt matter untill i do my sync modules
-                    # photos will inherit name from their original 
-                    with open(f"{path_for_pics}cat_pic.webp", "wb") as file:
-                        file.write(frame)
+                    # photos will inherit name from their original
+                    try:
+                        with open(f"{path_for_pics}cat_pic.jpg", "wb") as file:
+                            file.write(frame)
+                        status_code_send(connection.client, 'OK')
 
-                    send_status_code(connection.client, STATUS_CODE=b'\xc8')
-
-
-                else:
-                    send_status_code(connection.client, STATUS_CODE=b'\xc9')
-                    break
-            
+                    except:
+                        status_code_send(connection.client, 'ERROR')
+           
             case 0x03:
-                if auth_counter >= 3:
+                if connection.auth_tries >= 2:
                     connection.client.close()
 
                 LENGTH = int.from_bytes(frame[1:5], "little")
@@ -214,12 +217,9 @@ while True:
                     auth_status = db.stdout.buffer.read(1)
 
                     if auth_status == b'\xc8':
+                        status_code_send(connection.client,"AUTH_OK")
                         connection.authenticated = True
-                        send_status_code(connection.client,STATUS_CODE[b"\xc8"])
                     else:
-                        send_status_code(connection.client,STATUS_CODE[b"\xc9"])
-                        auth_counter += 1 
-
-
-
-                    
+                        status_code_send(connection.client,"AUTH_ERROR")
+                        print(f"{connection.client_address} failed AUTH") # LOGGING 
+                        connection.auth_tries += 1 

@@ -86,8 +86,6 @@ if db_specs == False:
     raise DB_CREDS_EMPTY("Database connection and cursor are not assigned")
 
 # ------ daemon functions --------
-
-
 while True:
 
     request = sys.stdin.readline().strip()
