@@ -14,9 +14,21 @@ db = subprocess.Popen(
 
 
 # -------------------------------- start of TCP --------------------------------------
+
+# TODO LIST:
+# - name assignment for files saved to server [client send it from his own file name / change name a bit ( security ) / save it somewhere ]
+# - could add some more options on db managment 
+# - add logging to the app 
+# - insted of TCP change to TLS
+
+# ┌──────────┬──────────────┬──────────────────────┐
+# │ TYPE     │ LENGTH       │ PAYLOAD              │
+# │ 1 byte   │ 4 bytes      │ LENGTH bytes         │
+# └──────────┴──────────────┴──────────────────────┘
+
 # 0x01      MESSAGE
 # 0x02      PICTURE SEND
-# 0x10      VALIDATE_DATA_WITH_SOURCE
+# 0x03      AUTH
 
 # STATUS CODES
 # 200 : c8 : OK
@@ -68,10 +80,6 @@ class Client:
         self.auth_tries= auth_tries
 
 
-# ┌──────────┬──────────────┬──────────────────────┐
-# │ TYPE     │ LENGTH       │ PAYLOAD              │
-# │ 1 byte   │ 4 bytes      │ LENGTH bytes        │
-# └──────────┴──────────────┴──────────────────────┘
 
 # LOGGING 
 # NOT DONE YET
@@ -135,11 +143,6 @@ while True:
     connection, client_address = server.accept()
     connection = Client(connection,client_address)
     connection.client.settimeout(30)
-
-    # where connection = local address / address_client = remote address
-    #client_connection = f"{date_time} connected: {connection.client_address}"
-    #print(f'{client_connection}')
-    #logging(client_connection)
 
     while True:
 
