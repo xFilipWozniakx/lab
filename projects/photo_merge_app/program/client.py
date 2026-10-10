@@ -4,7 +4,7 @@ import os
 import importlib.util
 import socket
 import hashlib
-
+from pathlib import Path
 
 # import self made explorer() 
 spec = importlib.util.spec_from_file_location(
@@ -40,20 +40,32 @@ STATUS_CODE_SEND = {
 
 # creds for auth:
 credentials_dict = {
-        "login": "user",
-        "password_hash": 'password'
+        "login": "admin",
+        "password_hash": '$2b$12$4e6t9p17R7.IJ5LK6fJl5.zbUtmEXrNfUZ3oIpKfftoqWZpuHtmoW'
         }
 
-
-# give creds before connection init
-credentials_dict["login"] = input("Login: ")
-credentials_dict["password"] = input("Password: ")
+# build intel for server:
+# pictures = {
+#   "pic_1":{
+#       "name": 'xxx',
+#       "path": '/xxx/xxx/xxx.jpg',
+#       "mtime": 12372617376,
+#       "size": 12312,
+#       "sha256": blabla
+#   },
+#   "pic_2":{
+#       "name": 'xxx',
+#       "path": '/xxx/xxx/xxx.jpg',
+#       "mtime": 12372617376,
+#       "size": 12312,
+#       "sha256": blabla
+#   }
+# }
 
 
 # MAKE CONNECTION TO SERVER
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect(("127.0.0.1", 5555))
-
 
 # ------------------------------------ functions -----------------------------------
 
@@ -121,13 +133,43 @@ def status_code_receive() -> str:
     else:
         return f"Status code not received"
 
+def monitor_pics(PATH=Path("/home/vscode/lab/projects/photo_merge_app/program/test_dir/")) :
+    
+    while not PATH.is_dir():
+        PATH = Path(input("Dir path to monitor: "))
+
+    monitorable_objects = {}
+
+    for i in PATH.iterdir():
+        if i.is_file():
+
+            # create object
+            name = i.name
+            path_file = str(i.absolute())
+            stat_file = i.stat(follow_symlinks=False)
+            size = stat_file.st_size
+            m_time = stat_file.st_mtime
+            
+            with open(i,"rb") as f:
+                hash_object = hashlib.sha256(f.read())     # cut in parts for better performance
+            digest = hash_object.hexdigest()
+
+            monitorable_objects[name] = {
+                "abs_path": path_file,
+                "size": size,
+                "m_time": m_time,
+                "sha256": digest,
+            }
+
+        else:
+            print(f'{i} not directory, not included into monitoring')
+    return monitorable_objects
 
 # CHOICE MENU:
 while True:
     
     print("Choices: (1 message) (2 update_picture) (3 auth)")
     choice = int(input("What are you going to do: (takes-int) "))
-
     
     while choice == 1:
         message = input("Insert message for server to write: \n")
@@ -147,16 +189,22 @@ while True:
 
 
     while choice == 2:
-        # point to file that will be send to the server
-        item_pic = explorer.explorer()
-        PAYLOAD = create_payload(type_2, item_pic)
-        
-        status =send_exactly(client, PAYLOAD, len(PAYLOAD)) == True
-        if status == True:
-            print(status_code_receive())
-        else:
-            print("PAYLOAD did not get send to the server")
+        lista = monitor_pics()
+        json_list = json.dumps(lista)
+        PAYLOAD = create_payload(type_2,json_list)
+        send_exactly(client,PAYLOAD,len(PAYLOAD))
+        print(status_code_receive())
+        #possible logging client side
 
+        # item_pic = explorer.explorer()
+#         PAYLOAD = create_payload(type_2, item_pic)
+#         
+#         status =send_exactly(client, PAYLOAD, len(PAYLOAD)) == True
+#         if status == True:
+#             print(status_code_receive())
+#         else:
+#             print("PAYLOAD did not get send to the server")
+# 
     if choice == 3:
         
         PAYLOAD = authenticate_client(credentials_dict)

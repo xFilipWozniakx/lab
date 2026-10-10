@@ -79,7 +79,6 @@ else:
         db_path += '/data.db'
         db_specs = connect_db(db_path)
 
-
 # takes db_specs to perform opeartions or db 
 
 if db_specs == False:

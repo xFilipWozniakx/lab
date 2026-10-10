@@ -4,6 +4,10 @@ import os
 import subprocess 
 from datetime import datetime
 from time import sleep
+from pathlib import Path
+import hashlib
+
+from python3.modules.socket.client import send_status_code
 # ----------------------------- local_DB ---------------------------------
 db = subprocess.Popen(
         ['python3', 'local_db.py'],
@@ -14,6 +18,8 @@ db = subprocess.Popen(
 
 
 # -------------------------------- start of TCP --------------------------------------
+
+monitorable_objects = {}
 
 # TODO LIST:
 # - name assignment for files saved to server [client send it from his own file name / change name a bit ( security ) / save it somewhere ]
@@ -30,7 +36,7 @@ db = subprocess.Popen(
 # 0x02      PICTURE SEND
 # 0x03      AUTH
 
-# STATUS CODES
+# STATUS CODES ( bland not taken yet )
 # 200 : c8 : OK
 # 201 : c9 : ERROR
 # 202 : ca
@@ -61,6 +67,54 @@ db = subprocess.Popen(
 # 227 : e3
 # 228 : e4
 # 229 : e5
+
+# path to save files to, from env variables or ask user for that
+def setup_path(env_var: str = "p_sync_path" ) -> str :
+    path = os.getenv(env_var, "./photo_sync/files" )
+    try:
+        if not os.path.isdir(path):
+            os.makedirs(path, exist_ok=True)
+    except OSError :
+        print("cannot create dir for pictures")
+        raise
+
+    return path
+
+def monitor_pics(PATH: Path, monitorable_objects: dict) :
+
+    for i in PATH.iterdir():
+        if i.is_file():
+
+            # create object
+            name = i.name
+            path_file = str(i.absolute())
+            stat_file = i.stat(follow_symlinks=False)
+            size = stat_file.st_size
+            m_time = stat_file.st_mtime
+            
+            with open(i,"rb") as f:
+                hash_object = hashlib.sha256(f.read())     # cut in parts for better performance
+            digest = hash_object.hexdigest()
+
+            monitorable_objects[name] = {
+                "abs_path": path_file,
+                "size": size,
+                "m_time": m_time,
+                "sha256": digest,
+            }
+
+        else:
+            print(f'{i} not directory, not included into monitoring')
+
+    return monitorable_objects
+
+
+class Server:
+    def __init__(self):
+        self.files_path = setup_path()
+
+my_server = Server()
+monitorable_objects = monitor_pics(Path(my_server.files_path),monitorable_objects)
 
 
 STATUS_CODE_DICT ={
@@ -94,6 +148,8 @@ server.bind(("0.0.0.0", 5555))
 server.listen()
 
 
+
+
 def receive_exactly(CONNECTION, LENGTH: int, address_client):
     try:
         frame = CONNECTION.recv(LENGTH)
@@ -105,10 +161,8 @@ def receive_exactly(CONNECTION, LENGTH: int, address_client):
             else:
                 frame += more
         if len(frame) != LENGTH:
-            # return bytes
             return b""
         else:
-            # return bytes
             return frame
 
     except socket.timeout:
@@ -137,8 +191,8 @@ def status_code_send(CONNECTION,STATUS_CODE) -> bool:
 
 def status_code_receive():
     pass
-    
 
+# DAEMON OPTIONS:
 while True:
     connection, client_address = server.accept()
     connection = Client(connection,client_address)
@@ -156,9 +210,9 @@ while True:
                 if connection.authenticated != True:
                     connection.client.close()
 
-
                 LENGTH = int.from_bytes(frame[1:5], "little")
                 frame = receive_exactly(connection.client, LENGTH, connection.client_address)
+                
                 if frame != b"":
                     try:
                         with open("message_file.txt", "a") as file:
@@ -176,26 +230,29 @@ while True:
 
                 if connection.authenticated != True:
                     connection.client.close()
-
                 LENGTH = int.from_bytes(frame[1:5], "little")
-                frame = receive_exactly(connection.client, LENGTH, connection.client_address)
-                if frame != b"":
+                PAYLOAD = receive_exactly(connection.client, LENGTH, connection.client_address)
+                if PAYLOAD == b'':
+                    send_status_code(connection.client,"ERROR")
+                else:
+                    send_status_code(connection.client,"OK")
 
-                    path_for_pics = (
-                        "/home/vscode/lab/projects/photo_merge_app/program/files_received_by_server/"
-                    )
+                PAYLOAD_STRING = PAYLOAD.decode('utf-8')
+                remote_list = json.loads(PAYLOAD_STRING)
+                
+                to_request = {}
+                
+                for name in remote_list:
+                    if name not in monitorable_objects:
+                        to_request[name] = remote_list[name]
+                    elif name in monitorable_objects.keys() and monitorable_objects[name]["sha256"] != remote_list[name]["sha256"]:
+                        to_request[name] = remote_list[name]
+                    else: 
+                        pass
 
-                    # need to make different system for naming
-                    # but for now doesnt matter untill i do my sync modules
-                    # photos will inherit name from their original
-                    try:
-                        with open(f"{path_for_pics}cat_pic.jpg", "wb") as file:
-                            file.write(frame)
-                        status_code_send(connection.client, 'OK')
 
-                    except:
-                        status_code_send(connection.client, 'ERROR')
-           
+
+                           
             case 0x03:
                 if connection.auth_tries >= 2:
                     connection.client.close()
@@ -226,3 +283,5 @@ while True:
                         status_code_send(connection.client,"AUTH_ERROR")
                         print(f"{connection.client_address} failed AUTH") # LOGGING 
                         connection.auth_tries += 1 
+
+
