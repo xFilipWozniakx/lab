@@ -7,8 +7,6 @@ from time import sleep
 from pathlib import Path
 import hashlib
 
-
-
 # ----------------------------- local_DB ---------------------------------
 db = subprocess.Popen(
         ['python3', 'local_db.py'],
@@ -22,11 +20,13 @@ db = subprocess.Popen(
 
 monitorable_objects = {}
 
+
+def infos():
 # TODO LIST:
 # - name assignment for files saved to server [client send it from his own file name / change name a bit ( security ) / save it somewhere ]
 # - could add some more options on db managment 
 # - insted of TCP change to TLS
-
+# - create monitorable_objects from path_to_files at start up 
 
 # ┌──────────┬──────────────┬──────────────────────┐
 # │ TYPE     │ LENGTH       │ PAYLOAD              │
@@ -69,18 +69,24 @@ monitorable_objects = {}
 # 227 : e3
 # 228 : e4
 # 229 : e5
+    pass 
 
-# path to save files to, from env variables or ask user for that
-def setup_path(env_var: str = "p_sync_path" ) -> str :
-    path = os.getenv(env_var, "./photo_sync/files" )
+
+# path to save files to, from env variables 
+
+def setup_path(env_var: str = "p_sync_path" ) -> tuple[str,str]:
+    path = os.getenv(env_var, "./photo_sync")
+    path_logs = os.path.join(path, "logs")
     try:
         if not os.path.isdir(path):
             os.makedirs(path, exist_ok=True)
-    except OSError :
-        print("cannot create dir for pictures")
-        raise
+        if not os.path.isdir(path_logs):
+            os.makedirs(path_logs, exist_ok=True)
 
-    return path
+    except OSError:
+        print("cannot server dirs")
+        raise
+    return path, path_logs
 
 def monitor_pics(PATH: Path, monitorable_objects: dict) :
 
@@ -110,10 +116,12 @@ def monitor_pics(PATH: Path, monitorable_objects: dict) :
 
     return monitorable_objects
 
-
+path_files, path_logs = setup_path()
 class Server:
     def __init__(self):
-        self.files_path = setup_path()
+        self.files_path: str = path_files
+        self.logs_path: str = path_logs
+
 
 my_server = Server()
 monitorable_objects = monitor_pics(Path(my_server.files_path),monitorable_objects)
@@ -130,6 +138,10 @@ STATUS_CODE_RECEIVE = {
     b"\xc9": "ERROR",
     b'\xdd': "AUTH_ERROR",
     b'\xdc': "AUTH_OK"
+}
+TYPE_PROT = {
+    0x02: b"\x02",
+
 }
 
 class Client:
@@ -193,19 +205,27 @@ def status_code_send(CONNECTION,STATUS_CODE) -> bool:
         return False
 
 
-def status_code_receive():
-    status = receive_exactly(connection.client,1,connection.client_address) 
+def status_code_receive(CONNECTION,CONNECTION_ADDR):
+    status = receive_exactly(CONNECTION,1,CONNECTION_ADDR) 
     if status != b'':
         return f"{STATUS_CODE_RECEIVE[status]}"
     else:
         return f"Status code not received"
 
-def request_files_from_client(CONNECTION,TO_REQUEST):
+def request_files_from_client(CONNECTION,TO_REQUEST,CLIENT_ADDRESS):
     PAYLOAD =json.dumps(TO_REQUEST).encode('utf-8')
-    if send_exactly(connection.client,PAYLOAD,len(PAYLOAD)) == False:
-        print(status_code_receive())
+    if send_exactly(CONNECTION,PAYLOAD,len(PAYLOAD)) == False:
+        print(status_code_receive(CONNECTION,CLIENT_ADDRESS))
     else:
-        print(status_code_receive())
+        print(status_code_receive(CONNECTION,CLIENT_ADDRESS))
+
+def create_payload(TYPE,DATA) -> bytes:
+    if TYPE == 0x02:
+        LENGTH = len(DATA).to_bytes(4,'little')
+        DATA = DATA.encode('utf-8')
+    
+    return TYPE_PROT[0x02] + LENGTH + DATA 
+
         
 # DAEMON OPTIONS:
 while True:
@@ -215,7 +235,7 @@ while True:
 
     while True:
 
-        frame = receive_exactly(connection.client, 5, connection.client_address)
+        frame = receive_exactly(connection.client, 1, connection.client_address)
         if frame == b"":
             print("client lost connection")
             break
@@ -225,9 +245,13 @@ while True:
                 if connection.authenticated != True:
                     connection.client.close()
                     continue
-
-                LENGTH = int.from_bytes(frame[1:5], "little")
-                frame = receive_exactly(connection.client, LENGTH, connection.client_address)
+                
+                frame = receive_exactly(connection.client,4, connection.client_address)
+                if frame == b'':
+                    print("client lost connection or sent malufactured bytes")
+                else:    
+                    LENGTH = int.from_bytes(frame, "little")
+                    frame = receive_exactly(connection.client, LENGTH, connection.client_address)
                 
                 if frame != b"":
                     try:
@@ -246,15 +270,19 @@ while True:
 
                 if connection.authenticated != True:
                     connection.client.close()
-                LENGTH = int.from_bytes(frame[1:5], "little")
-                PAYLOAD = receive_exactly(connection.client, LENGTH, connection.client_address)
-                if PAYLOAD == b'':
+
+                frame = receive_exactly(connection.client,4, connection.client_address)
+                if frame == b'':
                     status_code_send(connection.client,"ERROR")
-                else:
+                    print("client lost connection or sent malufactured bytes")
+                else:    
+                    LENGTH = int.from_bytes(frame, "little")
+                    PAYLOAD = receive_exactly(connection.client, LENGTH, connection.client_address)
                     status_code_send(connection.client,"OK")
 
-                PAYLOAD_STRING = PAYLOAD.decode('utf-8')
-                remote_list = json.loads(PAYLOAD_STRING)
+                    PAYLOAD_STRING = PAYLOAD.decode('utf-8')
+                    remote_list = json.loads(PAYLOAD_STRING)
+                    print("remote list loaded")
                 
                 to_request = {}
                 # create list of missing photos
@@ -265,26 +293,35 @@ while True:
                         to_request[name] = remote_list[name]
                     else: 
                         pass
+                print("to_request dict created")
                 # send list to the client
-                to_request_payload = json.dumps(to_request).encode("utf-8")
+                
+                # create payload creation for server -> client 
+
+                to_request_payload = create_payload(0x02,json.dumps(to_request))
+
+                print("to request json dumped and utf-8 encoded")
+
                 if send_exactly(connection.client,to_request_payload,len(to_request_payload)) == False:
                     print("to_request_payload didnt reach destination")
                 else:
-                    print(status_code_receive())
+                    print(status_code_receive(connection.client,connection.client_address))
 
             case 0x03:
                 if connection.auth_tries >= 2:
                     connection.client.close()
                     continue
-
-
-                LENGTH = int.from_bytes(frame[1:5], "little")
-                PAYLOAD = receive_exactly(connection.client, LENGTH, connection.client_address)
-
-                PAYLOAD = PAYLOAD.decode('utf-8')
-                json_object = json.loads(PAYLOAD)
-                login = json_object["login"]
-                password = json_object["password_hash"]
+                
+                frame = receive_exactly(connection.client,4, connection.client_address)
+                if frame == b'':
+                    print("client lost connection or sent malufactured bytes")
+                else:    
+                    LENGTH = int.from_bytes(frame, "little")
+                    frame = receive_exactly(connection.client, LENGTH, connection.client_address)
+                    PAYLOAD = frame.decode('utf-8')
+                    json_object = json.loads(PAYLOAD)
+                    login = json_object["login"]
+                    password = json_object["password_hash"]
 
                 if PAYLOAD == b'':
                     print("malformed data sent")
@@ -309,23 +346,36 @@ while True:
                     connection.client.close()
                     continue
                 
-                LENGTH_NAME = int.from_bytes(frame[1:3], "little")
-                NAME = receive_exactly(connection.client, LENGTH_NAME, connection.client_address)
-                if NAME == b'':
-                    print("connection closed while photo syncing")
+                # receive length of name ( OPERATION | LEN_NAME 2b | NAME  | PAYLOAD_LEN 4b | PAYLOAD )
+                LENGTH_NAME = receive_exactly(connection.client,2, connection.client_address)
+                if LENGTH_NAME == b'':
+                    print("client lost connection or sent malufactured bytes")
+                else:    
+                    LENGTH_NAME_INT = int.from_bytes(LENGTH_NAME, "little")
+                    NAME = receive_exactly(connection.client, LENGTH_NAME_INT, connection.client_address)
+                    print(f"{NAME.decode('utf-8')} recived")
 
+                    if NAME == b'':
+                        print("connection closed while reciving name for picture")
+                    else:
+                        LENGTH_FILE_BYTES = receive_exactly(connection.client,4,connection.client_address)
+                        LENGTH_FILE = int.from_bytes(LENGTH_FILE_BYTES,'little')
+                        print(f"FILE IN BYTES received")
+                        if LENGTH_FILE_BYTES == b'':
+                            print("malufactured payload at receiving LEGTH_FILE picture")
+                        else:
+                            FILE = receive_exactly(connection.client,LENGTH_FILE,connection.client_address)
+                            if FILE == b'':
+                                print("connection closed while photo syncing")
+                            else:
+                                srv_path = my_server.files_path
+                                print(srv_path, " srv path found out")
+                                save_path = os.path.join(srv_path, NAME.decode('utf-8'))
+                                print(f"save_path: {save_path}")
+                                with open(save_path,'wb') as sync:
+                                    sync.write(FILE)
+                                print("file written")
 
-                LENGTH_FILE_BYTES = receive_exactly(connection.client,4,connection.client_address)
-                LENGTH_FILE = int.from_bytes(LENGTH_FILE_BYTES,'little')
-                FILE = receive_exactly(connection.client,LENGTH_FILE,connection.client_address)
-                if FILE == b'':
-                    print("connection closed while photo syncing")
-                else:
-                    srv_path = my_server.files_path
-                    save_path = os.path.join(srv_path, NAME.decode('utf-8'))
-                    with open(save_path,'wb') as sync:
-                        sync.write(FILE)
-
-                    status_code_send(connection.client,"OK")
+                                status_code_send(connection.client,"OK")
 
 

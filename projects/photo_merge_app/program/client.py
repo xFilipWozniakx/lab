@@ -57,19 +57,32 @@ client.connect(("127.0.0.1", 5555))
 
 # ------------------------------------ functions -----------------------------------
 
+# ------- debug --------
+def po(item):
+    print(f'item: {item} of type: {type(item)} ')
+def save(item):
+    with open("tested_file", 'a') as file:
+        file.write(item)
+    print("tested_file written to")
+
+
 def create_payload(PROTOCOL: bytes, item) -> bytes:
     if PROTOCOL == type_1:
         DATA = item.encode("utf-8")
     elif PROTOCOL == type_2:
-        file_name = item['abs_path'].name.encode("utf-8")
-        file_name_len = len(file_name).to_bytes(2,'little')
-        with open(item["abs_path"], "rb") as pic:
-            DATA = pic.read()
-        return PROTOCOL + file_name_len + file_name + len(DATA).to_bytes(4,'little') + DATA
+        DATA = item.encode('utf-8') 
     elif PROTOCOL == type_3:
         DATA = item.encode('utf-8')
     elif PROTOCOL == type_4:
-        DATA = item.encode('utf-8') 
+        file_path = item['abs_path'].encode("utf-8")
+        file_name = item['abs_path'].split("/")[-1].encode('utf-8')
+        file_name_len = len(file_name).to_bytes(2,'little')
+        with open(item["abs_path"], "rb") as pic:
+           DATA = pic.read()
+        print(f"protocol type_4: {file_path} | {file_name} | {file_name_len} | {len(DATA)}")
+        return PROTOCOL + file_name_len + file_name + len(DATA).to_bytes(4,'little') + DATA
+
+
     else:
         raise ValueError("Unknown protocol type")
     return PROTOCOL + len(DATA).to_bytes(4, "little") + DATA
@@ -120,32 +133,26 @@ def status_code_send(CONNECTION,STATUS_CODE) -> bool:
         print('status code not send')
         return False
 
-def status_code_receive() -> str:
-    status = receive_exactly(client,1) 
+def status_code_receive(CONNECTION) -> str:
+    status = receive_exactly(CONNECTION,1) 
     if status != b'':
         return f"{STATUS_CODE_RECEIVE[status]}"
     else:
         return f"Status code not received"
 
-def monitor_pics(PATH=Path("/home/vscode/lab/projects/photo_merge_app/program/test_dir/")) :
-    
-    while not PATH.is_dir():
-        PATH = Path(input("Dir path to monitor: "))
-
+def monitor_pics(pa: Path):
     monitorable_objects = {}
-
-    for i in PATH.iterdir():
+    for i in pa.iterdir():
         if i.is_file():
 
             # create object
-            name = i.name
-             
-            path_file = i.absolute()
+            name =  i.name
+            path_file = str(pa.joinpath(i.name)) 
             stat_file = i.stat(follow_symlinks=False)
             size = stat_file.st_size
             m_time = stat_file.st_mtime
             
-            with open(i,"rb") as f:
+            with open(path_file,"rb") as f:
                 hash_object = hashlib.sha256(f.read())     # cut in parts for better performance
             digest = hash_object.hexdigest()
 
@@ -153,7 +160,7 @@ def monitor_pics(PATH=Path("/home/vscode/lab/projects/photo_merge_app/program/te
                 "abs_path": path_file,
                 "size": size,
                 "m_time": m_time,
-                "sha256": digest,
+                "sha256": digest
             }
 
         else:
@@ -171,7 +178,7 @@ while True:
         PAYLOAD = create_payload(type_1, message)
         status = send_exactly(client, PAYLOAD, len(PAYLOAD))
         if status == True:
-            print(status_code_receive())
+            print(status_code_receive(client))
         elif status == False:
             print("Status code not received")
 
@@ -184,21 +191,23 @@ while True:
 
 
     while choice == 2:
-        local_pic_dict = monitor_pics()
+        local_pic_dict = monitor_pics(Path('/home/vscode/lab/projects/photo_merge_app/program/photos/photos')
+)
+        print("local_pic_dict recived in choice = 2 ")
         json_list = json.dumps(local_pic_dict)
-        
+        print("local_pic_dict dumped")
         # change protocol 
-        PAYLOAD = create_payload(type_4,json_list)
-
+        PAYLOAD = create_payload(type_2,json_list)
+        print("local_pic encapsulated in payload")
         send_exactly(client,PAYLOAD,len(PAYLOAD))
-        print(status_code_receive())
+        print(status_code_receive(client))
         
         # recive list of pictures to upload
         frame = receive_exactly(client,5)
         if frame == b"":
             print("server lost connection")
             break
-        else:
+        elif frame[0] == 0x02:
             LENGTH = int.from_bytes(frame[1:5], "little")
             frame = receive_exactly(client, LENGTH)
             # mix in status code
@@ -209,13 +218,15 @@ while True:
             print(type(to_upload))
             status_code_send(client,"OK")
             choice= 4
-            
+        else:
+            print("wrong procotol in-sent")
+                        
     if choice == 3:
         
         PAYLOAD = authenticate_client(credentials_dict)
         status = send_exactly(client,PAYLOAD,len(PAYLOAD))
         if status == True:
-            print(status_code_receive())
+            print(status_code_receive(client))
         else:
             print("AUTH_DATA NOT SENT")
 
@@ -225,9 +236,12 @@ while True:
 
             # send files that digest is exactly the same localy and while were send to server
             if name in local_pic_dict and local_pic_dict[name]["sha256"] == to_upload_json[name]["sha256"]:
-                PAYLOAD = create_payload(type_2,local_pic_dict[name])
+                print("check if item exists in local_pic_dict and compare sha256")
+                PAYLOAD = create_payload(type_4,local_pic_dict[name])
+                print("create payload of a given file with type_4 protocol")
+
                 if send_exactly(client,PAYLOAD,len(PAYLOAD)) == True:
-                    print(status_code_receive())
+                    print(status_code_receive(client))
                 else:
-                    print(status_code_receive())
-        
+                    print(status_code_receive(client))
+        choice = 0 
