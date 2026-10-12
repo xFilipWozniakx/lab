@@ -5,23 +5,12 @@ import importlib.util
 import socket
 import hashlib
 from pathlib import Path
-
-# TODO :
-# ADD SOME COMMENTS TO SEE PROCESS OF type_2 & type_4 
-# ADD 10 PICTURES TO TEST SYNC PROCESS 
+from termios import TIOCPKT_DOSTOP
 
 
 
-# import self made explorer() 
-spec = importlib.util.spec_from_file_location(
-    "explorer", "/home/vscode/lab/python3/modules/os/explorer.py"
-)
-if spec is None:
-    raise ImportError("Could not create spec for explorer")
-explorer = importlib.util.module_from_spec(spec)
-sys.modules["explorer"] = explorer
-spec.loader.exec_module(explorer)
-
+# TODO:
+#
 
 # PROTOCOLS:
 type_1 = b"\x01"  # MESSAGE
@@ -57,15 +46,6 @@ client.connect(("127.0.0.1", 5555))
 
 # ------------------------------------ functions -----------------------------------
 
-# ------- debug --------
-def po(item):
-    print(f'item: {item} of type: {type(item)} ')
-def save(item):
-    with open("tested_file", 'a') as file:
-        file.write(item)
-    print("tested_file written to")
-
-
 def create_payload(PROTOCOL: bytes, item) -> bytes:
     if PROTOCOL == type_1:
         DATA = item.encode("utf-8")
@@ -86,8 +66,6 @@ def create_payload(PROTOCOL: bytes, item) -> bytes:
     else:
         raise ValueError("Unknown protocol type")
     return PROTOCOL + len(DATA).to_bytes(4, "little") + DATA
-
-
 
 def receive_exactly(CONNECTION, LENGTH: int) -> bytes:
     try:

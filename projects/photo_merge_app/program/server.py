@@ -2,10 +2,11 @@ import json
 import socket
 import os
 import subprocess 
+import hashlib
+
 from datetime import datetime
 from time import sleep
 from pathlib import Path
-import hashlib
 
 # ----------------------------- local_DB ---------------------------------
 db = subprocess.Popen(
@@ -23,15 +24,28 @@ monitorable_objects = {}
 
 def infos():
 # TODO LIST:
-# - name assignment for files saved to server [client send it from his own file name / change name a bit ( security ) / save it somewhere ]
+
 # - could add some more options on db managment 
 # - insted of TCP change to TLS
-# - create monitorable_objects from path_to_files at start up 
+# - some kind of admin interface to talk to 
+# - multi users ? hmm 
+# - dig into android apps to translate client to
+# - 
 
+#                    type_3 & type_2 & type_1 
 # ┌──────────┬──────────────┬──────────────────────┐
 # │ TYPE     │ LENGTH       │ PAYLOAD              │
 # │ 1 byte   │ 4 bytes      │ LENGTH bytes         │
 # └──────────┴──────────────┴──────────────────────┘
+
+
+#                                  type_4
+# ┌──────────┬──────────────┬──────────────┬──────────────────┬──────────────────┐
+# │ TYPE     │ NAME LENGTH  │ NAME PAYLOAD │ PAYLOAD LENGTH   │      PAYLOAD     │
+# │ 1 byte   │ 2 bytes      │ NAME (bytes) │      4 BYTES     │    FILE PAYLOAD  │
+# └──────────┴──────────────┴──────────────┴──────────────────┴──────────────────┘
+
+
 
 # 0x01      MESSAGE
 # 0x02      PICTURE SEND
@@ -71,28 +85,48 @@ def infos():
 # 229 : e5
     pass 
 
+def add_logs(msg,*args) -> str:
+    da =datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+    msg = f'{da}: {msg} {" ".join(args)}\n'
+    return msg
 
-# path to save files to, from env variables 
+def setup_logging(PATH_LOGS) -> str: 
+    logs = Path(os.path.join(PATH_LOGS, "logs.txt"))
+    try:
+        with open(logs, 'a') as logs:
+            logs.write(add_logs("Server start-up"))
+    except OSError:
+        print(f"Cannot create log_file at {PATH_LOGS}")
+    return str(logs)
+
 
 def setup_path(env_var: str = "p_sync_path" ) -> tuple[str,str]:
+
+# path to save files to
+# to change its path set environment variable accordinly 
+# p_sync_path="/my/excelent/path"
+
     path = os.getenv(env_var, "./photo_sync")
     path_logs = os.path.join(path, "logs")
+    path_files = os.path.join(path, "files")
+    
     try:
         if not os.path.isdir(path):
             os.makedirs(path, exist_ok=True)
+        if not os.path.isdir(path_files):
+            os.makedirs(path_files, exist_ok=True)
         if not os.path.isdir(path_logs):
             os.makedirs(path_logs, exist_ok=True)
 
     except OSError:
         print("cannot server dirs")
         raise
-    return path, path_logs
+    return os.path.abspath(path_files), os.path.abspath(path_logs)
 
 def monitor_pics(PATH: Path, monitorable_objects: dict) :
-
     for i in PATH.iterdir():
         if i.is_file():
-
+            
             # create object
             name = i.name
             path_file = str(i.absolute())
@@ -118,13 +152,22 @@ def monitor_pics(PATH: Path, monitorable_objects: dict) :
 
 path_files, path_logs = setup_path()
 class Server:
-    def __init__(self):
+    def __init__(self,path_files, path_logs):
         self.files_path: str = path_files
         self.logs_path: str = path_logs
+        self.logs_write_to: str = setup_logging(self.logs_path)
 
+my_server = Server(path_files, path_logs)
 
-my_server = Server()
+# ------ debug photos | files ---------
+# print("PATH:", my_server.files_path)
+# print("EXISTS:", Path(my_server.files_path).exists())
+# print("CONTENTS:", list(Path(my_server.files_path).iterdir()))
+# ----------------
+
 monitorable_objects = monitor_pics(Path(my_server.files_path),monitorable_objects)
+
+add_logs(f"Number of files in monitored area:  {len(monitorable_objects)}")
 
 # status codes
 STATUS_CODE_SEND ={
@@ -152,13 +195,6 @@ class Client:
         self.login_client = login_client
         self.password_client = password_client
         self.auth_tries= auth_tries
-
-# LOGGING 
-# NOT DONE YET
-def logging(text):
-    with open("access_log.txt", "a") as logging:
-        date_time = f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
-        logging.write(date_time,text)
 
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -203,7 +239,6 @@ def status_code_send(CONNECTION,STATUS_CODE) -> bool:
     else:
         print('status code not send')
         return False
-
 
 def status_code_receive(CONNECTION,CONNECTION_ADDR):
     status = receive_exactly(CONNECTION,1,CONNECTION_ADDR) 
@@ -311,7 +346,12 @@ while True:
                 if connection.auth_tries >= 2:
                     connection.client.close()
                     continue
-                
+                elif connection.authenticated == True:
+                    print("Already authenticated")
+                    status_code_send(connection.client,"AUTH_OK")
+                    continue 
+
+
                 frame = receive_exactly(connection.client,4, connection.client_address)
                 if frame == b'':
                     print("client lost connection or sent malufactured bytes")
