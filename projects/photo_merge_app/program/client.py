@@ -4,8 +4,11 @@ import os
 import importlib.util
 import socket
 import hashlib
+import ssl 
+
 from pathlib import Path
 from termios import TIOCPKT_DOSTOP
+
 
 
 
@@ -40,9 +43,6 @@ credentials_dict = {
         }
 
 
-# MAKE CONNECTION TO SERVER
-client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client.connect(("127.0.0.1", 5555))
 
 # ------------------------------------ functions -----------------------------------
 
@@ -145,81 +145,89 @@ def monitor_pics(pa: Path):
             print(f'{i} not directory, not included into monitoring')
     return monitorable_objects
 
+## MAKE CONNECTION TO SERVER
+#client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+hostname = "127.0.0.1"
+context = ssl.create_default_context(cafile="./certs/example.crt")
+
+with socket.create_connection(((hostname,5555))) as sock:
+    with context.wrap_socket(sock, server_hostname=hostname) as client:
+        print(client.version())
+
 # CHOICE MENU:
-while True:
-    
-    print("Choices: (1 message) (2 update_picture) (3 auth) ")
-    choice = int(input("What are you going to do: (takes-int) "))
-    
-    while choice == 1:
-        message = input("Insert message for server to write: \n")
-        PAYLOAD = create_payload(type_1, message)
-        status = send_exactly(client, PAYLOAD, len(PAYLOAD))
-        if status == True:
-            print(status_code_receive(client))
-        elif status == False:
-            print("Status code not received")
+        while True:
+            print("Choices: (1 message) (2 update_picture) (3 auth) ")
+            choice = int(input("What are you going to do: (takes-int) "))
+            
+            while choice == 1:
+                message = input("Insert message for server to write: \n")
+                PAYLOAD = create_payload(type_1, message)
+                status = send_exactly(client, PAYLOAD, len(PAYLOAD))
+                if status == True:
+                    print(status_code_receive(client))
+                elif status == False:
+                    print("Status code not received")
 
-        print("1 = yes, 2 = no ")
-        inner_choice = int(input("Communication over?"))
-        if inner_choice == 1:
-            break
-        elif inner_choice == 2:
-            pass
+                print("1 = yes, 2 = no ")
+                inner_choice = int(input("Communication over?"))
+                if inner_choice == 1:
+                    break
+                elif inner_choice == 2:
+                    pass
 
 
-    while choice == 2:
-        local_pic_dict = monitor_pics(Path('/home/vscode/lab/projects/photo_merge_app/program/photos/photos')
-)
-        print("local_pic_dict recived in choice = 2 ")
-        json_list = json.dumps(local_pic_dict)
-        print("local_pic_dict dumped")
-        # change protocol 
-        PAYLOAD = create_payload(type_2,json_list)
-        print("local_pic encapsulated in payload")
-        send_exactly(client,PAYLOAD,len(PAYLOAD))
-        print(status_code_receive(client))
-        
-        # recive list of pictures to upload
-        frame = receive_exactly(client,5)
-        if frame == b"":
-            print("server lost connection")
-            break
-        elif frame[0] == 0x02:
-            LENGTH = int.from_bytes(frame[1:5], "little")
-            frame = receive_exactly(client, LENGTH)
-            # mix in status code
-            global to_upload_json 
-            to_upload = frame.decode("utf-8")
-            to_upload_json = json.loads(to_upload)
-            print(to_upload)
-            print(type(to_upload))
-            status_code_send(client,"OK")
-            choice= 4
-        else:
-            print("wrong procotol in-sent")
-                        
-    if choice == 3:
-        
-        PAYLOAD = authenticate_client(credentials_dict)
-        status = send_exactly(client,PAYLOAD,len(PAYLOAD))
-        if status == True:
-            print(status_code_receive(client))
-        else:
-            print("AUTH_DATA NOT SENT")
-
-    while choice == 4:
-        for counter, name in enumerate(to_upload_json, start=1):
-            print(f"File {counter}/{len(to_upload_json)}: {name}")
-
-            # send files that digest is exactly the same localy and while were send to server
-            if name in local_pic_dict and local_pic_dict[name]["sha256"] == to_upload_json[name]["sha256"]:
-                print("check if item exists in local_pic_dict and compare sha256")
-                PAYLOAD = create_payload(type_4,local_pic_dict[name])
-                print("create payload of a given file with type_4 protocol")
-
-                if send_exactly(client,PAYLOAD,len(PAYLOAD)) == True:
+            while choice == 2:
+                local_pic_dict = monitor_pics(Path('/home/vscode/lab/projects/photo_merge_app/program/photos/photos')
+        )
+                print("local_pic_dict recived in choice = 2 ")
+                json_list = json.dumps(local_pic_dict)
+                print("local_pic_dict dumped")
+                # change protocol 
+                PAYLOAD = create_payload(type_2,json_list)
+                print("local_pic encapsulated in payload")
+                send_exactly(client,PAYLOAD,len(PAYLOAD))
+                print(status_code_receive(client))
+                
+                # recive list of pictures to upload
+                frame = receive_exactly(client,5)
+                if frame == b"":
+                    print("server lost connection")
+                    break
+                elif frame[0] == 0x02:
+                    LENGTH = int.from_bytes(frame[1:5], "little")
+                    frame = receive_exactly(client, LENGTH)
+                    # mix in status code
+                    global to_upload_json 
+                    to_upload = frame.decode("utf-8")
+                    to_upload_json = json.loads(to_upload)
+                    print(to_upload)
+                    print(type(to_upload))
+                    status_code_send(client,"OK")
+                    choice= 4
+                else:
+                    print("wrong procotol in-sent")
+                                
+            if choice == 3:
+                
+                PAYLOAD = authenticate_client(credentials_dict)
+                status = send_exactly(client,PAYLOAD,len(PAYLOAD))
+                if status == True:
                     print(status_code_receive(client))
                 else:
-                    print(status_code_receive(client))
-        choice = 0 
+                    print("AUTH_DATA NOT SENT")
+
+            while choice == 4:
+                for counter, name in enumerate(to_upload_json, start=1):
+                    print(f"File {counter}/{len(to_upload_json)}: {name}")
+
+                    # send files that digest is exactly the same localy and while were send to server
+                    if name in local_pic_dict and local_pic_dict[name]["sha256"] == to_upload_json[name]["sha256"]:
+                        print("check if item exists in local_pic_dict and compare sha256")
+                        PAYLOAD = create_payload(type_4,local_pic_dict[name])
+                        print("create payload of a given file with type_4 protocol")
+
+                        if send_exactly(client,PAYLOAD,len(PAYLOAD)) == True:
+                            print(status_code_receive(client))
+                        else:
+                            print(status_code_receive(client))
+                choice = 0 

@@ -3,10 +3,13 @@ import socket
 import os
 import subprocess 
 import hashlib
+import ssl 
+
 
 from datetime import datetime
 from time import sleep
 from pathlib import Path
+
 
 # ----------------------------- local_DB ---------------------------------
 db = subprocess.Popen(
@@ -197,9 +200,12 @@ class Client:
         self.auth_tries= auth_tries
 
 
+context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+context.load_cert_chain("./certs/example.crt", "./certs/example.key")
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(("0.0.0.0", 5555))
 server.listen()
+
 
 def receive_exactly(CONNECTION, LENGTH: int, address_client):
     try:
@@ -264,12 +270,20 @@ def create_payload(TYPE,DATA) -> bytes:
         
 # DAEMON OPTIONS:
 while True:
-    connection, client_address = server.accept()
-    connection = Client(connection,client_address)
-    connection.client.settimeout(30)
+    raw_client, client_address = server.accept()
+    try:
+        secure_client = context.wrap_socket(raw_client, server_side=True)
+        connection = Client(secure_client,client_address)
+        print(f"TLS established: {secure_client.version()}")
+        connection.client.settimeout(30)
+
+    except ssl.SSLError as exc:
+        print(f"TLS handshake failed for {client_address}: {exc}")
+        raw_client.close()
+        continue
 
     while True:
-
+        
         frame = receive_exactly(connection.client, 1, connection.client_address)
         if frame == b"":
             print("client lost connection")
