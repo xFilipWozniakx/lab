@@ -6,8 +6,8 @@ import socket
 import hashlib
 import ssl 
 
+from datetime import datetime 
 from pathlib import Path
-from termios import TIOCPKT_DOSTOP
 
 
 
@@ -41,6 +41,28 @@ credentials_dict = {
         "login": "admin",
         "password_hash": '$2b$12$4e6t9p17R7.IJ5LK6fJl5.zbUtmEXrNfUZ3oIpKfftoqWZpuHtmoW'
         }
+
+class Client:
+    def __init__(self,logs_path):
+        self.logs = logs_path
+
+
+
+# -------------- logs ------------
+
+def add_logs(msg,*args) -> str:
+    da =datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+    msg = f'{da}: {msg} {" ".join(args)}\n'
+    return msg
+
+def setup_logging(PATH_LOGS) -> str: 
+    logs = Path(os.path.join(PATH_LOGS, "logs.txt"))
+    try:
+        logs = open(logs, 'x')
+        logs.close()
+    except OSError:
+        print(f"Cannot create log_file at {PATH_LOGS}")
+    return str(logs)
 
 
 

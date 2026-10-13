@@ -28,8 +28,9 @@ monitorable_objects = {}
 def infos():
 # TODO LIST:
 
+
+# - max picture size ~ 20 000 000 bytes
 # - could add some more options on db managment 
-# - insted of TCP change to TLS
 # - some kind of admin interface to talk to 
 # - multi users ? hmm 
 # - dig into android apps to translate client to
@@ -86,7 +87,7 @@ def infos():
 # 227 : e3
 # 228 : e4
 # 229 : e5
-    pass 
+    pass
 
 def add_logs(msg,*args) -> str:
     da =datetime.now().strftime("%d-%m-%Y %H:%M:%S")
@@ -102,8 +103,11 @@ def setup_logging(PATH_LOGS) -> str:
         print(f"Cannot create log_file at {PATH_LOGS}")
     return str(logs)
 
+def setup_path(env_var: str = "p_sync_path") -> tuple[str,str,int]:
 
-def setup_path(env_var: str = "p_sync_path" ) -> tuple[str,str]:
+
+# max_file_length = ~20MB
+# chage with mlf 
 
 # path to save files to
 # to change its path set environment variable accordinly 
@@ -112,7 +116,8 @@ def setup_path(env_var: str = "p_sync_path" ) -> tuple[str,str]:
     path = os.getenv(env_var, "./photo_sync")
     path_logs = os.path.join(path, "logs")
     path_files = os.path.join(path, "files")
-    
+    path_certs = os.path.join(path, "certs")
+
     try:
         if not os.path.isdir(path):
             os.makedirs(path, exist_ok=True)
@@ -120,11 +125,15 @@ def setup_path(env_var: str = "p_sync_path" ) -> tuple[str,str]:
             os.makedirs(path_files, exist_ok=True)
         if not os.path.isdir(path_logs):
             os.makedirs(path_logs, exist_ok=True)
+        if not os.path.isdir(path_certs):
+            os.makedirs(path_certs, exist_ok=True)
+
 
     except OSError:
         print("cannot server dirs")
         raise
-    return os.path.abspath(path_files), os.path.abspath(path_logs)
+    return os.path.abspath(path_files), os.path.abspath(path_logs), int(os.getenv("mfl", 20000000))
+
 
 def monitor_pics(PATH: Path, monitorable_objects: dict) :
     for i in PATH.iterdir():
@@ -153,21 +162,17 @@ def monitor_pics(PATH: Path, monitorable_objects: dict) :
 
     return monitorable_objects
 
-path_files, path_logs = setup_path()
+
+path_files, path_logs, max_file_length = setup_path()
+
 class Server:
-    def __init__(self,path_files, path_logs):
+    def __init__(self,path_files, path_logs,max_file_length):
         self.files_path: str = path_files
         self.logs_path: str = path_logs
         self.logs_write_to: str = setup_logging(self.logs_path)
+        self.max_file_length = max_file_length
 
-my_server = Server(path_files, path_logs)
-
-# ------ debug photos | files ---------
-# print("PATH:", my_server.files_path)
-# print("EXISTS:", Path(my_server.files_path).exists())
-# print("CONTENTS:", list(Path(my_server.files_path).iterdir()))
-# ----------------
-
+my_server = Server(path_files, path_logs, max_file_length)
 monitorable_objects = monitor_pics(Path(my_server.files_path),monitorable_objects)
 
 add_logs(f"Number of files in monitored area:  {len(monitorable_objects)}")
@@ -177,13 +182,15 @@ STATUS_CODE_SEND ={
     'OK': b"\xc8",
     'ERROR': b'\xc9',
     'AUTH_ERROR': b'\xdd',
-    'AUTH_OK': b'\xdc'
+    'AUTH_OK': b'\xdc',
+    'FILE_SIZE': b'\xdd'
 }
 STATUS_CODE_RECEIVE = {
     b"\xc8": "OK",
     b"\xc9": "ERROR",
     b'\xdd': "AUTH_ERROR",
-    b'\xdc': "AUTH_OK"
+    b'\xdc': "AUTH_OK",
+    b'\xdd': "FILE_SIZE"
 }
 TYPE_PROT = {
     0x02: b"\x02",
@@ -199,13 +206,11 @@ class Client:
         self.password_client = password_client
         self.auth_tries= auth_tries
 
-
 context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
 context.load_cert_chain("./certs/example.crt", "./certs/example.key")
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(("0.0.0.0", 5555))
 server.listen()
-
 
 def receive_exactly(CONNECTION, LENGTH: int, address_client):
     try:
@@ -268,7 +273,7 @@ def create_payload(TYPE,DATA) -> bytes:
     return TYPE_PROT[0x02] + LENGTH + DATA 
 
         
-# DAEMON OPTIONS:
+# DAEMON:
 while True:
     raw_client, client_address = server.accept()
     try:
@@ -414,22 +419,27 @@ while True:
                     else:
                         LENGTH_FILE_BYTES = receive_exactly(connection.client,4,connection.client_address)
                         LENGTH_FILE = int.from_bytes(LENGTH_FILE_BYTES,'little')
-                        print(f"FILE IN BYTES received")
-                        if LENGTH_FILE_BYTES == b'':
-                            print("malufactured payload at receiving LEGTH_FILE picture")
+                        if LENGTH_FILE > my_server.max_file_length:
+                            add_logs(f"{connection.client_address} tried to exceed max file size")
+                            # CONTROLING SIZE OF FILE NEEDED 
+                            status_code_send(connection.client,"FILE_SIZE")
                         else:
-                            FILE = receive_exactly(connection.client,LENGTH_FILE,connection.client_address)
-                            if FILE == b'':
-                                print("connection closed while photo syncing")
+                            print(f"FILE IN BYTES received")
+                            if LENGTH_FILE_BYTES == b'':
+                                print("malufactured payload at receiving LEGTH_FILE picture")
                             else:
-                                srv_path = my_server.files_path
-                                print(srv_path, " srv path found out")
-                                save_path = os.path.join(srv_path, NAME.decode('utf-8'))
-                                print(f"save_path: {save_path}")
-                                with open(save_path,'wb') as sync:
-                                    sync.write(FILE)
-                                print("file written")
+                                FILE = receive_exactly(connection.client,LENGTH_FILE,connection.client_address)
+                                if FILE == b'':
+                                    print("connection closed while photo syncing")
+                                else:
+                                    srv_path = my_server.files_path
+                                    print(srv_path, " srv path found out")
+                                    save_path = os.path.join(srv_path, NAME.decode('utf-8'))
+                                    print(f"save_path: {save_path}")
+                                    with open(save_path,'wb') as sync:
+                                        sync.write(FILE)
+                                    print("file written")
 
-                                status_code_send(connection.client,"OK")
+                                    status_code_send(connection.client,"OK")
 
 
