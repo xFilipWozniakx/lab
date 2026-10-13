@@ -34,25 +34,23 @@ STATUS_CODE_RECEIVE = {
     b'\xdd': "AUTH_ERROR",
     b'\xde': "SIZE_ERROR",
     b'\xdf': 'SIZE_ACK',
-    b'\xe0': "STATUS_CODE_RECEIVED",
+    b'\xe0': "SUCCES_RECEIVED",
 }
 STATUS_CODE_SEND = {
     "OK": b"\xc8",
     "ERROR": b"\xc9",
+    "AUTH_OK": b'\xdc',
     "AUTH_ERROR": b'\xdd',
     "SIZE_ERROR": b'\xde',
-    "AUTH_OK": b'\xdf',
-    "SIZE_ACK": b'\xe0' ,
-    "STATUS_CODE_RECEIVED": b'\xe1',
+    "SIZE_ACK": b'\xdf' ,
+    "SUCCES_RECEIVED": b'\xe0',
 }
-
 
 # creds for auth:
 credentials_dict = {
         "login": "admin",
         "password_hash": '$2b$12$4e6t9p17R7.IJ5LK6fJl5.zbUtmEXrNfUZ3oIpKfftoqWZpuHtmoW'
-        }
-
+        }                 
 class Client:
     def __init__(self,logs_path):
         self.logs = logs_path
@@ -268,7 +266,7 @@ with socket.create_connection(((hostname,5555))) as sock:
                         if send_exactly(client,LEN_NAME,3) == True:
                             print(status_code_receive(client))
                             NAME = create_payload(type_5, to_upload_json[name])
-                            if send_exactly(client,NAME,int(LEN_NAME)) == True:
+                            if send_exactly(client,NAME,int(LEN_NAME).decode('utf-8')) == True:
                                 print(status_code_receive(client))
                                 FILE_LEN = create_payload(type_6,to_upload_json[name])
                                 if send_exactly(client,FILE_LEN,4) == True:
@@ -278,7 +276,6 @@ with socket.create_connection(((hostname,5555))) as sock:
                                         print("SIZE ERROR ACKNOWLEDGED")
                                 else:
                                     create_payload(type_7,to_upload_json[name].abs_path)
-
 
                 choice = 0 
 

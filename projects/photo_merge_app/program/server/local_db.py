@@ -88,18 +88,22 @@ if db_specs == False:
 while True:
 
     request = sys.stdin.readline().strip()
-    if request == '':
-        pass
-    else:
+    if request != '':
         _, login, password = request.split('|')
         # print(f'pro: {_} log: {login} pass: {password}')
+        sys.stdout.write(f"{_}, {login}, {password}"\n)
+        #sys.stdout.buffer.write(b'\xc8')
+        sys.stdout.flush()
+
 
         if _ == "AUTH":
             if check_if_exists(db_specs[1],login,password) == True:
-                sys.stdout.buffer.write(b'\xc8')
+                sys.stdout.write(f"{_}, {login}, {password}\n")
+                #sys.stdout.buffer.write(b'\xc8')
                 sys.stdout.flush()
             else:
-                sys.stdout.buffer.write(b'\xc9')
+                sys.stdout.write(f"{_}, {login}, {password}\n")
+                #sys.stdout.buffer.write(b'\xc9')
                 sys.stdout.flush()
         else:
             print("did see auth")

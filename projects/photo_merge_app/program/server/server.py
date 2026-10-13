@@ -14,6 +14,7 @@ db = subprocess.Popen(
         ['python3', 'local_db.py'],
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
         text=True
         )
 
@@ -46,44 +47,12 @@ def infos():
 # │ 1 byte   │ 2 bytes      │ NAME (bytes) │      4 BYTES     │    FILE PAYLOAD  │
 # └──────────┴──────────────┴──────────────┴──────────────────┴──────────────────┘
 
-
-
 # 0x01      MESSAGE
 # 0x02      PICTURE SEND
 # 0x03      AUTH
 # 0x04      PICUTRES REQUEST
 
-# STATUS CODES ( bland not taken yet )
-# 200 : c8 : OK
-# 201 : c9 : ERROR
-# 202 : ca
-# 203 : cb
-# 204 : cc
-# 205 : cd
-# 206 : ce
-# 207 : cf
-# 208 : d0
-# 209 : d1
-# 210 : d2
-# 211 : d3
-# 212 : d4
-# 213 : d5
-# 214 : d6
-# 215 : d7
-# 216 : d8
-# 217 : d9
-# 218 : da
-# 219 : db
-# 220 : dc : AUTH OK
-# 221 : dd : AUTH ERROR
-# 222 : de : SIZE_ERROR
-# 223 : df : SIZE_ACK
-# 224 : e0 : STATUS_CODE_RECEIVED
-# 225 : e1 : STATUS_CODE_RECEIVED"
-# 226 : e2
-# 227 : e3
-# 228 : e4
-# 229 : e5
+
     pass
 
 def add_logs(msg,*args) -> str:
@@ -178,11 +147,11 @@ add_logs(f"Number of files in monitored area:  {len(monitorable_objects)}")
 STATUS_CODE_SEND ={
     'OK': b"\xc8",
     'ERROR': b'\xc9',
+    'AUTH_OK': b'\xdc',
     'AUTH_ERROR': b'\xdd',
-    'AUTH_OK': b'\xde',
-    'SIZE_ERROR': b'\xdf',
-    'SIZE_ACK': b'\xe0',
-    "SUCCES_RECEIVED": b'\xe1',
+    'SIZE_ERROR': b'\xde',
+    'SIZE_ACK': b'\xdf',
+    "SUCCES_RECEIVED": b'\xe0',
 }
 
 STATUS_CODE_RECEIVE = {
@@ -269,8 +238,8 @@ def request_files_from_client(CONNECTION,TO_REQUEST,CLIENT_ADDRESS):
 
 def create_payload(TYPE,DATA) -> bytes:
     if TYPE == 0x02:
-        LENGTH = len(DATA).to_bytes(4,'little')
         DATA = DATA.encode('utf-8')
+        LENGTH = len(DATA).to_bytes(4,'little')
     
     return TYPE_PROT[0x02] + LENGTH + DATA 
         
@@ -325,6 +294,7 @@ while True:
 
                 if connection.authenticated != True:
                     connection.client.close()
+                    continue
 
                 frame = receive_exactly(connection.client,4, connection.client_address)
                 if frame == b'':
@@ -385,19 +355,25 @@ while True:
                 else:
 
                     auth_data = f'AUTH|{login}|{password}\n'
-                    
+
                     db.stdin.write(auth_data)
                     db.stdin.flush()
                     
-                    auth_status = db.stdout.buffer.read(1)
+                    # auth_status 
+                    output_db =  db.stdout.read()
+                    print(output_db)
 
-                    if auth_status == b'\xc8':
-                        status_code_send(connection.client,"AUTH_OK")
-                        connection.authenticated = True
-                    else:
-                        status_code_send(connection.client,"AUTH_ERROR")
-                        print(f"{connection.client_address} failed AUTH") # LOGGING 
-                        connection.auth_tries += 1 
+                    
+
+
+
+#                     if auth_status == b'\xc8':
+#                         status_code_send(connection.client,"AUTH_OK")
+#                         connection.authenticated = True
+#                     else:
+#                         status_code_send(connection.client,"AUTH_ERROR")
+#                         print(f"{connection.client_address} failed AUTH") # LOGGING 
+#                         connection.auth_tries += 1 
             case 0x04:
                 if connection.authenticated != True:
                     connection.client.close()
@@ -440,7 +416,7 @@ while True:
                     connection.client.close()
                     continue
 
-                    FILE =receive_exactly(connection.client,LENGTH_FILE,connection.client_address)
+                    FILE = receive_exactly(connection.client,LENGTH_FILE,connection.client_address)
                     if len(FILE) == LENGTH_FILE:
                         srv_path = my_server.files_path
                         save_path = os.path.join(srv_path, NAME.decode('utf-8'))
