@@ -19,20 +19,31 @@ from pathlib import Path
 type_1 = b"\x01"  # MESSAGE
 type_2 = b"\x02"  # PICTURE_UPDATE
 type_3 = b"\x03"  # AUTHENTICATE
-type_4 = b"\x04"  # TRANSFER PICS DICT  
+type_4 = b"\x04"  # TRANSFER PICS: STAGE 1 
+type_5 = b"\x05"  # TRANSFER PICS: STAGE 2
+type_6 = b"\x06"  # TRANSFER PICS: STAGE 3
+type_7 = b"\x07"  # TRANSFER PICS: STAGE 4
 
+
+# FIX STATUS CODES BEFORE RUNNING 
 # STATUS CODES RECEIVE:
 STATUS_CODE_RECEIVE = {
     b"\xc8": "OK",
     b"\xc9": "ERROR",
+    b'\xdc': "AUTH_OK",
     b'\xdd': "AUTH_ERROR",
-    b'\xdc': "AUTH_OK"
+    b'\xde': "SIZE_ERROR",
+    b'\xdf': 'SIZE_ACK',
+    b'\xe0': "STATUS_CODE_RECEIVED",
 }
 STATUS_CODE_SEND = {
     "OK": b"\xc8",
     "ERROR": b"\xc9",
     "AUTH_ERROR": b'\xdd',
-    "AUTH_OK": b'\xdc'
+    "SIZE_ERROR": b'\xde',
+    "AUTH_OK": b'\xdf',
+    "SIZE_ACK": b'\xe0' ,
+    "STATUS_CODE_RECEIVED": b'\xe1',
 }
 
 
@@ -64,8 +75,6 @@ def setup_logging(PATH_LOGS) -> str:
         print(f"Cannot create log_file at {PATH_LOGS}")
     return str(logs)
 
-
-
 # ------------------------------------ functions -----------------------------------
 
 def create_payload(PROTOCOL: bytes, item) -> bytes:
@@ -76,17 +85,28 @@ def create_payload(PROTOCOL: bytes, item) -> bytes:
     elif PROTOCOL == type_3:
         DATA = item.encode('utf-8')
     elif PROTOCOL == type_4:
-        file_path = item['abs_path'].encode("utf-8")
+        # STAGE 1:
         file_name = item['abs_path'].split("/")[-1].encode('utf-8')
         file_name_len = len(file_name).to_bytes(2,'little')
-        with open(item["abs_path"], "rb") as pic:
-           DATA = pic.read()
-        print(f"protocol type_4: {file_path} | {file_name} | {file_name_len} | {len(DATA)}")
-        return PROTOCOL + file_name_len + file_name + len(DATA).to_bytes(4,'little') + DATA
-
-
+        return type_4 + file_name_len
+    elif PROTOCOL == type_5:
+        # STAGE 2:
+        file_name = item['abs_path'].split("/")[-1].encode('utf-8')
+        return type_5 + file_name
+    elif PROTOCOL == type_6:
+        photo = Path(item['abs_path'])
+        size = photo.stat().st_size
+        return size.to_bytes(4,'little')
+    elif PROTOCOL == type_7:
+        CHUNK_SIZE = 64 * 1024
+        with open(item, "rb") as pic:
+            while chunk := pic.read(CHUNK_SIZE):
+                if send_exactly(client,chunk,len(chunk).to_bytes(4,'little')) == False:
+                    add_logs(f"connection killed under sending {item[name]}")
+        add_logs(status_code_receive(client), f" {item[name]}")
     else:
         raise ValueError("Unknown protocol type")
+    
     return PROTOCOL + len(DATA).to_bytes(4, "little") + DATA
 
 def receive_exactly(CONNECTION, LENGTH: int) -> bytes:
@@ -170,7 +190,7 @@ def monitor_pics(pa: Path):
 ## MAKE CONNECTION TO SERVER
 #client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 hostname = "127.0.0.1"
-context = ssl.create_default_context(cafile="./certs/example.crt")
+context = ssl.create_default_context(cafile="../server/photo_sync/certs/example.crt")
 
 with socket.create_connection(((hostname,5555))) as sock:
     with context.wrap_socket(sock, server_hostname=hostname) as client:
@@ -244,12 +264,28 @@ with socket.create_connection(((hostname,5555))) as sock:
 
                     # send files that digest is exactly the same localy and while were send to server
                     if name in local_pic_dict and local_pic_dict[name]["sha256"] == to_upload_json[name]["sha256"]:
-                        print("check if item exists in local_pic_dict and compare sha256")
-                        PAYLOAD = create_payload(type_4,local_pic_dict[name])
-                        print("create payload of a given file with type_4 protocol")
+                        LEN_NAME  = create_payload(type_4,to_upload_json[name])
+                        if send_exactly(client,LEN_NAME,3) == True:
+                            print(status_code_receive(client))
+                            NAME = create_payload(type_5, to_upload_json[name])
+                            if send_exactly(client,NAME,int(LEN_NAME)) == True:
+                                print(status_code_receive(client))
+                                FILE_LEN = create_payload(type_6,to_upload_json[name])
+                                if send_exactly(client,FILE_LEN,4) == True:
+                                    if status_code_receive(client) == "SIZE_ERROR":
+                                        add_logs(f"file: {to_upload_json[name]} exceeded server max size restriction")
+                                        status_code_send(client,"SIZE_ACK")
+                                        print("SIZE ERROR ACKNOWLEDGED")
+                                else:
+                                    create_payload(type_7,to_upload_json[name].abs_path)
 
-                        if send_exactly(client,PAYLOAD,len(PAYLOAD)) == True:
-                            print(status_code_receive(client))
-                        else:
-                            print(status_code_receive(client))
+
                 choice = 0 
+
+
+
+
+
+
+
+

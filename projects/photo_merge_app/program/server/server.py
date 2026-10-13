@@ -5,11 +5,9 @@ import subprocess
 import hashlib
 import ssl 
 
-
 from datetime import datetime
 from time import sleep
 from pathlib import Path
-
 
 # ----------------------------- local_DB ---------------------------------
 db = subprocess.Popen(
@@ -23,7 +21,6 @@ db = subprocess.Popen(
 # -------------------------------- start of TCP --------------------------------------
 
 monitorable_objects = {}
-
 
 def infos():
 # TODO LIST:
@@ -79,10 +76,10 @@ def infos():
 # 219 : db
 # 220 : dc : AUTH OK
 # 221 : dd : AUTH ERROR
-# 222 : de
-# 223 : df
-# 224 : e0
-# 225 : e1
+# 222 : de : SIZE_ERROR
+# 223 : df : SIZE_ACK
+# 224 : e0 : STATUS_CODE_RECEIVED
+# 225 : e1 : STATUS_CODE_RECEIVED"
 # 226 : e2
 # 227 : e3
 # 228 : e4
@@ -103,10 +100,13 @@ def setup_logging(PATH_LOGS) -> str:
         print(f"Cannot create log_file at {PATH_LOGS}")
     return str(logs)
 
+def from_bytes_x(nbytes, unit='B'):
+    units = {'B': 1, 'KB': 1024, 'MB': 1024**2, 'GB': 1024**3, 'TB': 1024**4}
+    return nbytes / units[unit]
+
 def setup_path(env_var: str = "p_sync_path") -> tuple[str,str,int]:
 
-
-# max_file_length = ~20MB
+# max_file_size = ~20MB
 # chage with mlf 
 
 # path to save files to
@@ -128,12 +128,10 @@ def setup_path(env_var: str = "p_sync_path") -> tuple[str,str,int]:
         if not os.path.isdir(path_certs):
             os.makedirs(path_certs, exist_ok=True)
 
-
     except OSError:
         print("cannot server dirs")
         raise
-    return os.path.abspath(path_files), os.path.abspath(path_logs), int(os.getenv("mfl", 20000000))
-
+    return os.path.abspath(path_files), os.path.abspath(path_logs), int(os.getenv("mfs", 20000000))
 
 def monitor_pics(PATH: Path, monitorable_objects: dict) :
     for i in PATH.iterdir():
@@ -162,7 +160,6 @@ def monitor_pics(PATH: Path, monitorable_objects: dict) :
 
     return monitorable_objects
 
-
 path_files, path_logs, max_file_length = setup_path()
 
 class Server:
@@ -182,19 +179,24 @@ STATUS_CODE_SEND ={
     'OK': b"\xc8",
     'ERROR': b'\xc9',
     'AUTH_ERROR': b'\xdd',
-    'AUTH_OK': b'\xdc',
-    'FILE_SIZE': b'\xdd'
+    'AUTH_OK': b'\xde',
+    'SIZE_ERROR': b'\xdf',
+    'SIZE_ACK': b'\xe0',
+    "SUCCES_RECEIVED": b'\xe1',
 }
+
 STATUS_CODE_RECEIVE = {
     b"\xc8": "OK",
     b"\xc9": "ERROR",
-    b'\xdd': "AUTH_ERROR",
     b'\xdc': "AUTH_OK",
-    b'\xdd': "FILE_SIZE"
+    b'\xdd': "AUTH_ERROR",
+    b'\xde': "SIZE_ERROR",
+    b'\xdf': 'SIZE_ACK',
+    b'\xe0': "SUCCES_RECEIVED",
 }
+
 TYPE_PROT = {
     0x02: b"\x02",
-
 }
 
 class Client:
@@ -207,7 +209,7 @@ class Client:
         self.auth_tries= auth_tries
 
 context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-context.load_cert_chain("./certs/example.crt", "./certs/example.key")
+context.load_cert_chain("./photo_sync/certs/example.crt", "./photo_sync/certs/example.key")
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(("0.0.0.0", 5555))
 server.listen()
@@ -271,7 +273,6 @@ def create_payload(TYPE,DATA) -> bytes:
         DATA = DATA.encode('utf-8')
     
     return TYPE_PROT[0x02] + LENGTH + DATA 
-
         
 # DAEMON:
 while True:
@@ -348,9 +349,6 @@ while True:
                     else: 
                         pass
                 print("to_request dict created")
-                # send list to the client
-                
-                # create payload creation for server -> client 
 
                 to_request_payload = create_payload(0x02,json.dumps(to_request))
 
@@ -365,11 +363,11 @@ while True:
                 if connection.auth_tries >= 2:
                     connection.client.close()
                     continue
+
                 elif connection.authenticated == True:
                     print("Already authenticated")
                     status_code_send(connection.client,"AUTH_OK")
                     continue 
-
 
                 frame = receive_exactly(connection.client,4, connection.client_address)
                 if frame == b'':
@@ -409,37 +407,44 @@ while True:
                 LENGTH_NAME = receive_exactly(connection.client,2, connection.client_address)
                 if LENGTH_NAME == b'':
                     print("client lost connection or sent malufactured bytes")
-                else:    
-                    LENGTH_NAME_INT = int.from_bytes(LENGTH_NAME, "little")
-                    NAME = receive_exactly(connection.client, LENGTH_NAME_INT, connection.client_address)
-                    print(f"{NAME.decode('utf-8')} recived")
+                else:
+                    status_code_send(connection.client,"OK")
+    
+            case 0x05:
+                if connection.authenticated != True:
+                    connection.client.close()
+                    continue
+                LENGTH_NAME_INT = int.from_bytes(LENGTH_NAME, "little")
+                NAME = receive_exactly(connection.client, LENGTH_NAME_INT, connection.client_address)
+                if NAME != b'':
+                    print("client lost connection or sent malufactured bytes")
+                else:
+                    status_code_send(connection.client,"OK")
 
-                    if NAME == b'':
-                        print("connection closed while reciving name for picture")
-                    else:
-                        LENGTH_FILE_BYTES = receive_exactly(connection.client,4,connection.client_address)
-                        LENGTH_FILE = int.from_bytes(LENGTH_FILE_BYTES,'little')
-                        if LENGTH_FILE > my_server.max_file_length:
-                            add_logs(f"{connection.client_address} tried to exceed max file size")
-                            # CONTROLING SIZE OF FILE NEEDED 
-                            status_code_send(connection.client,"FILE_SIZE")
-                        else:
-                            print(f"FILE IN BYTES received")
-                            if LENGTH_FILE_BYTES == b'':
-                                print("malufactured payload at receiving LEGTH_FILE picture")
-                            else:
-                                FILE = receive_exactly(connection.client,LENGTH_FILE,connection.client_address)
-                                if FILE == b'':
-                                    print("connection closed while photo syncing")
-                                else:
-                                    srv_path = my_server.files_path
-                                    print(srv_path, " srv path found out")
-                                    save_path = os.path.join(srv_path, NAME.decode('utf-8'))
-                                    print(f"save_path: {save_path}")
-                                    with open(save_path,'wb') as sync:
-                                        sync.write(FILE)
-                                    print("file written")
+            case 0x06:
+                if connection.authenticated != True:
+                    connection.client.close()
+                    continue
 
-                                    status_code_send(connection.client,"OK")
+                LENGTH_FILE_BYTES = receive_exactly(connection.client,4,connection.client_address)
+                LENGTH_FILE = int.from_bytes(LENGTH_FILE_BYTES,'little')
+                if LENGTH_FILE > my_server.max_file_length:
+                    # CONTROLING SIZE OF FILE NEEDED 
+                    if status_code_send(connection.client,"FILE_SIZE") == True:
+                        status_code_receive(connection.client,connection.client_address)
+                        add_logs(f"{NAME.decode("utf-8")} exceed allowed {from_bytes_x(int(my_server.max_file_length),"MB")} file size")
+                        continue
+            
+            case 0x07:
+                if connection.authenticated != True:
+                    connection.client.close()
+                    continue
 
+                    FILE =receive_exactly(connection.client,LENGTH_FILE,connection.client_address)
+                    if len(FILE) == LENGTH_FILE:
+                        srv_path = my_server.files_path
+                        save_path = os.path.join(srv_path, NAME.decode('utf-8'))
+                        with open(save_path,'wb') as sync:
+                            sync.write(FILE)
+                        status_code_send(connection.client, "SUCCES_RECEIVED")
 

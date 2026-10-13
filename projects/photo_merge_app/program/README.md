@@ -9,6 +9,11 @@
 
 ## env variables:
 ## SERVER: 
-- [ ] p_sync_path="/path/to/save/photos" default = ./photo_sync/files
+
+### photos destination 
+### p_sync_path="/path/to/save/photos" default = ./photo_sync/files
+
+### max file size 
+### mfl= n bytes  
 
 
