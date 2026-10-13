@@ -1,6 +1,7 @@
 [tools]
 jq = "latest"
 python = "3.12"
+sqlite = "latest"
 uv = "latest"
 
 
