@@ -1,4 +1,5 @@
 import json
+from ntpath import abspath
 import sys
 import os
 import importlib.util
@@ -17,7 +18,7 @@ from pathlib import Path
 
 # PROTOCOLS:
 type_1 = b"\x01"  # MESSAGE
-type_2 = b"\x02"  # PICTURE_UPDATE
+type_2 = b"\x02"  # PICTURE_LIST_UPDATE|CREATE
 type_3 = b"\x03"  # AUTHENTICATE
 type_4 = b"\x04"  # TRANSFER PICS: STAGE 1 
 type_5 = b"\x05"  # TRANSFER PICS: STAGE 2
@@ -25,7 +26,7 @@ type_6 = b"\x06"  # TRANSFER PICS: STAGE 3
 type_7 = b"\x07"  # TRANSFER PICS: STAGE 4
 
 
-# FIX STATUS CODES BEFORE RUNNING 
+
 # STATUS CODES RECEIVE:
 STATUS_CODE_RECEIVE = {
     b"\xc8": "OK",
@@ -94,14 +95,22 @@ def create_payload(PROTOCOL: bytes, item) -> bytes:
     elif PROTOCOL == type_6:
         photo = Path(item['abs_path'])
         size = photo.stat().st_size
-        return size.to_bytes(4,'little')
+        return type_6 + size.to_bytes(4,'little')
     elif PROTOCOL == type_7:
         CHUNK_SIZE = 64 * 1024
+        send_exactly(client, type_7, 1)
+        sent_ok = True
         with open(item, "rb") as pic:
             while chunk := pic.read(CHUNK_SIZE):
-                if send_exactly(client,chunk,len(chunk).to_bytes(4,'little')) == False:
-                    add_logs(f"connection killed under sending {item[name]}")
-        add_logs(status_code_receive(client), f" {item[name]}")
+                print(f"sent {len(chunk)} bytes")
+                if send_exactly(client,chunk,len(chunk)) == False:
+                    add_logs(f"connection killed under sending {Path(item).name}")
+                    sent_ok = False
+                    break
+        if sent_ok == True:
+            add_logs(status_code_receive(client), f" {Path(item).name} sedt correctly")
+        return b'\x00'
+
     else:
         raise ValueError("Unknown protocol type")
     
@@ -159,9 +168,6 @@ def status_code_receive(CONNECTION) -> str:
         return f"Status code not received"
 
 def monitor_pics(pa: Path):
-
-    # ADD DEFAULT PATH TO PHOTOS THAT WILL BE SYNC'ED, SHORT IT WILL BE REDONE FOR ANDROID FILESYSTEM 
-    
 
     monitorable_objects = {}
     for i in pa.iterdir():
@@ -270,21 +276,32 @@ with socket.create_connection(((hostname,5555))) as sock:
                     # send files that digest is exactly the same localy and while were send to server
                     if name in local_pic_dict and local_pic_dict[name]["sha256"] == to_upload_json[name]["sha256"]:
                         LEN_NAME  = create_payload(type_4,to_upload_json[name])
+                        print(LEN_NAME)
                         if send_exactly(client,LEN_NAME,3) == True:
                             print(status_code_receive(client))
-                            NAME = create_payload(type_5, to_upload_json[name])
-                            name_for_length = to_upload_json[name]
-                            if send_exactly(client,NAME, len(name_for_length)) == True:
+                            print("type_4")
+                            NAME = create_payload(type_5,to_upload_json[name])
+                            print(NAME)
+                            if send_exactly(client,NAME, len(NAME)) == True:
                                 print(status_code_receive(client))
+                                print("type_5")
                                 FILE_LEN = create_payload(type_6,to_upload_json[name])
-                                if send_exactly(client,FILE_LEN,4) == True:
-                                    if status_code_receive(client) == "SIZE_ERROR":
+                                if send_exactly(client,FILE_LEN,5) == True:
+                                    print("type_6")
+                                    pre_file_send =status_code_receive(client) 
+                                    print("STATUS:", repr(pre_file_send))
+                                    print("EXPECTED OK:", repr(STATUS_CODE_SEND["OK"]))
+                                    print("EQUAL:", pre_file_send == STATUS_CODE_SEND["OK"])
+
+
+                                    if pre_file_send == "SIZE_ERROR":
                                         add_logs(f"file: {to_upload_json[name]} exceeded server max size restriction")
                                         status_code_send(client,"SIZE_ACK")
-                                        print("SIZE ERROR ACKNOWLEDGED")
-                                    elif status_code_receive(client) == "OK":
+                                    elif  pre_file_send == "OK":
                                         # SEND PICTURE IN CHUNKS
-                                        create_payload(type_7,to_upload_json[name].abs_path)
+                                        status = create_payload(type_7,to_upload_json[name]['abs_path'])
+                                        # IF PIC WAS SAVED ON SERVER / PUT IN LOGS LATER
+                                        print("type_7")
 
                 choice = 0 
 

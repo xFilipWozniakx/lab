@@ -142,6 +142,8 @@ monitorable_objects = monitor_pics(Path(my_server.files_path),monitorable_object
 
 add_logs(f"Number of files in monitored area:  {len(monitorable_objects)}")
 
+
+
 # status codes
 STATUS_CODE_SEND ={
     'OK': b"\xc8",
@@ -387,10 +389,10 @@ while True:
                 LENGTH_NAME_INT = int.from_bytes(LENGTH_NAME, "little")
                 NAME = receive_exactly(connection.client, LENGTH_NAME_INT, connection.client_address)
                 if NAME != b'':
+                   status_code_send(connection.client,"OK")
+                else:        
                     print("client lost connection or sent malufactured bytes")
-                else:
-                    status_code_send(connection.client,"OK")
-
+            
             case 0x06:
                 if connection.authenticated != True:
                     connection.client.close()
@@ -398,26 +400,31 @@ while True:
 
                 LENGTH_FILE_BYTES = receive_exactly(connection.client,4,connection.client_address)
                 LENGTH_FILE = int.from_bytes(LENGTH_FILE_BYTES,'little')
+
+                print(f"FILE: {NAME.decode("utf-8")} has length: {LENGTH_FILE}b")
+                print(f"server max_file_size: {my_server.max_file_length} ")
+
                 if LENGTH_FILE > my_server.max_file_length:
                     # CONTROLING SIZE OF FILE NEEDED 
                     # SIZE > ALLOWED SIZE -> SIZE_ERROR <- SIZE_ACK 
                     status_code_send(connection.client,"SIZE_ERROR")
                     print(f"Exceed size code acknowlaged: {status_code_receive(connection.client,connection.client_address)}")
                     add_logs(f"{NAME.decode("utf-8")} exceed allowed {from_bytes_x(int(my_server.max_file_length),"MB")} file size")
-                    continue 
-                elif LENGTH_FILE < my_server.max_file_length:
+                elif LENGTH_FILE <= my_server.max_file_length:
                     status_code_send(connection.client,"OK")
             
             case 0x07:
                 if connection.authenticated != True:
                     connection.client.close()
                     continue
+                    
+                print(f"proceed to saving file: {NAME.decode('utf-8')} at {my_server.files_path} ")
+                FILE = receive_exactly(connection.client,LENGTH_FILE,connection.client_address)
+                srv_path = my_server.files_path
+                save_path = os.path.join(srv_path, NAME.decode('utf-8'))
+                print(save_path)
+                with open(save_path,'wb') as sync:
+                    sync.write(FILE)
+                status_code_send(connection.client, "SUCCES_RECEIVED")
 
-                    FILE = receive_exactly(connection.client,LENGTH_FILE,connection.client_address)
-                    srv_path = my_server.files_path
-                    save_path = os.path.join(srv_path, NAME.decode('utf-8'))
-                    print(save_path)
-                    with open(save_path,'wb') as sync:
-                        sync.write(FILE)
-                    status_code_send(connection.client, "SUCCES_RECEIVED")
 

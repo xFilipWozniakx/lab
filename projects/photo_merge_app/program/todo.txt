@@ -1,17 +1,3 @@
-Nie ufaj długościom podanym przez klienta. Jeśli klient zadeklaruje plik o rozmiarze 500 GB, serwer nie powinien próbować rezerwować takiej ilości pamięci.
-
-{
-Na co szczególnie uważać?
-1. Serwer musi sprawdzać długość przed odbiorem danych.
-Jeżeli FILE_LEN przekracza limit, odpowiada błędem i nie próbuje czytać zawartości pliku. W Twoim protokole najlepiej wtedy zamknąć połączenie, jeśli nie masz jeszcze zaprojektowanego mechanizmu bezpiecznego odzyskiwania synchronizacji.
-2. Nie wysyłaj całego zdjęcia do pamięci naraz.
-Nawet przy poprawnej długości możesz później przesyłać plik porcjami, np. po 64 KiB, i zapisywać je bezpośrednio do pliku tymczasowego. Dzięki temu duże zdjęcia nie wymagają trzymania całej zawartości w RAM.
-3. Rozdziel dwa rodzaje potwierdzenia.
-- ACCEPT — serwer zgadza się rozpocząć transfer.
-- COMPLETE — serwer odebrał cały plik i poprawnie go zapisał.
-To czytelniejsze niż używanie jednego ogólnego OK do wszystkich etapów.
-}
-
 Ustal maksymalną długość wiadomości, nazwy pliku i zdjęcia.
 Obsłuż rozłączenie w trakcie nagłówka, treści wiadomości i transferu zdjęcia.
 Rozróżniaj poprawne zakończenie połączenia od błędnych danych i timeoutu.
