@@ -266,7 +266,7 @@ with socket.create_connection(((hostname,5555))) as sock:
                         if send_exactly(client,LEN_NAME,3) == True:
                             print(status_code_receive(client))
                             NAME = create_payload(type_5, to_upload_json[name])
-                            if send_exactly(client,NAME,int(LEN_NAME).decode('utf-8')) == True:
+                            if send_exactly(client,NAME, int.from_bytes(LEN_NAME[1:3], 'little') == True:
                                 print(status_code_receive(client))
                                 FILE_LEN = create_payload(type_6,to_upload_json[name])
                                 if send_exactly(client,FILE_LEN,4) == True:
