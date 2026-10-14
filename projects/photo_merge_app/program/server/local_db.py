@@ -48,11 +48,11 @@ def hash_pass(password):
 def check_if_exists(cur,login,password) -> bool:
 
     result = cur.execute("SELECT password_hash FROM USERS where login = ?", (login,)).fetchone()
-    # remember to put pass into hashing method 
     if result is None:
         return False
     passw = result[0]
-    return password == passw
+    result = bcrypt.checkpw(password.encode("utf-8"), passw.encode("utf-8"))
+    return result
 
 
 def retrieve_all(cursor):
@@ -91,19 +91,17 @@ while True:
     if request != '':
         _, login, password = request.split('|')
         # print(f'pro: {_} log: {login} pass: {password}')
-        sys.stdout.write(f"{_}, {login}, {password}"\n)
-        #sys.stdout.buffer.write(b'\xc8')
-        sys.stdout.flush()
+        #sys.stdout.write(f"{_}, {login}, {password}\n")
+        #sys.stdout.flush()
 
+        result = check_if_exists(db_specs[1], login, password)
 
         if _ == "AUTH":
-            if check_if_exists(db_specs[1],login,password) == True:
-                sys.stdout.write(f"{_}, {login}, {password}\n")
-                #sys.stdout.buffer.write(b'\xc8')
+            if  result == True:
+                sys.stdout.buffer.write(b'\xdc')
                 sys.stdout.flush()
-            else:
-                sys.stdout.write(f"{_}, {login}, {password}\n")
-                #sys.stdout.buffer.write(b'\xc9')
+            elif result == False:
+                sys.stdout.buffer.write(b'\xdd')
                 sys.stdout.flush()
         else:
             print("did see auth")

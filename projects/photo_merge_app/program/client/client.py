@@ -49,7 +49,7 @@ STATUS_CODE_SEND = {
 # creds for auth:
 credentials_dict = {
         "login": "admin",
-        "password_hash": '$2b$12$4e6t9p17R7.IJ5LK6fJl5.zbUtmEXrNfUZ3oIpKfftoqWZpuHtmoW'
+        "password_hash": 'password',
         }                 
 class Client:
     def __init__(self,logs_path):
@@ -159,6 +159,10 @@ def status_code_receive(CONNECTION) -> str:
         return f"Status code not received"
 
 def monitor_pics(pa: Path):
+
+    # ADD DEFAULT PATH TO PHOTOS THAT WILL BE SYNC'ED, SHORT IT WILL BE REDONE FOR ANDROID FILESYSTEM 
+    
+
     monitorable_objects = {}
     for i in pa.iterdir():
         if i.is_file():
@@ -217,8 +221,11 @@ with socket.create_connection(((hostname,5555))) as sock:
 
 
             while choice == 2:
-                local_pic_dict = monitor_pics(Path('/home/vscode/lab/projects/photo_merge_app/program/photos/photos')
-        )
+
+                # FOR NOW JUST DEFAULT PATH IN TESTING ENV
+                PHOTOS_PATH = Path("./photos/photos")
+
+                local_pic_dict = monitor_pics(PHOTOS_PATH)
                 print("local_pic_dict recived in choice = 2 ")
                 json_list = json.dumps(local_pic_dict)
                 print("local_pic_dict dumped")
@@ -266,7 +273,8 @@ with socket.create_connection(((hostname,5555))) as sock:
                         if send_exactly(client,LEN_NAME,3) == True:
                             print(status_code_receive(client))
                             NAME = create_payload(type_5, to_upload_json[name])
-                            if send_exactly(client,NAME, int.from_bytes(LEN_NAME[1:3], 'little') == True:
+                            name_for_length = to_upload_json[name]
+                            if send_exactly(client,NAME, len(name_for_length)) == True:
                                 print(status_code_receive(client))
                                 FILE_LEN = create_payload(type_6,to_upload_json[name])
                                 if send_exactly(client,FILE_LEN,4) == True:
@@ -274,8 +282,9 @@ with socket.create_connection(((hostname,5555))) as sock:
                                         add_logs(f"file: {to_upload_json[name]} exceeded server max size restriction")
                                         status_code_send(client,"SIZE_ACK")
                                         print("SIZE ERROR ACKNOWLEDGED")
-                                else:
-                                    create_payload(type_7,to_upload_json[name].abs_path)
+                                    elif status_code_receive(client) == "OK":
+                                        # SEND PICTURE IN CHUNKS
+                                        create_payload(type_7,to_upload_json[name].abs_path)
 
                 choice = 0 
 

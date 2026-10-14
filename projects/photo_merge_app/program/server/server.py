@@ -14,7 +14,6 @@ db = subprocess.Popen(
         ['python3', 'local_db.py'],
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
         text=True
         )
 
@@ -353,27 +352,22 @@ while True:
                 if PAYLOAD == b'':
                     print("malformed data sent")
                 else:
-
                     auth_data = f'AUTH|{login}|{password}\n'
-
+                    print(auth_data)
                     db.stdin.write(auth_data)
                     db.stdin.flush()
-                    
                     # auth_status 
-                    output_db =  db.stdout.read()
-                    print(output_db)
+                    auth_status =  db.stdout.buffer.read(1)
 
-                    
-
-
-
-#                     if auth_status == b'\xc8':
-#                         status_code_send(connection.client,"AUTH_OK")
-#                         connection.authenticated = True
-#                     else:
-#                         status_code_send(connection.client,"AUTH_ERROR")
-#                         print(f"{connection.client_address} failed AUTH") # LOGGING 
-#                         connection.auth_tries += 1 
+                    if auth_status == b'\xdc':
+                        status_code_send(connection.client,"AUTH_OK")
+                        connection.authenticated = True
+                    elif auth_status == b'\xdd':
+                        status_code_send(connection.client,"AUTH_ERROR")
+                        print(f"{connection.client_address} failed AUTH") # LOGGING 
+                        connection.auth_tries += 1 
+                    else: 
+                        print("non recognizable status code recived from local_db")
             case 0x04:
                 if connection.authenticated != True:
                     connection.client.close()
@@ -406,10 +400,13 @@ while True:
                 LENGTH_FILE = int.from_bytes(LENGTH_FILE_BYTES,'little')
                 if LENGTH_FILE > my_server.max_file_length:
                     # CONTROLING SIZE OF FILE NEEDED 
-                    if status_code_send(connection.client,"FILE_SIZE") == True:
-                        status_code_receive(connection.client,connection.client_address)
-                        add_logs(f"{NAME.decode("utf-8")} exceed allowed {from_bytes_x(int(my_server.max_file_length),"MB")} file size")
-                        continue
+                    # SIZE > ALLOWED SIZE -> SIZE_ERROR <- SIZE_ACK 
+                    status_code_send(connection.client,"SIZE_ERROR")
+                    print(f"Exceed size code acknowlaged: {status_code_receive(connection.client,connection.client_address)}")
+                    add_logs(f"{NAME.decode("utf-8")} exceed allowed {from_bytes_x(int(my_server.max_file_length),"MB")} file size")
+                    continue 
+                elif LENGTH_FILE < my_server.max_file_length:
+                    status_code_send(connection.client,"OK")
             
             case 0x07:
                 if connection.authenticated != True:
@@ -417,10 +414,10 @@ while True:
                     continue
 
                     FILE = receive_exactly(connection.client,LENGTH_FILE,connection.client_address)
-                    if len(FILE) == LENGTH_FILE:
-                        srv_path = my_server.files_path
-                        save_path = os.path.join(srv_path, NAME.decode('utf-8'))
-                        with open(save_path,'wb') as sync:
-                            sync.write(FILE)
-                        status_code_send(connection.client, "SUCCES_RECEIVED")
+                    srv_path = my_server.files_path
+                    save_path = os.path.join(srv_path, NAME.decode('utf-8'))
+                    print(save_path)
+                    with open(save_path,'wb') as sync:
+                        sync.write(FILE)
+                    status_code_send(connection.client, "SUCCES_RECEIVED")
 
