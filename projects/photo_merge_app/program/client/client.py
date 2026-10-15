@@ -60,12 +60,15 @@ class Client:
 
 # -------------- logs ------------
 
-def add_logs(msg,*args) -> str:
+# ADD ENV VAR FOR LOGS 
+
+def add_logs(msg,*args) -> None:
     da =datetime.now().strftime("%d-%m-%Y %H:%M:%S")
     msg = f'{da}: {msg} {" ".join(args)}\n'
-    return msg
+    with open(logs, 'a') as l:
+        l.write(msg)
 
-def setup_logging(PATH_LOGS) -> str: 
+def setup_logging(PATH_LOGS: str = "./") -> str: 
     logs = Path(os.path.join(PATH_LOGS, "logs.txt"))
     try:
         logs = open(logs, 'x')
@@ -96,25 +99,38 @@ def create_payload(PROTOCOL: bytes, item) -> bytes:
         photo = Path(item['abs_path'])
         size = photo.stat().st_size
         return type_6 + size.to_bytes(4,'little')
-    elif PROTOCOL == type_7:
-        CHUNK_SIZE = 64 * 1024
-        send_exactly(client, type_7, 1)
-        sent_ok = True
-        with open(item, "rb") as pic:
-            while chunk := pic.read(CHUNK_SIZE):
-                print(f"sent {len(chunk)} bytes")
-                if send_exactly(client,chunk,len(chunk)) == False:
-                    add_logs(f"connection killed under sending {Path(item).name}")
-                    sent_ok = False
-                    break
-        if sent_ok == True:
-            add_logs(status_code_receive(client), f" {Path(item).name} sedt correctly")
-        return b'\x00'
-
+    
     else:
         raise ValueError("Unknown protocol type")
     
     return PROTOCOL + len(DATA).to_bytes(4, "little") + DATA
+
+def send_file(CONNECTION,TYPE,item) -> str:
+    file_name = Path(item).name
+    if send_exactly(CONNECTION, TYPE, 1) == True:
+        CHUNK_SIZE = 64 * 1024
+        try:
+            with open(item, "rb") as pic:
+                while chunk := pic.read(CHUNK_SIZE):
+                    print(f"sent {len(chunk)} bytes")
+                    if send_exactly(CONNECTION,chunk,len(chunk)) == False:
+                        add_logs(f"connection killed under sending {file_name}")
+                        return "ERROR" 
+                save_server = status_code_receive(CONNECTION)
+                if save_server == "SUCCES_RECEIVED":
+                    add_logs(f"{file_name} saved on server. ST: {save_server}")
+                    return "OK"
+                else:
+                    # server didnt save sent file 
+                    add_logs(f"{file_name} send properly, but not saved by server.")
+                    return "SERVER SIDE SAVE ERROR"
+
+        except FileNotFoundError as ex:
+            add_logs(f"{file_name} file moved/deleted after request from server before being send")
+            return "ERROR"
+    else:
+        add_logs(f"{Path(item).name} have not been sent")
+        return "ERROR"
 
 def receive_exactly(CONNECTION, LENGTH: int) -> bytes:
     try:
@@ -197,6 +213,8 @@ def monitor_pics(pa: Path):
 
 ## MAKE CONNECTION TO SERVER
 #client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+logs = setup_logging()
+
 hostname = "127.0.0.1"
 context = ssl.create_default_context(cafile="../server/photo_sync/certs/example.crt")
 
@@ -263,7 +281,7 @@ with socket.create_connection(((hostname,5555))) as sock:
             if choice == 3:
                 
                 PAYLOAD = authenticate_client(credentials_dict)
-                status = send_exactly(client,PAYLOAD,len(PAYLOAD))
+                status = send_exactly(client, PAYLOAD,len(PAYLOAD))
                 if status == True:
                     print(status_code_receive(client))
                 else:
@@ -279,30 +297,20 @@ with socket.create_connection(((hostname,5555))) as sock:
                         print(LEN_NAME)
                         if send_exactly(client,LEN_NAME,3) == True:
                             print(status_code_receive(client))
-                            print("type_4")
                             NAME = create_payload(type_5,to_upload_json[name])
                             print(NAME)
                             if send_exactly(client,NAME, len(NAME)) == True:
                                 print(status_code_receive(client))
-                                print("type_5")
                                 FILE_LEN = create_payload(type_6,to_upload_json[name])
                                 if send_exactly(client,FILE_LEN,5) == True:
-                                    print("type_6")
-                                    pre_file_send =status_code_receive(client) 
-                                    print("STATUS:", repr(pre_file_send))
-                                    print("EXPECTED OK:", repr(STATUS_CODE_SEND["OK"]))
-                                    print("EQUAL:", pre_file_send == STATUS_CODE_SEND["OK"])
-
-
-                                    if pre_file_send == "SIZE_ERROR":
-                                        add_logs(f"file: {to_upload_json[name]} exceeded server max size restriction")
+                                    pre_file_send_status =status_code_receive(client) 
+                                    if pre_file_send_status == "SIZE_ERROR":
+                                        add_logs(f"file: {name} exceeded server max size restriction")
                                         status_code_send(client,"SIZE_ACK")
-                                    elif  pre_file_send == "OK":
+                                    elif  pre_file_send_status == "OK":
                                         # SEND PICTURE IN CHUNKS
-                                        status = create_payload(type_7,to_upload_json[name]['abs_path'])
-                                        # IF PIC WAS SAVED ON SERVER / PUT IN LOGS LATER
-                                        print("type_7")
-
+                                        # LOGGING DONE IN send_file()
+                                        status: str = send_file(client,type_7,to_upload_json[name]['abs_path'])
                 choice = 0 
 
 

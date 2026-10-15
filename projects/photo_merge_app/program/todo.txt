@@ -1,7 +1,3 @@
-Ustal maksymalną długość wiadomości, nazwy pliku i zdjęcia.
-Obsłuż rozłączenie w trakcie nagłówka, treści wiadomości i transferu zdjęcia.
-Rozróżniaj poprawne zakończenie połączenia od błędnych danych i timeoutu.
-
 Zadbaj, aby nieprawidłowy komunikat nie wywracał całego serwera.
 Path traversal — klient nie może móc zapisać pliku poza katalogiem przeznaczonym na zdjęcia, np. przez odpowiednio spreparowaną nazwę.
 Nadpisywanie plików — określ, co ma się wydarzyć, gdy plik o danej nazwie już istnieje.

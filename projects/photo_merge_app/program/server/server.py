@@ -54,18 +54,14 @@ def infos():
 
     pass
 
-def add_logs(msg,*args) -> str:
+def add_logs(msg,*args) -> None:
     da =datetime.now().strftime("%d-%m-%Y %H:%M:%S")
     msg = f'{da}: {msg} {" ".join(args)}\n'
-    return msg
+    with open(my_server.logs_write_to, "a") as write_logs:
+        write_logs.write(msg)
 
 def setup_logging(PATH_LOGS) -> str: 
     logs = Path(os.path.join(PATH_LOGS, "logs.txt"))
-    try:
-        with open(logs, 'a') as logs:
-            logs.write(add_logs("Server start-up"))
-    except OSError:
-        print(f"Cannot create log_file at {PATH_LOGS}")
     return str(logs)
 
 def from_bytes_x(nbytes, unit='B'):
@@ -129,19 +125,19 @@ def monitor_pics(PATH: Path, monitorable_objects: dict) :
     return monitorable_objects
 
 path_files, path_logs, max_file_length = setup_path()
-
+logs_write_to = setup_logging(path_logs)
 class Server:
     def __init__(self,path_files, path_logs,max_file_length):
         self.files_path: str = path_files
         self.logs_path: str = path_logs
-        self.logs_write_to: str = setup_logging(self.logs_path)
+        self.logs_write_to: str = logs_write_to  
         self.max_file_length = max_file_length
 
 my_server = Server(path_files, path_logs, max_file_length)
 monitorable_objects = monitor_pics(Path(my_server.files_path),monitorable_objects)
 
+add_logs(f"Server instance started")
 add_logs(f"Number of files in monitored area:  {len(monitorable_objects)}")
-
 
 
 # status codes
@@ -370,6 +366,7 @@ while True:
                         connection.auth_tries += 1 
                     else: 
                         print("non recognizable status code recived from local_db")
+
             case 0x04:
                 if connection.authenticated != True:
                     connection.client.close()
@@ -404,14 +401,20 @@ while True:
                 print(f"FILE: {NAME.decode("utf-8")} has length: {LENGTH_FILE}b")
                 print(f"server max_file_size: {my_server.max_file_length} ")
 
-                if LENGTH_FILE > my_server.max_file_length:
+
+                if LENGTH_FILE == 0:
+                    status_code_send(connection.client, "SIZE_ERROR")
+                    status_code_receive(connection.client,connection.client_address)
+                    add_logs(f"{NAME.decode('utf-8')} was empty, no point in sending/saving empty file")
+                elif LENGTH_FILE > my_server.max_file_length:
                     # CONTROLING SIZE OF FILE NEEDED 
                     # SIZE > ALLOWED SIZE -> SIZE_ERROR <- SIZE_ACK 
                     status_code_send(connection.client,"SIZE_ERROR")
                     print(f"Exceed size code acknowlaged: {status_code_receive(connection.client,connection.client_address)}")
-                    add_logs(f"{NAME.decode("utf-8")} exceed allowed {from_bytes_x(int(my_server.max_file_length),"MB")} file size")
+                    add_logs(f"{NAME.decode('utf-8')} exceed allowed {from_bytes_x(int(my_server.max_file_length),'MB')} file size")
                 elif LENGTH_FILE <= my_server.max_file_length:
                     status_code_send(connection.client,"OK")
+                   
             
             case 0x07:
                 if connection.authenticated != True:
