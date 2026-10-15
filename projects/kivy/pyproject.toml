@@ -3,7 +3,7 @@ version = "0.0.5"
 name = "kivy-learnin"
 requires-python = ">=3.12"
 dependencies = [
-    "Kivy[base]=2.3.1",
-    "Kivy-examples=2.3.1"
+    "Kivy[base]==2.3.1",
+    "Kivy-examples==2.3.1"
 ]
 
