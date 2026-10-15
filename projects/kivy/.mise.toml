@@ -3,7 +3,7 @@ python = "3.12"
 uv = "latest"
 
 [env]
-_.python.venv = { path = ".venv", create = true }
+_.python.venv = { path = ".venv_kivy", create = true }
 
 [settings]
 python.uv_venv_auto = "create|source"
