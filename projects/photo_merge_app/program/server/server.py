@@ -201,25 +201,26 @@ def receive_file_to_disk(connection, size: int, destination: Path) -> bool:
             temporary_path.unlink(missing_ok=True)
 
 
-# status codes
-STATUS_CODE_SEND = {
-    "OK": b"\xc8",
-    "ERROR": b"\xc9",
-    "AUTH_OK": b"\xdc",
-    "AUTH_ERROR": b"\xdd",
-    "SIZE_ERROR": b"\xde",
-    "SIZE_ACK": b"\xdf",
-    "SUCCES_RECEIVED": b"\xe0",
-}
-
+# STATUS CODES RECEIVE:
 STATUS_CODE_RECEIVE = {
     b"\xc8": "OK",
     b"\xc9": "ERROR",
-    b"\xdc": "AUTH_OK",
-    b"\xdd": "AUTH_ERROR",
-    b"\xde": "SIZE_ERROR",
-    b"\xdf": "SIZE_ACK",
-    b"\xe0": "SUCCES_RECEIVED",
+    b'\xdc': "AUTH_OK",
+    b'\xdd': "AUTH_ERROR",
+    b'\xde': "SIZE_ERROR",
+    b'\xdf': 'SIZE_ACK',
+    b'\xe0': "SUCCES_RECEIVED",
+    b'\xe1': "SIZE_DIFFERENCE", # IN BETWEEN TYPE4_5
+}
+STATUS_CODE_SEND = {
+    "OK": b"\xc8",
+    "ERROR": b"\xc9",
+    "AUTH_OK": b'\xdc',
+    "AUTH_ERROR": b'\xdd',
+    "SIZE_ERROR": b'\xde',
+    "SIZE_ACK": b'\xdf' ,
+    "SUCCES_RECEIVED": b'\xe0',
+    "SIZE_DIFFERENCE": b'\xe1', # # IN BETWEEN TYPE4_5
 }
 
 TYPE_PROT = {
@@ -340,6 +341,8 @@ while True:
     NAME = b""
     relative_name = ""
     LENGTH_FILE = 0
+    file_size_accepted = False
+
 
     while True:
         frame = receive_exactly(connection.client, 1, connection.client_address)
@@ -484,6 +487,8 @@ while True:
                     connection.client.close()
                     break
 
+                file_size_accepted = False
+
                 # The client sends a two-byte little-endian filename length.
                 LENGTH_NAME = receive_exactly(
                     connection.client, 2, connection.client_address
@@ -494,13 +499,15 @@ while True:
                 length_name_int = int.from_bytes(LENGTH_NAME, "little")
                 if length_name_int == 0 or length_name_int > 4096:
                     status_code_send(connection.client, "ERROR")
-                    break
+                    continue
                 status_code_send(connection.client, "OK")
 
             case 0x05:
                 if not connection.authenticated:
                     connection.client.close()
                     break
+                VALIDATE_STAGE4_5 = False
+
                 NAME = receive_exactly(
                     connection.client, length_name_int, connection.client_address
                 )
@@ -508,20 +515,30 @@ while True:
                     print("Client disconnected while sending filename")
                     break
                 try:
+                    # Validate if name and name length comes from the same value
+                    if len(NAME) != length_name_int:
+                        add_logs(f"{connection.client_address} send malufactured len != len(name) at {NAME.decode('utf-8')} with {length_name_int} ")
+                        status_code_send(connection.client, "ERROR")
+                        continue
+
                     # Validate the path now, before accepting any file payload.
                     relative_name = NAME.decode("utf-8")
                     get_safe_destination(relative_name)
+                    VALIDATE_STAGE4_5 = True
+
                 except (UnicodeDecodeError, ValueError) as exc:
                     print(f"Rejected filename from {connection.client_address}: {exc}")
                     status_code_send(connection.client, "ERROR")
-                    break
+                    continue
                 status_code_send(connection.client, "OK")
+
 
             case 0x06:
                 if not connection.authenticated:
                     connection.client.close()
                     break
-
+                file_size_accepted = False
+                
                 LENGTH_FILE_BYTES = receive_exactly(
                     connection.client, 4, connection.client_address
                 )
@@ -532,7 +549,14 @@ while True:
                 print(f"FILE: {relative_name} has length: {LENGTH_FILE} bytes")
                 print(f"Server max_file_size: {my_server.max_file_length}")
 
-                if LENGTH_FILE == 0:
+
+                if not VALIDATE_STAGE4_5:
+                    # previous check fail 
+                    # either malufactured frame or on purpose manipulated name <--> len(name) handling 
+                    status_code_send(connection.client, "SIZE_DIFFERENCE")
+                    status_code_receive(connection.client, connection.client_address)
+                    add_logs(msg=f"frame at 0x06 came from malufactured frame, decline further data transfer")
+                elif LENGTH_FILE == 0:
                     status_code_send(connection.client, "SIZE_ERROR")
                     status_code_receive(connection.client, connection.client_address)
                     add_logs(f"{relative_name} was empty; empty files are not saved")
@@ -542,13 +566,20 @@ while True:
                         f"Size error acknowledged: {status_code_receive(connection.client, connection.client_address)}"
                     )
                     add_logs(f"{relative_name} exceeded the allowed file size")
+
                 else:
+                    file_size_accepted = True
                     status_code_send(connection.client, "OK")
 
             case 0x07:
                 if not connection.authenticated:
                     connection.client.close()
                     break
+                if not file_size_accepted:
+                    # Reject file transfer 
+                    continue 
+
+                file_size_accepted = False
 
                 try:
                     destination = get_safe_destination(relative_name)
@@ -557,15 +588,16 @@ while True:
                     status_code_send(connection.client, "ERROR")
                     break
 
+
                 print(f"Receiving file: {relative_name} -> {destination}")
                 if receive_file_to_disk(connection, LENGTH_FILE, destination):
-                    # Update the index immediately so this file is not requested again.
-                    refresh_monitor()
-                    add_logs(f"Received {relative_name} ({LENGTH_FILE} bytes)")
-                    status_code_send(connection.client, "SUCCES_RECEIVED")
+                   # Update the index immediately so this file is not requested again.
+                   refresh_monitor()
+                   add_logs(f"Received {relative_name} ({LENGTH_FILE} bytes)")
+                   status_code_send(connection.client, "SUCCES_RECEIVED")
                 else:
-                    add_logs(f"Transfer failed for {relative_name}")
-                    status_code_send(connection.client, "ERROR")
+                   add_logs(f"Transfer failed for {relative_name}")
+                   status_code_send(connection.client, "ERROR")
 
     # Close the TLS connection before accepting the next client.
     try:

@@ -36,6 +36,7 @@ STATUS_CODE_RECEIVE = {
     b'\xde': "SIZE_ERROR",
     b'\xdf': 'SIZE_ACK',
     b'\xe0': "SUCCES_RECEIVED",
+    b'\xe1': "SIZE_DIFFERENCE", # IN BETWEEN TYPE4_5
 }
 STATUS_CODE_SEND = {
     "OK": b"\xc8",
@@ -45,6 +46,7 @@ STATUS_CODE_SEND = {
     "SIZE_ERROR": b'\xde',
     "SIZE_ACK": b'\xdf' ,
     "SUCCES_RECEIVED": b'\xe0',
+    "SIZE_DIFFERENCE": b'\xe1', # # IN BETWEEN TYPE4_5
 }
 
 # creds for auth:
@@ -292,7 +294,7 @@ with socket.create_connection(((hostname,5555))) as sock:
                     print(f"File {counter}/{len(to_upload_json)}: {name}")
 
                     # send files that digest is exactly the same localy and while were send to server
-                    if name in local_pic_dict and local_pic_dict[name]["sha256"] == to_upload_json[name]["sha256"]:
+                    if name in local_pic_dict:
                         LEN_NAME  = create_payload(type_4,to_upload_json[name])
                         print(LEN_NAME)
                         if send_exactly(client,LEN_NAME,3) == True:
@@ -300,13 +302,21 @@ with socket.create_connection(((hostname,5555))) as sock:
                             NAME = create_payload(type_5,to_upload_json[name])
                             print(NAME)
                             if send_exactly(client,NAME, len(NAME)) == True:
-                                print(status_code_receive(client))
+                                after_5 = status_code_receive(client) 
+                                if after_5 != "OK":
+                                    add_logs(f"type_5 unknown error at sending name")
+                                    continue
                                 FILE_LEN = create_payload(type_6,to_upload_json[name])
                                 if send_exactly(client,FILE_LEN,5) == True:
                                     pre_file_send_status =status_code_receive(client) 
                                     if pre_file_send_status == "SIZE_ERROR":
                                         add_logs(f"file: {name} exceeded server max size restriction")
                                         status_code_send(client,"SIZE_ACK")
+                                        continue 
+                                    elif pre_file_send_status == "SIZE_DIFFERENCE":
+                                        add_logs(f"{name} and {len(name)} came different to the server")
+                                        status_code_send(client,"SIZE_ACK")
+                                        continue
                                     elif  pre_file_send_status == "OK":
                                         # SEND PICTURE IN CHUNKS
                                         # LOGGING DONE IN send_file()
