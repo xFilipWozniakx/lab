@@ -1,0 +1,4 @@
+openssl req -x509 -newkey rsa:2048 -nodes \
+  -keyout ./photo_sync/certs/server.key -out ./photo_sync/certs/server.crt -days 365 \
+  -subj "/CN=192.168.1.100" \
+  -addext "subjectAltName=IP:192.168.1.100"
