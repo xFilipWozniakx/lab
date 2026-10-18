@@ -13,7 +13,10 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.widget import Widget
 
 
-SERVER_PORT = 5555
+SERVER_HOST = "photo-sync.filipwozniak.org"
+SERVER_PORT = 12000
+DEFAULT_LOGIN = "admin"
+DEFAULT_PASSWORD = "password"
 CONNECT_TIMEOUT = 10
 
 AUTHENTICATE = b"\x03"
@@ -54,7 +57,8 @@ class PhotoSyncApp(App):
         )
 
         self.host_input = TextInput(
-            hint_text="Server IP address",
+            hint_text="Server hostname",
+            text=SERVER_HOST,
             multiline=False,
             size_hint_y=None,
             height=dp(50),
@@ -73,6 +77,7 @@ class PhotoSyncApp(App):
 
         self.login_input = TextInput(
             hint_text="Login",
+            text=DEFAULT_LOGIN,
             multiline=False,
             size_hint_y=None,
             height=dp(50),
@@ -81,6 +86,7 @@ class PhotoSyncApp(App):
 
         self.password_input = TextInput(
             hint_text="Password",
+            text=DEFAULT_PASSWORD,
             password=True,
             multiline=False,
             size_hint_y=None,
@@ -115,7 +121,7 @@ class PhotoSyncApp(App):
         root.add_widget(Widget())
 
         self.message_label = Label(
-            text="Enter your server details",
+            text="Ready to connect",
             size_hint_y=None,
             height=dp(45),
         )
@@ -164,9 +170,12 @@ class PhotoSyncApp(App):
                 timeout=CONNECT_TIMEOUT,
             )
 
-            # TODO: Replace this with a trusted CA certificate context.
-            # Do not use an unverified TLS context in production.
+            # TEMPORARY TEST CONFIGURATION:
+            # Encrypt traffic without verifying the server certificate.
+            # Replace with proper certificate verification before production.
             tls_context = ssl.create_default_context()
+            tls_context.check_hostname = False
+            tls_context.verify_mode = ssl.CERT_NONE
 
             client = tls_context.wrap_socket(
                 raw_socket,
@@ -177,8 +186,8 @@ class PhotoSyncApp(App):
             auth_payload = json.dumps(
                 {
                     "login": login,
-                    # The existing server expects the plain-text password
-                    # under the legacy field name "password_hash".
+                    # The current server expects the plain-text password
+                    # under this legacy field name.
                     "password_hash": password,
                 }
             ).encode("utf-8")
@@ -198,7 +207,9 @@ class PhotoSyncApp(App):
                 self.client_socket = client
                 client = None
                 Clock.schedule_once(
-                    lambda dt: self._login_result(True, "Login successful"),
+                    lambda dt: self._login_result(
+                        True, "Login successful"
+                    ),
                     0,
                 )
             elif response == AUTH_ERROR:
@@ -224,7 +235,7 @@ class PhotoSyncApp(App):
                     0,
                 )
 
-        except (OSError, ssl.SSLError, ValueError) as exc:
+        except (OSError, ssl.SSLError, ValueError, ConnectionError) as exc:
             message = str(exc)
             Clock.schedule_once(
                 lambda dt, msg=message: self._login_result(
@@ -266,6 +277,7 @@ class PhotoSyncApp(App):
             self.connected = False
             self.status_label.text = "Not connected"
             self.sync_button.disabled = True
+            self.connect_button.text = "Connect and log in"
 
     def start_sync(self, instance):
         if not self.connected:
@@ -286,4 +298,3 @@ class PhotoSyncApp(App):
 
 if __name__ == "__main__":
     PhotoSyncApp().run()
-
