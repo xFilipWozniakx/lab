@@ -324,14 +324,19 @@ def create_payload(TYPE, DATA) -> bytes:
 # DAEMON:
 while True:
     raw_client, client_address = server.accept()
+    print(f"TCP connection from: {client_address}", flush=True)
     try:
         secure_client = context.wrap_socket(raw_client, server_side=True)
         connection = Client(secure_client, client_address)
-        print(f"TLS established: {secure_client.version()}")
+        print(f"TLS established: {secure_client.version()}", flush=True)
         connection.client.settimeout(30)
 
     except ssl.SSLError as exc:
         print(f"TLS handshake failed for {client_address}: {exc}")
+        raw_client.close()
+        continue
+    except OSError as exc:
+        print(f"Socket error for {client_address}: {exc}", flush=True)
         raw_client.close()
         continue
 

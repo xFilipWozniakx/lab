@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: photo-sync-server
+  namespace: photo-sync
+  labels:
+    app: photo-server 
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: photo-server
+  template:
+    metadata:
+      labels:
+        app: photo-server 
+      spec:
+        containers:
+          - name: photo-sync-server
+            image: "ghcr.io/xfilipwozniakx/photo_sync:v0.1.0"
+            imagePullPolicy: IfNotPresent
+            ports:
+              - name: socket
+                containerPort: 5555
+                protocol: TCP
+
