@@ -1,0 +1,3 @@
+.buildozer/
+.venv/
+kivy-build-deps/

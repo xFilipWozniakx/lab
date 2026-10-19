@@ -1,6 +1,0 @@
-#!/usr/bin/bash
-
-today=$(date +%D-%H:%M)
-echo $today
-
-# always use $() - it's easier to read and can be nested

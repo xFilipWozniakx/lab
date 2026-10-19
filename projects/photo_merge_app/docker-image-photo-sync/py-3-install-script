@@ -1,0 +1,38 @@
+#!/bin/sh
+set -e
+
+PYTHON_VERSION="3.12.15"
+PREFIX="/usr"
+
+cd /opt/py3
+wget "https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tar.xz"
+tar xf "Python-${PYTHON_VERSION}.tar.xz"
+cd "Python-${PYTHON_VERSION}"
+
+# 3. Configure
+./configure \
+  --prefix="${PREFIX}" \
+  --enable-shared \
+  --enable-optimizations \
+  --enable-ipv6 \
+  --enable-loadable-sqlite-extensions \
+  --with-lto \
+  --with-computed-gotos \
+  --with-dbmliborder=gdbm:ndbm \
+  --with-system-expat \
+  --with-system-libmpdec \
+  --with-ensurepip=install
+
+# 4. Build & install
+make -j"$(nproc)"
+make install
+
+echo "${PREFIX}/lib" >/etc/ld-musl-${ARCH:-x86_64}.conf
+ldconfig
+
+ln -sf "${PREFIX}/bin/python3" "${PREFIX}/bin/python"
+
+# 7. Clean up
+cd /opt/py3
+rm -rf "Python-${PYTHON_VERSION}" "Python-${PYTHON_VERSION}.tar.xz"
+rm "$0"

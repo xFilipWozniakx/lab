@@ -1,0 +1,15 @@
+[tools]
+python = "3.12"
+uv = "latest"
+
+
+[env]
+_.python.venv = { path = ".venv", create = true }
+
+[settings]
+python.uv_venv_auto = "create|source"
+
+[hooks]
+enter = "python3 -m pip install --upgrade pip setuptools virtualenv && mise exec uv -- uv sync"
+
+

@@ -1,0 +1,487 @@
+Copyrighted Excerpt 
+Not for Duplication
+Chapter 4     •     59
+CHAPTER 4
+• T hursday, September 11
+The next morning, Maxine still feels triumphant from yesterday’s 
+numerous victories. But as Kurt predicted, everyone is freaking out. To 
+everyone’s shock and disbelief, the launch was not going to be called off 
+or delayed. Instead, the Phoenix Project is going to be launched tomor -
+row at five.
+Captain Kirk apparently hit the warp speed button, despite Engineer 
+Scotty telling him the dilithium crystals were about to blow. So, no boring 
+status meetings today. Instead, every meeting is in a genuine shitstorm, 
+with people on the verge of panic. One meeting quickly devolved into 
+bedlam and pandemonium, full of questions, objections, and shocked 
+disbelief. People were furiously typing away on their phones and laptops, 
+and a third of people in the room were making phone calls. It was like 
+watching an old movie from the ’40s, with reporters racing out of the 
+courtroom to the payphones or back to their offices, frantic to break the 
+news first.
+Maxine turns to the person next to her, loudly yelling, “Has Phoenix 
+ever been deployed into production before?!”
+“Nope, ” he yells back.
+“Is there a release team yet?” Maxine asks.
+“Nope. Chris, Kirsten, and Bill are mustering up a formal release team 
+today, but I have no idea who’s going to be in charge, ” he responds and 
+mimics biting his fingernails in nervousness and fear.
+Maxine looks back at him, speechless.
+Maxine does not delight in the suffering of others, but watching the 
+fireworks surrounding Phoenix is much more exciting than waiting for 
+people to work on her tickets. She groans, realizing that given this crisis 
+no one will be able to work on her tickets now. 
+Later that morning, Chris announces that William, the QA director, 
+is in charge of the release team. His goal: get everything into a releasable 
+state and to coordinate with Ops, who were blindsided too.Copyrighted Excerpt 
+Not for Duplication
+60     •     The Unicorn Project
+Poor bastard. She knows that they are in big trouble. The Phoenix 
+developers can’t even merge their own code together without accidentally 
+leaving parts of it behind or blowing up the build. Pulling off a successful 
+production deployment seems wildly optimistic. Or plain bat-shit crazy, 
+she thinks.
+“William, when is your release team meeting?” Maxine asks him as he 
+jogs by. She runs to keep up. “Can I help?”
+“First meeting is in one hour. We need all the help we can get, ” he says, 
+not even breaking stride. Maxine is delighted. Finally, a chance to actually 
+use her skills and experience.
+This will be an interesting meeting, she thinks. Maxine has seen how 
+Dev and Ops interact around Phoenix. Instead of acting like an actual 
+team, they act more like sovereign states on the brink of war, with diplo-
+mats trying to patch together an uneasy peace, complete with embassies, 
+protocols, and official formalities. Even scheduling a meeting between 
+these two groups requires a summit and lawyers present.
+Regardless, she’s excited to be in the game. In a perverse way, this is 
+the most fun she’s had on the Phoenix Project so far. She realizes she’s 
+grinning from ear to ear. Does this make me a bad person? she wonders. 
+She grins again, not caring.
+Despite trying to arrive early, Maxine is late to the war room. They had 
+to move the meeting twice because the crowd kept outgrowing the space.
+It’s fifteen degrees hotter in the room than in the hallway, and the air 
+is stale. Nearly fifty people are crammed into a space designed for half 
+that number. She sees Chris, Kirsten, William, and a bunch of the lead 
+developers and managers. Kurt, sitting next to William, waves to her. 
+On the other side of the table is Bill Palmer, surrounded by a phalanx 
+of faces she doesn’t recognize. She notices that there’s something .  .  .  dif ferent 
+about them.
+The largest one of them to the left of Bill has his arms crossed and a 
+huge, unhappy scowl on his face. He shakes his head in disbelief. “What 
+is wrong with you people? Y ou’re telling me you don’t know how many 
+Windows servers you need, on top of the handful of Linux servers .  .  .  T ell 
+me again, how many exactly is a ‘handful of servers?’ Is that in metric or Copyrighted Excerpt 
+Not for Duplication
+Chapter 4     •     61
+imperial handfuls? While we’re at it, you have any Kumquat boxes you 
+need, or perhaps a Tandem?”
+Flanking him are a woman and a younger man. The way they 
+snicker makes Maxine immediately think of Crabbe and Goyle, the two 
+mean-spirited goons who were best friends with Malfoy, Harry Potter’s 
+rival from Slytherin house.
+“Uhh .  .  .  ” s ays one of the Dev managers. “ Actually, there is one com-
+ponent that can only run on Kumquat servers. It’s an extension we had to 
+build off of the existing message bus. But it’s only a small modification. It 
+shouldn’t cause any problems, and it should add negligible load .  .  .  ”
+Maxine hears groans from around the room, and not just from the 
+Slytherins on the opposing side of the table. The younger man sitting 
+next to the large man, whom Maxine is already thinking of as Big Malfoy, 
+sighs. “Technically, there’s nothing wrong with Kumquats—we have over 
+a decade of experience running production workloads on them, and 
+we understand their characteristics pretty well. The problem is that the 
+reboot time for that cluster is almost eight hours. We just need to be care-
+ful about anything that could involve restarts, like security patching. I’m 
+concerned that certain changes will require multiple reboots, which could 
+mean a day of downtime .  .  .  o r that they’ll never come back at all  .  .  .  ”
+These are all the Ops people, Maxine realizes. No wonder she hasn’t 
+seen them around.
+“Wes, trust me, we are as afraid of that scenario as you are, ” the Dev 
+manager replies from across the table. “We’ve been trying for three years 
+to get this application re-platformed, but it always takes a backseat to 
+something more important. ”
+“Y eah, you developers always make sure features take priority, and 
+you never clean up all the technical debt you create  .  .  .  t ypical crap, ” Big 
+Malfoy says, gesturing angrily.
+Bill says to Big Malfoy, without even turning his head, “Stow it, Wes. 
+Work the problem. Stay focused. ”
+“Y eah, yeah. Got it, boss, ” Wes (Big Malfoy) says. “Handful of Linux 
+servers, handful of Windows servers, and one Kumquat server. Got it. 
+Now who can define a ‘handful?’”
+Maxine watches all the Dev managers put their heads together, tab-
+ulating the compute needs for each of their components. It’s clear they’re 
+just going on gut, not any sort of thoughtful capacity-planning exercise.Copyrighted Excerpt 
+Not for Duplication
+62     •     The Unicorn Project
+Maxine realizes that this release is in even more trouble than she 
+thought. The developers still haven’t merged all their code together. And 
+they haven’t defined the production environment that the application 
+needs to run in—describing your environment in “handfuls” definitely 
+does not cut it.
+Raising her voice, she asks, “How many transactions per second are 
+we expecting for product displays and orders? And how many transactions 
+per second are the current builds capable of handling right now? That will 
+tell us how many servers we need for the horizontally scalable portions, 
+as well as how far we’re off for the vertically scaled components, like the 
+d a t a b a s e .”
+The room falls silent. Everyone turns toward Maxine. They seem star-
+tled by her common sense question. The woman sitting to the left of  Wes 
+says, “Thank you! That is precisely what we need to know!”
+Maxine gives a small nod and winks.
+Chris stands up. “This is the highest publicity release in the entire 
+company’s history. Marketing has pulled out all the stops. They’re going 
+to spend almost a million dollars getting the word out about the Phoenix 
+launch. All the store managers have been given instructions to tell every 
+customer to download the app and hit the website Saturday—they’re 
+even having contests to see which stores register the most new mobile 
+customers. They’re hitting all the industry and business press. They’re 
+trying to get either Sarah or Steve on all the news shows—even Good 
+Morning America.
+“Here are the best calculations that I’ve been able to get from 
+Marketing, ” Chris continues, flipping through his notebook. “Expect 
+one million people to come banging on the Parts Unlimited website and 
+mobile apps. If all goes well, we should be prepared to sustain at least two 
+hundred orders per second. ”
+Maxine hears mutters and curses from all around the room.
+Wes scans the room and finally turns to Chris, all sense of jocularity 
+gone. “Okay, that’s good to know. ” He gestures at Maxine, “Our smart 
+architect just asked how many transactions Phoenix can handle right 
+now. Well?”
+Chris looks to William, who pulls out a printout. “Hot off the press 
+from this morning. In our tests, Phoenix currently handles about five 
+transactions per second. Anything over that causes the database clients to Copyrighted Excerpt 
+Not for Duplication
+Chapter 4     •     63
+start crashing due to timeouts, including the mobile apps .  .  .  I t hink we’re 
+missing a bunch of database indexes, but we haven’t figured out which 
+ones yet . . . ”
+William looks up. “It’s very, very not good, Chris. ”
+Wes sits in stunned silence for a moment. And then in a blunt, world-
+weary voice, he says to Chris, “We’re not going to make it, are we?” 
+No one says anything. Eventually, Bill asks, “Wes, what help do you 
+need?”
+“ .  .  .  I do n’t even know, ” he replies. “Maybe just give the teams some air 
+cover so they can stay focused. ”
+At that moment, Maxine hears a loud voice from the doorway. “For 
+the survival of Parts Unlimited, we have to make this work, so of course 
+we’re going to make it. ”
+Oh no, Maxine thinks. It’s Sarah Moulton.
+She’s dressed in a bright, expensive looking yellow suit, and her face 
+is so radiant that Maxine wonders how it’s even possible. The fluorescent 
+lights in the office usually make people look ghoulish and devoid of color. 
+Maxine wonders if maybe she adds radium to her makeup to make herself 
+glow like a 1950s bedside clock. Sarah has a certain dangerous glamour 
+about her, and everyone in the room seems similarly rapt.
+“We are in a market that is shrinking, with fierce competitors taking 
+market share away from us, ” Sarah says. “Not to mention tech giants like 
+Amazon and twenty new startups that are coming in to disrupt this entire 
+category. As Steve said at the Town Hall, we’ve had three years to prepare 
+for this. Now it’s time for us to go to war and defend what is rightfully 
+ours. ”
+She looks around the room, scanning for signs of resistance or rebel-
+lion. “This is the strategy the executives of this company have decided on. 
+Anyone have a problem with that?” she challenges.
+Incredibly, Maxine hears herself laughing. Horrified, she covers her 
+mouth. Keep it together, Maxine! Quickly, she wipes all expression from 
+her face, like a student caught doing something bad in high school. Since 
+when have you ever cared what people in authority think about you? she 
+wonders.
+Ever since Chris warned me to keep my head down, she realizes. 
+Maxine forces herself to look calmly at Sarah with her best Lieutenant 
+Saavik expression, radiating only cool, dispassionate logic.Copyrighted Excerpt 
+Not for Duplication
+64     •     The Unicorn Project
+“Something seem particularly funny to you  .  .  .  umm, sorry, what is 
+your name?” Sarah asks, looking at Maxine coolly.
+“Maxine, ” she replies, calmly. “I was laughing because you were 
+talking about why you think Phoenix is important. But in this room, we’re 
+just trying to figure out how to get Phoenix deployed. ”
+“Which is not going terribly well, either, ” Wes mutters loudly to some 
+nervous laughter.
+“I can see that some of you have not bought into our mission, ” Sarah 
+says, appraising everyone in the room. “Well, as I mentioned in the Town 
+Hall, the skills that got us here are not necessarily the same skills that will 
+take us to where we need to go. As leaders, we need to figure out if we have 
+the right people on the bus. I’ll be sure to keep Steve apprised. I know this 
+release is personally very important to him. ”
+Upon hearing Steve’s name, Chris looks at Maxine with disbelief 
+and then covers his face with both hands. Nice job keeping a low profile, 
+Maxine tells herself.
+“Okay, Sarah, that’s enough, ” Bill says, standing up. “Let’s go apprise 
+Steve about some of these problems and let the team figure out how to 
+execute the release. We’re only getting in the way here. ”
+“Y es, Steve needs to hear about this, ” she says. Sarah turns to leave, but 
+then looks back at Maxine. “I like that you say what you think. If you’re avail-
+able sometime this week, let’s get lunch. I’ d like to get to know you better. ”
+What the . . . Maxine freezes like a deer in headlights.
+“ As women, we really need to stick together, don’t we?” Sarah says 
+with a wink.
+With a frozen smile, Maxine says, “Uhh  . . . thank you—I  . . . I’ d love 
+to. ” Immediately, she hates herself, embarrassed that so many people just 
+witnessed her lying so baldly.
+“Let’s make it so, ” Sarah replies with a warm smile. “ And if you need 
+someone to mentor you, I’ d be happy to. ” She looks at her phone and says, 
+“That’s Steve. He needs something from me. I’ll leave you to it. Remember, 
+we all need optimism. ”
+When Sarah is gone, Maxine lets out a long breath, not quite believing 
+what happened. She knows how important it is to have a great network, 
+able to find people who can help get important things done. But she’s not 
+terribly excited to be associated with Sarah, no matter how influential she 
+is. Maxine is very picky about who she associates with.Copyrighted Excerpt 
+Not for Duplication
+Chapter 4     •     65
+For the next hour, Maxine drifts between the various groups as the huge 
+release team tries to fully understand what is required to support the 
+Phoenix launch. There are at least twelve different technology stacks that 
+need to be deployed, more than Maxine had estimated during her build 
+archaeology.
+She knew of the various application servers on Windows and Linux, 
+and the front-end applications that run on the web, but she totally forgot 
+about the two mobile applications (one for the iPhone and one for Android), 
+and those all collectively hit at least ten different back-end systems from 
+across the business, all of which required changes in order to accommodate 
+Phoenix.
+She had also forgotten that when you throw the Operations teams 
+into the mix, the number of teams involved more than doubles, because 
+getting all those applications running in production requires the server 
+administration teams, virtualization teams, cloud teams, storage teams, 
+networking teams . . . 
+All this reminds Maxine of why production deployments are some of 
+the most complex activities of any technology organization, because they 
+require so much coordination between so many different parts of the organi-
+zation. And Phoenix wasn’t just any deployment—it was designed to change 
+how almost every part of the organization interacts with the customer.
+The more Maxine hears, the worse she feels. It seems impossible that 
+they can get everything right the first time with this many moving parts. 
+Getting an environment required Maxine to open up scores of tickets, 
+and she still wasn’t successful. She’s guessing that deploying Phoenix will 
+require hundreds, or maybe even thousands, of tickets.
+The project manager in the group she’s sitting with says, “Won’t we 
+need a bunch of firewall changes too? Not just to external traffic. I don’t 
+think some of these systems have ever talked to each other .  .  .  ”
+Maxine raises an eyebrow. She hears more groans around the group. 
+“Oh, great. The firewall teams usually need at least four weeks to get 
+change requests through, ” says the woman who Maxine learns is Patty. 
+“Y ou think our change management process can be slow? We’re speed 
+demons compared to Information Security. ”
+Suddenly, Maxine hears a door slam open behind her, and Patty looks 
+up. “Well, speak of the devil. Here’s John, our chief information security 
+officer. This should be fun .  .  .  ” s he says.Copyrighted Excerpt 
+Not for Duplication
+66     •     The Unicorn Project
+John is in his late thirties. He’s about twenty pounds overweight, but 
+his clothes are still baggy on him. Like in an old Western, John is flanked 
+by two people—one male and one female engineer, who looks vaguely 
+familiar. “ At last, I’ve found you all, ” John sneers, looking around as if he 
+were a sheriff who had hunted down a group of outlaws. “I’m here about 
+this mad plan to deploy the Phoenix application. This deployment will 
+only happen over my dead body. ”
+The woman behind John suddenly looks embarrassed, as if she’s seen 
+John say this before. John continues, “The Phoenix Project has millions of 
+lines of new code, and we cannot responsibly deploy it without my team 
+testing it for vulnerabilities. We just came out of a very, very interesting 
+meeting with the auditors, and trust me, they aren’t going to take it very 
+kindly if we put something into production that jeopardizes our compli -
+ance posture. 
+“I have it on pretty good authority that the CIO and VP of IT Operations 
+were just fired over some compliance audit findings that were no longer tol-
+erable, ” John continues. “Let that be a warning to you that compliance is not 
+just a moral obligation or a set of contractual obligations .  .  .  i t’s also the law. ”
+Maxine wonders how many times John’s rehearsed that line. It’s a 
+pretty good line, she acknowledges.
+Kirsten says from the front of the room, “ As you know, the decision 
+to ship Phoenix came straight from the top—Steve Masters, the CEO, and 
+Sarah Moulton, the SVP of retail operations. In fact, Sarah was just here, 
+reminding us of that. The release is scheduled to start at five tomorrow so 
+that everything is live when stores open on Saturday morning. ”
+“That’s what you think, Kirsten, ” John says. “I’m going to go speak 
+with Steve right now. Rest assured that I will stop this madness. ”
+He turns to Wes. “Y ou were there at the meeting with the auditors—
+tell them how serious this is and why there is no way the production 
+release can happen tomorrow!”
+Wes quickly replies, “No—leave me out of this, John. That train has 
+left the station, and you can’t put the toothpaste back in the tube. The only 
+thing we can do is figure out how to keep this rocket from blowing up on 
+the launch pad and killing us all. Pardon the mixed metaphor, ” he says 
+with a loud laugh, looking around the room to see who’s with him.
+“Or was that a simile?” Wes asks suddenly, with a puzzled look on his 
+face.Copyrighted Excerpt 
+Not for Duplication
+Chapter 4     •     67
+The woman behind John says in a deadpan voice. “It’s a metaphor, 
+Wes. When you say something ‘is a pile of crap, ’ that’s a metaphor. When 
+you say that something ‘is like a pile of crap, ’ that is a simile. ”
+“Thanks, Shannon, ” he says with a big smile. “I’ve always gotten those 
+confused. ”
+John glares at Shannon, and then says angrily to Wes, “I will not leave 
+you out of this, Wes. It is your moral responsibility to stop this release!” 
+He turns to the whole room. “It is all of your moral responsibility to stop 
+this release! Y ou all know where I stand—as I said, this release will be 
+deployed over my dead body. ”
+Wes mumbles, “We can always hope. ”
+Maxine hears some nervous giggles as John and his posse leave. 
+Kirsten stands up, looking a bit uncomfortable. “Well, I should take a 
+moment to say that we made a commitment to deploy Phoenix on Friday. 
+But if any of you feel you have a, umm, moral obligation to not participate 
+in this release, please let me know. ”
+Wes chortles. “Kirsten, going down this path is almost certainly the 
+stupidest thing I’ve seen in my entire career .  .  .  b ut to support the team, I 
+promise we’ll all do what we can. ” With an air of weary exhaustion and 
+resignation, he continues, “Let’s just get it over with. ”
+Maxine looks around, thinking about the sudden, surreal appear -
+ance of Sarah and then John. She’s reminded of Redshirts by John Scalzi 
+and Wil Wheaton, a funny book loosely based on a Star Trek- like 
+universe. It’s written from the perspective of one of the redshirts, the 
+nameless low-ranking characters wandering in the background of the 
+show, who learns that interacting with any of the bridge officers is bad 
+news. Whoever is chosen to beam down to the planet with the officers 
+is doomed to die in bizarre ways: an Alteran blood worm, mind virus, 
+carnivorous plants, an errant Klingon disruptor blast. In the book, the 
+redshirts plant sensors everywhere to detect when the equivalents of 
+Captain Kirk or Commander Spock come below deck so that they can 
+hide.
+She is disheartened by how Parts Unlimited executives, the bridge 
+officers, are so disconnected from the daily work of the “redshirts” in the 
+technology organization. It was not helpful for Sarah to remind everyone 
+of how “saving the universe” depends on Phoenix. And it was not helpful 
+for John to appeal to their “moral sense of correctness. ”Copyrighted Excerpt 
+Not for Duplication
+68     •     The Unicorn Project
+We all know the threat the company faces is real, she thinks. The job of 
+the bridge crew is to ensure the company strategy is viable, not to remind 
+them of the strategy or to micromanage everyone to death. Their job 
+should be to ensure everyone can get their work done.
+How did this all come to be?
+Maxine drags herself back to her desk with a sandwich, exhausted 
+from the endless Phoenix release meetings, surrounded by everyone 
+who has similarly been sucked into the launch vortex. Oddly, she also 
+sees some people happily working at their desks, as if it were just a 
+regular day.
+Curious, she asks one of the them why he doesn’t seem very worried. 
+He replies with a puzzled look, “I’m a developer—I work on features. I 
+give them to QA and Ops to test and deploy. Then I work on the features 
+for the next release. That keeps me plenty busy. ”
+Maxine leaves, boggling at what he said. She has never in her career 
+abdicated all testing and deployment to someone else. How can you create 
+anything of value if you don’t have feedback on how it’s used? she thinks.
+When she gets to her desk, Kurt is there with a black three-ring binder. 
+Seeing her, he flashes a big smile. “I have a present for you!”
+It’s an eighty-page document full of tabs. Just scanning the section 
+headings makes her heart leap—they’re the painstakingly assembled 
+Phoenix build instructions, complete with links to documents, license 
+keys, step-by-step tutorials, and even links to a bunch of videos. One 
+is titled “Getting your uberjar to run in our (very) crazy, screwed up 
+production web cluster (8 min), ” and another is “How to monitor your 
+apps despite our Ops groups (12 min). ”
+She sees twenty-character hexadecimal strings of activation codes and 
+license keys. She sees user names and temporary passwords for network 
+shares. Best of all, there’s a link to a four-node virtual machine cluster with 
+administrative access! That means Maxine will be able to do whatever she 
+wants without having to fill out another service desk ticket!
+She’s speechless. She feels her eyes tearing up. Over license keys?
+She wonders for a moment whether she has lost all sense of perspective. 
+But after being stuck inside the Phoenix Project, having someone actually 
+care about what she needs is .  .  .  s o unexpected and so utterly appreciated.Copyrighted Excerpt 
+Not for Duplication
+Chapter 4     •     69
+Maxine is reminded of when she and her family volunteered for a day 
+to help new refugee families. She remembers how her then ten- and eight-
+year-old kids reacted when families cried when they were given food, 
+soap, and laundry detergent.
+There is nothing so rewarding as providing something to someone 
+who really needs your help. She needed help and she received it.
+Elated, Maxine flips through the document. She sees a long list of 
+Windows registry keys that need to be set. “Don’t worry, Maxine, ” Kurt 
+says, politely ignoring her emotional reaction. “Y ou have the electronic 
+version of this in your inbox, so you can copy and paste everything. ”
+With a twinkle in his eye, he adds, “ And there’s a link to a wiki page 
+where you can incorporate any notes if we missed something. There’s a 
+bunch of people who really appreciate your work. We’ve been trying to 
+crack the Phoenix build puzzle for months! But we’ve never been able to 
+work on this full-time. Y our notes helped us put all the pieces together. 
+This saved us months of work!”
+Maxine’s brow furrows. She has no idea what Kurt is talking about, 
+but she doesn’t even care. “Thank you so much! I can’t tell you how much 
+this means to me. How can I ever repay you for this?”
+“ Anything to help another hard-working engineer trying to help other 
+engineers be productive, ” Kurt says, laughing. But with a serious look 
+on his face, he adds, “If you want to meet the people who made all this 
+happen, despite considerable adversity and huge obstacles that typically 
+prevent feats of greatness like this, come to the Dockside Bar tonight at 
+five. We meet there on Thursdays. ”
+“Wait, hang on a second, ” Maxine says, suddenly suspicious. “If this 
+all works, how come everyone isn’t using it?”
+“That is a great question, with some very surprising answers, ” Kurt 
+says. “The short version is the ‘official build team’ hasn’t exactly autho-
+rized these. They seem to view our efforts as a nuisance, or worse, as 
+competition. Which, on the eve of the biggest and potentially most risky 
+application launch in the history of the company, sure does seem odd, 
+doesn’t it?
+“But by all means, if you like what we’ve done, feel free to share it with 
+anyone who needs it. I can explain more tonight. Please, try to join us at 
+five—there’s a bunch of people who are dying to meet you!” he says. “ And 
+good luck with the build!” Copyrighted Excerpt 
+Not for Duplication
+70     •     The Unicorn Project
+Maxine opens up a terminal window on her laptop and starts following 
+the instructions Kurt gave her. Her excitement grows when she realizes 
+that this might be an actual, working Dev environment.
+She’s exuberant when she’s able to log in and type “make” on a com-
+mand line, which starts streaming screenfuls of happy output onto her 
+screen.
+She’s delighted as she sees files getting compiled, binaries getting 
+linked, programs being copied, build tools being installed and run  .  .  .  t he 
+output keeps going, and going, and going .  .  .  
+Amazingly, things are still building for ten more minutes  .  .  .  f ifteen 
+minutes . . . thirty minutes  . . . she’s relieved as it keeps going without an 
+error, but starts to become alarmed at the size of the Phoenix build. It’s 
+huge.
+Forty-five minutes later, she can’t hold off going to the bathroom any 
+longer; she was too afraid she was going to miss something if she stepped 
+away. She hurries there and back and is relieved to see that the build hasn’t 
+failed, still generating endless output in her terminal window.
+She scrolls through the history to see if she missed anything interesting. 
+She decides to skip the next release team meeting just so she can watch 
+the continuing build, which seems a bit irresponsible, but she knows that 
+having a great build process is key to having a good code deployment and 
+release process. And maybe with the help of these mysterious benefactors, 
+she’s on the verge of finally conquering the Phoenix build.
+The build output is hypnotic and educational, because she’s see -
+ing some components of Phoenix for the first time. There’s Java JAR 
+files, .NET binaries, Python and Ruby scripts, and lots and lots of bash 
+scripts.
+Wait, is that a remote shell and installer that popped up? Before she can 
+figure out what it is, the window is gone. Maxine’s awe and concern at the 
+size and variety of Phoenix continues to grow.
+She’s about to scroll back further when she sees Eclipse being 
+downloaded from somewhere. What in the world? she thinks. Twenty 
+minutes later, she could have sworn that she saw an InstallShield 
+installer, but she knows she’s getting tired and might be imagining 
+things.
+Honestly, after another hour of watching build output, she’s hav-
+ing trouble staying focused on the screen. But she can definitely see the Copyrighted Excerpt 
+Not for Duplication
+Chapter 4     •     71
+different personalities and tech stacks of the different teams working on 
+Phoenix. She had no idea there were so many.
+This is crazy, she thinks. There can’t be this many teams working on 
+Phoenix, right? And she wonders how any one person could possibly 
+understand the system as a whole, especially when it’s built from so many 
+different technology stacks.
+Maxine isn’t usually a fan of rigid standardization, but she’s not a fan 
+of everyone getting to choose whatever they fancy in the moment. Each 
+decision is a commitment to support it for years or even decades—these 
+are decisions that go far beyond just one team.
+Like most developers, she’s very superstitious that if she stops watch-
+ing the build, it will fail. Finally, nearly three hours after she started the 
+build, she sees the scrolling output from her build window stop. Her heart 
+falls when she reads:
+builder: ERROR: missing file: credentials.yaml
+Damn! She’s guessing that she needs a login credential that she doesn’t 
+have.
+She texts Kurt and he quickly replies:
+Ah, yes. For that you need to open a ticket to get your login tied to your 
+ActiveDirectory account. Only Susan can issue those. Contact info coming.
+Instead of emailing Susan, Maxine goes to Susan’s desk and learns 
+that this missing file contains a cryptographic certificate that comes from 
+some distant security group. Susan searches through years of emails to 
+find how to get a new one. When she finds it, Maxine takes a picture of 
+the email address with her phone.
+She is so close to getting a Phoenix build going!

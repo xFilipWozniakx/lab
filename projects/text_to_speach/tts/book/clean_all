@@ -1,0 +1,20 @@
+#!/bin/bash
+
+set -e
+
+mkdir -p cleaned
+
+for file in input/*; do
+  filename=$(basename "$file")
+
+  echo "========================================"
+  echo "Processing: $filename"
+  echo "========================================"
+
+  python clean_tts.py \
+    "$file" \
+    "cleaned/$filename"
+done
+
+echo
+echo "All files cleaned."

@@ -1,0 +1,23 @@
+#!/bin/bash
+
+set -e
+
+mkdir -p audio
+
+for file in cleaned/*; do
+  filename=$(basename "$file" .txt)
+
+  echo "========================================"
+  echo "Generating: $filename.mp3"
+  echo "========================================"
+  if [[ ! -e "audio/$file.mp3" ]]; then
+    python tts.py \
+      "$file" \
+      "audio/$filename.mp3"
+  else
+    echo "$file exists already... skipping"
+  fi
+done
+
+echo
+echo "All audio files generated."
