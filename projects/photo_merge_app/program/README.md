@@ -4,6 +4,8 @@
 ## Most likely encrypted at rest.
 ## Since i'm amateur, main goal is to learn as much as i possibly can in the shortest time span.
 
+## server and client are out dateted in this section. 
+
 # in order to work:
 
 
