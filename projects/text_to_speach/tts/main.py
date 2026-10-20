@@ -3,7 +3,8 @@ from pypdf import PdfReader
 chapter_list_path = ""
 
 book_obj = PdfReader(
-    "/data/lab-python3/lab/projects/text_to_speach/the_unicorn_project01.pdf"
+    "/home/vscode/lab/projects/text_to_speach/tts/Machine_stops.pdf"
+
 )
 
 # pages 384
