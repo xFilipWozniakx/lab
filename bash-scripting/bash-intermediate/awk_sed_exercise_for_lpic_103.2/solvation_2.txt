@@ -1,0 +1,1 @@
+grep -E "(Finance|Engineering|Sales)" ./example_passwd  | uniq | wc -l

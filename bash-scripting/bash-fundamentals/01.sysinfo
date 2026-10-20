@@ -1,0 +1,9 @@
+#!/usr/bin/bash
+
+# Description: shows system informations
+
+echo "=== System informations ==="
+echo "Hostname: $(hostname)"
+echo "Date: $(date)"
+echo "Kernel: $(uname -r)"
+

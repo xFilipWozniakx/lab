@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Challange: Fruit Info Script
+
+if [[ -z $1 ]];then
+	echo "No argument given\nUse: $0 '{apple|kiwi|banana}'"
+	exit 1 
+fi
+
+case $1 in 
+	apple) 
+		echo "Apple is green or red or yellow"
+		;;
+	kiwi) 
+		echo "Kiwi is green on inside and brown on outside"
+		;;
+	banana) 
+		echo "Banana is yellow"
+		;;
+	*)
+		echo "Use: $0 '{apple|kiwi|banana}"	
+		exit 1
+		;;
+esac

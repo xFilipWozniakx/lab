@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: httpd-working
+  name: httpd-working
+spec:
+  replicas: 10
+  selector:
+    matchLabels:
+      app: httpd-working
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: httpd-working
+    spec:
+      containers:
+      - image: httpd
+        name: httpd

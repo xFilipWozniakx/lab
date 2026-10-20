@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: nginx-sample
+  name: nginx-sample
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-sample
+  template:
+    metadata:
+      labels:
+        app: nginx-sample
+    spec:
+      containers:
+      - image: nginx
+        name: nginx
+        volumeMounts:
+          - name: scratch-vol
+            mountPath: "/scr_directory"
+      - image: busybox
+        name: busybox
+        command: ["/bin/sh", "-c"]
+        args: ["sleep 1000"]
+        volumeMounts:
+          - name: scratch-vol
+            mountPath: "/some_other_paht/"
+      volumes:
+        - name: scratch-vol
+          emptyDir:
+            sizeLimit: 500Mi

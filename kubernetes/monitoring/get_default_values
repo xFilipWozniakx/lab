@@ -1,0 +1,1 @@
+helm show values prometheus-community/kube-prometheus-stack > default-values.yaml

@@ -1,0 +1,19 @@
+#!/bin/bash
+mypath="$HOME/.local/bin"
+path_string=$(echo "$PATH" | sed 's/:/\n/g')
+while IFS=$'\n' read -r line ; do
+	arr+=("$line")
+done <<< "$path_string"
+# use <<< to feed with variable 
+# use < to feed with file
+
+i=0
+for i in ${!arr[@]}; do
+	if [[ "$mypath" == "${arr[$i]}" ]]; then
+		echo 'Extra-path already in $PATH'
+		exit 0
+	fi
+	((i++))
+done
+echo "export PATH=\"\$PATH:${mypath}\"" >> $HOME/.bashrc
+echo 'run: source "$HOME/.bashrc"'
