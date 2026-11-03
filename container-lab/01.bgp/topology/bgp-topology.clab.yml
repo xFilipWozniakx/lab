@@ -1,0 +1,82 @@
+name: first-tiptop
+topology:
+  nodes:
+
+    srl1:
+      kind: srl
+      image: ghcr.io/nokia/srlinux:24.10.1
+      mgmt-ipv4: 172.20.20.11
+      startup-config: /data/clab/kubecraft/lessons/clab/09.bgp/saved/clab-first-tiptop/__clabNodeName__/config.json
+
+
+    srl2:
+      kind: srl
+      image: ghcr.io/nokia/srlinux:24.10.1
+      mgmt-ipv4: 172.20.20.12
+      startup-config: /data/clab/kubecraft/lessons/clab/09.bgp/saved/clab-first-tiptop/__clabNodeName__/config.json
+
+    srl3:
+      kind: srl 
+      image: ghcr.io/nokia/srlinux:24.10.1
+      mgmt-ipv4: 172.20.20.13
+      startup-config: /data/clab/kubecraft/lessons/clab/09.bgp/saved/clab-first-tiptop/__clabNodeName__/config.json
+
+    host3-1:
+      kind: linux 
+      image: alpine:latest
+      exec: 
+        - ip link set eth1 up
+        - ip addr add 10.1.10.2/24 dev eth1
+        - ip route delete default
+        - ip route add default via 10.1.10.1 dev eth1
+    host3-2:
+      kind: linux 
+      image: alpine:latest
+      exec: 
+        - ip link set eth1 up
+        - ip addr add 10.1.11.2/24 dev eth1
+        - ip route delete default
+        - ip route add default via 10.1.11.1 dev eth1
+    host3-3:
+      kind: linux 
+      image: alpine:latest
+      exec: 
+        - ip link set eth1 up
+        - ip addr add 10.1.12.2/24 dev eth1
+        - ip route delete default
+        - ip route add default via 10.1.12.1 dev eth1
+
+
+    host1:
+      kind: linux 
+      image: alpine:latest
+      exec: 
+        - ip link set eth1 up
+        - ip addr add 10.1.4.2/24 dev eth1
+        - ip route delete default
+        - ip route add default via 10.1.4.1 dev eth1
+
+    host2:
+      kind: linux 
+      image: alpine:latest
+      exec: 
+        - ip link set eth1 up
+        - ip addr add 10.1.5.2/24 dev eth1
+        - ip route delete default
+        - ip route add default via 10.1.5.1 dev eth1
+    
+  links:
+    - endpoints: ["srl1:e1-1", "srl2:e1-1"]
+    - endpoints: ["srl1:e1-2", "host1:eth1"]
+    - endpoints: ["srl2:e1-2", "host2:eth1"]
+    - endpoints: ["srl3:e1-1", "srl1:e1-3"]
+    - endpoints: ["srl3:e1-2", "host3-3:eth1"]
+    - endpoints: ["srl3:e1-3", "host3-2:eth1"]
+    - endpoints: ["srl3:e1-4", "host3-1:eth1"]
+
+
+
+
+
+
+   

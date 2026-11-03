@@ -1,0 +1,386 @@
+{
+  "name": "first-tiptop",
+  "type": "clab",
+  "clab": {
+    "config": {
+      "prefix": "clab",
+      "mgmt": {
+        "network": "clab",
+        "bridge": "br-3634772a4051",
+        "ipv4-subnet": "172.20.20.0/24",
+        "ipv4-gw": "172.20.20.1",
+        "ipv6-subnet": "3fff:172:20:20::/64",
+        "ipv6-gw": "3fff:172:20:20::1",
+        "external-access": true,
+        "ipam": {
+          "provider": "containerlab"
+        }
+      }
+    }
+  },
+  "ssh-pub-keys": ["ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICe3zbcpIlwDUm9Ffd5Zq5jdBeDEZJ1UhI8p9wi8tAOB","ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPLen5BwqN86FJ8f9WYEWadm/W6LXZidhI52kl0wCViV","ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIERmBBfwFgfXJMXaV1167yPtEcu+yTrwMK0L/L5rquMx","ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICjjABYpIpXsXNigbM3tx4J2cU+vIp6Hm8Drjstj4Gx/","ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIC/SGEj6Qqao6l84bGgLTfwp9Vl3pkFRnzdcPPjVRx44"],
+  "nodes": {
+    "host1": {
+      "index": "0",
+      "shortname": "host1",
+      "longname": "clab-first-tiptop-host1",
+      "fqdn": "host1.first-tiptop.io",
+      "group": "",
+      "labdir": "/data/clab/kubecraft/lessons/clab/09.bgp/topology/clab-first-tiptop/host1",
+      "kind": "linux",
+      "image": "alpine:latest",
+      "mgmt-net": "clab",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "172.20.20.4",
+      "mgmt-ipv4-prefix-length": 24,
+      "mgmt-ipv6-address": "3fff:172:20:20::7",
+      "mgmt-ipv6-prefix-length": 64,
+      "mac-address": "",
+      "labels": {
+        "clab-mgmt-net-bridge": "br-3634772a4051",
+        "clab-node-group": "",
+        "clab-node-kind": "linux",
+        "clab-node-lab-dir": "/data/clab/kubecraft/lessons/clab/09.bgp/topology/clab-first-tiptop/host1",
+        "clab-node-longname": "clab-first-tiptop-host1",
+        "clab-node-name": "host1",
+        "clab-node-type": "",
+        "clab-owner": "Filip",
+        "clab-topo-file": "/data/clab/kubecraft/lessons/clab/09.bgp/topology/bgp-topology.clab.yml",
+        "containerlab": "first-tiptop"
+      },
+      "port-bindings": [
+      ]
+    },
+    "host2": {
+      "index": "1",
+      "shortname": "host2",
+      "longname": "clab-first-tiptop-host2",
+      "fqdn": "host2.first-tiptop.io",
+      "group": "",
+      "labdir": "/data/clab/kubecraft/lessons/clab/09.bgp/topology/clab-first-tiptop/host2",
+      "kind": "linux",
+      "image": "alpine:latest",
+      "mgmt-net": "clab",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "172.20.20.5",
+      "mgmt-ipv4-prefix-length": 24,
+      "mgmt-ipv6-address": "3fff:172:20:20::8",
+      "mgmt-ipv6-prefix-length": 64,
+      "mac-address": "",
+      "labels": {
+        "clab-mgmt-net-bridge": "br-3634772a4051",
+        "clab-node-group": "",
+        "clab-node-kind": "linux",
+        "clab-node-lab-dir": "/data/clab/kubecraft/lessons/clab/09.bgp/topology/clab-first-tiptop/host2",
+        "clab-node-longname": "clab-first-tiptop-host2",
+        "clab-node-name": "host2",
+        "clab-node-type": "",
+        "clab-owner": "Filip",
+        "clab-topo-file": "/data/clab/kubecraft/lessons/clab/09.bgp/topology/bgp-topology.clab.yml",
+        "containerlab": "first-tiptop"
+      },
+      "port-bindings": [
+      ]
+    },
+    "host3-1": {
+      "index": "2",
+      "shortname": "host3-1",
+      "longname": "clab-first-tiptop-host3-1",
+      "fqdn": "host3-1.first-tiptop.io",
+      "group": "",
+      "labdir": "/data/clab/kubecraft/lessons/clab/09.bgp/topology/clab-first-tiptop/host3-1",
+      "kind": "linux",
+      "image": "alpine:latest",
+      "mgmt-net": "clab",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "172.20.20.6",
+      "mgmt-ipv4-prefix-length": 24,
+      "mgmt-ipv6-address": "3fff:172:20:20::9",
+      "mgmt-ipv6-prefix-length": 64,
+      "mac-address": "",
+      "labels": {
+        "clab-mgmt-net-bridge": "br-3634772a4051",
+        "clab-node-group": "",
+        "clab-node-kind": "linux",
+        "clab-node-lab-dir": "/data/clab/kubecraft/lessons/clab/09.bgp/topology/clab-first-tiptop/host3-1",
+        "clab-node-longname": "clab-first-tiptop-host3-1",
+        "clab-node-name": "host3-1",
+        "clab-node-type": "",
+        "clab-owner": "Filip",
+        "clab-topo-file": "/data/clab/kubecraft/lessons/clab/09.bgp/topology/bgp-topology.clab.yml",
+        "containerlab": "first-tiptop"
+      },
+      "port-bindings": [
+      ]
+    },
+    "host3-2": {
+      "index": "3",
+      "shortname": "host3-2",
+      "longname": "clab-first-tiptop-host3-2",
+      "fqdn": "host3-2.first-tiptop.io",
+      "group": "",
+      "labdir": "/data/clab/kubecraft/lessons/clab/09.bgp/topology/clab-first-tiptop/host3-2",
+      "kind": "linux",
+      "image": "alpine:latest",
+      "mgmt-net": "clab",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "172.20.20.2",
+      "mgmt-ipv4-prefix-length": 24,
+      "mgmt-ipv6-address": "3fff:172:20:20::2",
+      "mgmt-ipv6-prefix-length": 64,
+      "mac-address": "",
+      "labels": {
+        "clab-mgmt-net-bridge": "br-3634772a4051",
+        "clab-node-group": "",
+        "clab-node-kind": "linux",
+        "clab-node-lab-dir": "/data/clab/kubecraft/lessons/clab/09.bgp/topology/clab-first-tiptop/host3-2",
+        "clab-node-longname": "clab-first-tiptop-host3-2",
+        "clab-node-name": "host3-2",
+        "clab-node-type": "",
+        "clab-owner": "Filip",
+        "clab-topo-file": "/data/clab/kubecraft/lessons/clab/09.bgp/topology/bgp-topology.clab.yml",
+        "containerlab": "first-tiptop"
+      },
+      "port-bindings": [
+      ]
+    },
+    "host3-3": {
+      "index": "4",
+      "shortname": "host3-3",
+      "longname": "clab-first-tiptop-host3-3",
+      "fqdn": "host3-3.first-tiptop.io",
+      "group": "",
+      "labdir": "/data/clab/kubecraft/lessons/clab/09.bgp/topology/clab-first-tiptop/host3-3",
+      "kind": "linux",
+      "image": "alpine:latest",
+      "mgmt-net": "clab",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "172.20.20.3",
+      "mgmt-ipv4-prefix-length": 24,
+      "mgmt-ipv6-address": "3fff:172:20:20::3",
+      "mgmt-ipv6-prefix-length": 64,
+      "mac-address": "",
+      "labels": {
+        "clab-mgmt-net-bridge": "br-3634772a4051",
+        "clab-node-group": "",
+        "clab-node-kind": "linux",
+        "clab-node-lab-dir": "/data/clab/kubecraft/lessons/clab/09.bgp/topology/clab-first-tiptop/host3-3",
+        "clab-node-longname": "clab-first-tiptop-host3-3",
+        "clab-node-name": "host3-3",
+        "clab-node-type": "",
+        "clab-owner": "Filip",
+        "clab-topo-file": "/data/clab/kubecraft/lessons/clab/09.bgp/topology/bgp-topology.clab.yml",
+        "containerlab": "first-tiptop"
+      },
+      "port-bindings": [
+      ]
+    },
+    "srl1": {
+      "index": "5",
+      "shortname": "srl1",
+      "longname": "clab-first-tiptop-srl1",
+      "fqdn": "srl1.first-tiptop.io",
+      "group": "",
+      "labdir": "/data/clab/kubecraft/lessons/clab/09.bgp/topology/clab-first-tiptop/srl1",
+      "kind": "srl",
+      "image": "ghcr.io/nokia/srlinux:24.10.1",
+      "mgmt-net": "clab",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "172.20.20.11",
+      "mgmt-ipv4-prefix-length": 24,
+      "mgmt-ipv6-address": "3fff:172:20:20::4",
+      "mgmt-ipv6-prefix-length": 64,
+      "mac-address": "1a:f8:05:00:00:00",
+      "labels": {
+        "clab-mgmt-net-bridge": "br-3634772a4051",
+        "clab-node-group": "",
+        "clab-node-kind": "srl",
+        "clab-node-lab-dir": "/data/clab/kubecraft/lessons/clab/09.bgp/topology/clab-first-tiptop/srl1",
+        "clab-node-longname": "clab-first-tiptop-srl1",
+        "clab-node-name": "srl1",
+        "clab-node-type": "ixr-d2l",
+        "clab-owner": "Filip",
+        "clab-topo-file": "/data/clab/kubecraft/lessons/clab/09.bgp/topology/bgp-topology.clab.yml",
+        "containerlab": "first-tiptop"
+      },
+      "port-bindings": [
+      ]
+    },
+    "srl2": {
+      "index": "6",
+      "shortname": "srl2",
+      "longname": "clab-first-tiptop-srl2",
+      "fqdn": "srl2.first-tiptop.io",
+      "group": "",
+      "labdir": "/data/clab/kubecraft/lessons/clab/09.bgp/topology/clab-first-tiptop/srl2",
+      "kind": "srl",
+      "image": "ghcr.io/nokia/srlinux:24.10.1",
+      "mgmt-net": "clab",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "172.20.20.12",
+      "mgmt-ipv4-prefix-length": 24,
+      "mgmt-ipv6-address": "3fff:172:20:20::5",
+      "mgmt-ipv6-prefix-length": 64,
+      "mac-address": "1a:e5:06:00:00:00",
+      "labels": {
+        "clab-mgmt-net-bridge": "br-3634772a4051",
+        "clab-node-group": "",
+        "clab-node-kind": "srl",
+        "clab-node-lab-dir": "/data/clab/kubecraft/lessons/clab/09.bgp/topology/clab-first-tiptop/srl2",
+        "clab-node-longname": "clab-first-tiptop-srl2",
+        "clab-node-name": "srl2",
+        "clab-node-type": "ixr-d2l",
+        "clab-owner": "Filip",
+        "clab-topo-file": "/data/clab/kubecraft/lessons/clab/09.bgp/topology/bgp-topology.clab.yml",
+        "containerlab": "first-tiptop"
+      },
+      "port-bindings": [
+      ]
+    },
+    "srl3": {
+      "index": "7",
+      "shortname": "srl3",
+      "longname": "clab-first-tiptop-srl3",
+      "fqdn": "srl3.first-tiptop.io",
+      "group": "",
+      "labdir": "/data/clab/kubecraft/lessons/clab/09.bgp/topology/clab-first-tiptop/srl3",
+      "kind": "srl",
+      "image": "ghcr.io/nokia/srlinux:24.10.1",
+      "mgmt-net": "clab",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "172.20.20.13",
+      "mgmt-ipv4-prefix-length": 24,
+      "mgmt-ipv6-address": "3fff:172:20:20::6",
+      "mgmt-ipv6-prefix-length": 64,
+      "mac-address": "1a:8e:07:00:00:00",
+      "labels": {
+        "clab-mgmt-net-bridge": "br-3634772a4051",
+        "clab-node-group": "",
+        "clab-node-kind": "srl",
+        "clab-node-lab-dir": "/data/clab/kubecraft/lessons/clab/09.bgp/topology/clab-first-tiptop/srl3",
+        "clab-node-longname": "clab-first-tiptop-srl3",
+        "clab-node-name": "srl3",
+        "clab-node-type": "ixr-d2l",
+        "clab-owner": "Filip",
+        "clab-topo-file": "/data/clab/kubecraft/lessons/clab/09.bgp/topology/bgp-topology.clab.yml",
+        "containerlab": "first-tiptop"
+      },
+      "port-bindings": [
+      ]
+    }
+  },
+  "links": [
+    {
+      "endpoints": {
+        "a": {
+          "node": "srl1",
+          "interface": "e1-1",
+          "mac": "aa:c1:ab:d7:89:2c",
+          "peer": "z"
+        },
+        "z": {
+          "node": "srl2",
+          "interface": "e1-1",
+          "mac": "aa:c1:ab:d4:db:5c",
+          "peer": "a"
+        }
+      }
+    },
+    {
+      "endpoints": {
+        "a": {
+          "node": "srl1",
+          "interface": "e1-2",
+          "mac": "aa:c1:ab:52:ff:8c",
+          "peer": "z"
+        },
+        "z": {
+          "node": "host1",
+          "interface": "eth1",
+          "mac": "aa:c1:ab:24:76:fe",
+          "peer": "a"
+        }
+      }
+    },
+    {
+      "endpoints": {
+        "a": {
+          "node": "srl2",
+          "interface": "e1-2",
+          "mac": "aa:c1:ab:5e:ae:8d",
+          "peer": "z"
+        },
+        "z": {
+          "node": "host2",
+          "interface": "eth1",
+          "mac": "aa:c1:ab:9d:ce:25",
+          "peer": "a"
+        }
+      }
+    },
+    {
+      "endpoints": {
+        "a": {
+          "node": "srl3",
+          "interface": "e1-1",
+          "mac": "aa:c1:ab:66:e1:f4",
+          "peer": "z"
+        },
+        "z": {
+          "node": "srl1",
+          "interface": "e1-3",
+          "mac": "aa:c1:ab:2b:72:d6",
+          "peer": "a"
+        }
+      }
+    },
+    {
+      "endpoints": {
+        "a": {
+          "node": "srl3",
+          "interface": "e1-2",
+          "mac": "aa:c1:ab:8c:6e:2c",
+          "peer": "z"
+        },
+        "z": {
+          "node": "host3-3",
+          "interface": "eth1",
+          "mac": "aa:c1:ab:cd:31:9e",
+          "peer": "a"
+        }
+      }
+    },
+    {
+      "endpoints": {
+        "a": {
+          "node": "srl3",
+          "interface": "e1-3",
+          "mac": "aa:c1:ab:8b:1c:e2",
+          "peer": "z"
+        },
+        "z": {
+          "node": "host3-2",
+          "interface": "eth1",
+          "mac": "aa:c1:ab:06:c1:32",
+          "peer": "a"
+        }
+      }
+    },
+    {
+      "endpoints": {
+        "a": {
+          "node": "srl3",
+          "interface": "e1-4",
+          "mac": "aa:c1:ab:6d:39:28",
+          "peer": "z"
+        },
+        "z": {
+          "node": "host3-1",
+          "interface": "eth1",
+          "mac": "aa:c1:ab:4a:95:c1",
+          "peer": "a"
+        }
+      }
+    }
+  ]
+}
